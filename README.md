@@ -5,7 +5,7 @@
 
 - venv 가상 환경을 만든다.
   ```
-  python -m venv <가상환경명>
+  python -m venv .venv
   ```
 - 가상 환경으로 접속한다.
   + Window에서 접속하는 방법
