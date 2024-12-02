@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home.apps.HomeConfig',
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -59,7 +60,7 @@ ROOT_URLCONF = 'tour4int.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -104,6 +105,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# 커스텀 User 모델 지정
+AUTH_USER_MODEL = 'accounts.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

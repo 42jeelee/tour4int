@@ -183,4 +183,7 @@ cython_debug/
 pyvenv.cfg
 pip-selfcheck.json
 
+# Local settings (공통 setting 파일 안건들이려고 규석이 개인적으로 쓸려고 만들어놓은거)
+tour4int/settings_local.py
+
 # End of https://www.toptal.com/developers/gitignore/api/django,venv
