@@ -10,7 +10,11 @@
 - 가상 환경으로 접속한다.
   + Window에서 접속하는 방법
     ```
-    .\.venv\Scripts\Acticate.ps1
+    .\.venv\Scripts\Activate.ps1
+    ```
+  + Window에서 접속을 해제하는 방법
+    ```
+    deactivate
     ```
 
 - 해당 명령으로 필요한 라이브러리를 설치한다.
