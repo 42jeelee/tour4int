@@ -20,9 +20,13 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),                 # 관리자 페이지
-    path('', include('home.urls')),                  # 메인 페이지
-    path('accounts/', include('accounts.urls')),     # 계정 관련 URL
+    path('admin/', admin.site.urls),
+    path('', include('home.urls')),
+    path('api/', include('api.urls')),
+    path('place/', include('place.urls')),
+    path('areacode/', include('areacode.urls')),
+    path('category/', include('category.urls')),
+    path('accounts/', include('accounts.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
