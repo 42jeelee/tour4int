@@ -62,4 +62,58 @@ def get_all_areacode(area_code=None):
 
   return result
 
+def get_all_category(cat1=None, contentid=12):
+  num_of_rows = 50
+  page_no = 1
+  url = API_BASE_URL + f'/categoryCode1?serviceKey={API_KEY}'
 
+  print(f'contentid = {contentid}')
+  print('=='* 50)
+  if cat1 == None:
+    cat1_list = []
+    params = {
+      'numOfRows': num_of_rows,
+      'pageNo': page_no,
+      'MobileOS': 'ETC',
+      'MobileApp': 'AppTest',
+      '_type': 'json',
+      'contentTypeId': contentid,
+      'cat1': cat1,
+    }
+    res = requests.get(url, params=params)
+    data = res.json()
+    items = data['response']['body']['items']['item']
+    for item in items:
+      cat1_list.append(item.get('code'))
+    get_all_category(cat1=cat1_list, contentid=contentid)
+  elif cat1 != None:
+    for i in cat1:
+      params = {
+      'numOfRows': num_of_rows,
+      'pageNo': page_no,
+      'MobileOS': 'ETC',
+      'MobileApp': 'AppTest',
+      '_type': 'json',
+      'contentTypeId': contentid,
+      'cat1': i,
+      }
+      res = requests.get(url, params=params)
+      data = res.json()
+      items = data['response']['body']['items']['item']
+      for item in items:
+        # print(f'{contentid} = 아이디 , {item.get('code')}')
+        params = {
+          'numOfRows': num_of_rows,
+          'pageNo': page_no,
+          'MobileOS': 'ETC',
+          'MobileApp': 'AppTest',
+          '_type': 'json',
+          'contentTypeId': contentid,
+          'cat1': i,
+          'cat2': item.get('code'),
+          }
+        res = requests.get(url, params=params)
+        data_pe = res.json()
+        items_pe = data_pe['response']['body']['items']['item']
+        for test in items_pe:
+          print(f'{contentid} = 아이디, {item.get('code')} , {test.get('name')}')
