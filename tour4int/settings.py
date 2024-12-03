@@ -31,6 +31,7 @@ DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
+API_KEY = env.str('API_KEY', default='')
 
 # Application definition
 
@@ -42,7 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home.apps.HomeConfig',
+    'place.apps.PlaceConfig',
+    'areacode.apps.AreacodeConfig',
     'category.apps.CategoryConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
