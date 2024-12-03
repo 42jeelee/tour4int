@@ -43,6 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home.apps.HomeConfig',
+    'place.apps.PlaceConfig',
+    'areacode.apps.AreacodeConfig',
+    'category.apps.CategoryConfig',
+    'api.apps.ApiConfig',
     'accounts.apps.AccountsConfig',
 ]
 
