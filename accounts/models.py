@@ -1,39 +1,25 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import User as AuthUser
 
-# Create your models here.
-
-class User(AbstractUser):
-    # 기본 AbstractUser에서 username 대신 email 사용
-    username = None
-    email = models.EmailField(unique=True)
-    
-    # 추가 필드들
-    nickname = models.CharField(max_length=10, unique=True)
+class User(models.Model):
+    """
+    사용자 추가 정보 모델
+    """
+    user_id = models.OneToOneField(
+        AuthUser,
+        on_delete=models.CASCADE,
+        related_name='user_info'
+    )
     name = models.CharField(max_length=10)
+    nickname = models.CharField(max_length=10)
     address = models.CharField(max_length=100)
-    
-    # 로그인에 사용할 필드 지정
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nickname', 'name']
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    # related_name 추가
-    groups = models.ManyToManyField(
-        'auth.Group',
-        verbose_name='groups',
-        blank=True,
-        help_text='The groups this user belongs to.',
-        related_name='accounts_user_set',
-        related_query_name='accounts_user',
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        verbose_name='user permissions',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        related_name='accounts_user_set',
-        related_query_name='accounts_user',
-    )
+    class Meta:
+        db_table = 'user'  # 테이블 이름을 'user'로 지정
 
     def __str__(self):
-        return self.email
+        return f"{self.name} ({self.user_id.email})"
+
+# Signal receivers 제거 - forms.py에서 처리하도록 변경

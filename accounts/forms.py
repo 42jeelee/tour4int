@@ -1,7 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm
+from django.contrib.auth.models import User as AuthUser
 from django.core.exceptions import ValidationError
 from .models import User
 
@@ -9,11 +8,20 @@ class SignUpForm(UserCreationForm):
     """
     회원가입 폼 - 사용자 입력 데이터 검증
     """
-    # 추가 필드 정의
     email = forms.EmailField(
-        label='이메일 주소', 
+        label='이메일', 
         max_length=255, 
-        help_text='유효한 이메일 주소를 입력해주세요.'
+        help_text='로그인에 사용할 이메일 주소를 입력해주세요.'
+    )
+    password1 = forms.CharField(
+        label='비밀번호',
+        widget=forms.PasswordInput,
+        help_text='최소 8자 이상이어야 하며, 숫자와 특수문자를 포함해야 합니다.'
+    )
+    password2 = forms.CharField(
+        label='비밀번호 확인',
+        widget=forms.PasswordInput,
+        help_text='비밀번호를 다시 입력해주세요.'
     )
     name = forms.CharField(
         label='이름', 
@@ -30,43 +38,37 @@ class SignUpForm(UserCreationForm):
         max_length=100, 
         help_text='대한민국 주소를 입력해주세요.'
     )
-    password1 = forms.CharField(
-        label='비밀번호', 
-        widget=forms.PasswordInput,
-        help_text='8자 이상의 안전한 비밀번호를 입력해주세요.'
-    )
-    password2 = forms.CharField(
-        label='비밀번호 확인', 
-        widget=forms.PasswordInput,
-        help_text='앞서 입력한 비밀번호를 다시 입력해주세요.'
-    )
 
     class Meta:
-        model = User
-        fields = ('email', 'name', 'nickname', 'address', 'password1', 'password2')
-
-    def clean_nickname(self):
-        """
-        닉네임 중복 검사
-        """
-        nickname = self.cleaned_data.get('nickname')
-        if User.objects.filter(nickname=nickname).exists():
-            raise ValidationError('이미 사용 중인 닉네임입니다.')
-        return nickname
+        model = AuthUser
+        fields = ('email', 'password1', 'password2', 'name', 'nickname', 'address')
 
     def clean_email(self):
-        """
-        이메일 중복 검사
-        """
         email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
+        if AuthUser.objects.filter(username=email).exists():
             raise ValidationError('이미 사용 중인 이메일 주소입니다.')
         return email
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = self.cleaned_data['email']  # 이메일을 username으로 사용
+        user.email = self.cleaned_data['email']
+        
+        if commit:
+            user.save()
+            # 추가 정보 저장
+            User.objects.create(
+                user_id=user,
+                name=self.cleaned_data['name'],
+                nickname=self.cleaned_data['nickname'],
+                address=self.cleaned_data['address']
+            )
+        return user
+
 class LoginForm(AuthenticationForm):
-    username = forms.EmailField(
-        label='이메일',
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    username = forms.CharField(
+        label='아이디',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     password = forms.CharField(
         label='비밀번호',
@@ -77,10 +79,6 @@ class UserUpdateForm(forms.ModelForm):
     """
     사용자 정보 수정 폼
     """
-    email = forms.EmailField(
-        label='이메일',
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
-    )
     name = forms.CharField(
         label='이름',
         widget=forms.TextInput(attrs={'class': 'form-control'})
@@ -96,21 +94,7 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'name', 'nickname', 'address']
-
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        if User.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
-            raise ValidationError('이미 사용 중인 이메일입니다.')
-        return email
-
-    def clean_nickname(self):
-        nickname = self.cleaned_data['nickname']
-        if User.objects.exclude(pk=self.instance.pk).filter(nickname=nickname).exists():
-            raise ValidationError('이미 사용 중인 닉네임입니다.')
-        return nickname
-
-User = get_user_model()
+        fields = ['name', 'nickname', 'address']
 
 class CustomPasswordChangeForm(PasswordChangeForm):
     old_password = forms.CharField(
@@ -126,7 +110,3 @@ class CustomPasswordChangeForm(PasswordChangeForm):
         label='새 비밀번호 확인',
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
     )
-
-    class Meta:
-        model = User
-        fields = ['old_password', 'new_password1', 'new_password2']
