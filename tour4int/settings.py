@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'areacode.apps.AreacodeConfig',
     'category.apps.CategoryConfig',
     'api.apps.ApiConfig',
+    'localpage.apps.LocalpageConfig',
 ]
 
 MIDDLEWARE = [
