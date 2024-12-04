@@ -43,9 +43,9 @@ def get_place(request):
               end_time = datetime.strptime(j['eventenddate'], '%Y%m%d%H%M%S')
           if area_code2 and category:
             if start_time == '' and end_time =='':
-              Place.objects.create(place_id=place_id, category=area_code2[0], area_code=category[0], title=title, address=address, map_x=map_x, map_y=map_y, tel=tel, updated_at=modified_time, created_at=createdtime, image=image, thumb_img=thumb_img)
+              Place.objects.create(place_id=place_id, category=category[0], area_code=area_code2[0], title=title, address=address, map_x=map_x, map_y=map_y, tel=tel, updated_at=modified_time, created_at=createdtime, image=image, thumb_img=thumb_img)
             else:
-              Place.objects.create(place_id=place_id, category=area_code2[0], area_code=category[0], title=title, address=address, map_x=map_x, map_y=map_y, tel=tel, updated_at=modified_time, created_at=createdtime, start_time=start_time, end_time=end_time, image=image, thumb_img=thumb_img)
+              Place.objects.create(place_id=place_id, category=category[0], area_code=area_code2[0], title=title, address=address, map_x=map_x, map_y=map_y, tel=tel, updated_at=modified_time, created_at=createdtime, start_time=start_time, end_time=end_time, image=image, thumb_img=thumb_img)
       # 넣는 로직 필요함
 
       context['result'] = "success"
