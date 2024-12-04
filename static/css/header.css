@@ -1,3 +1,124 @@
-header > h2 {
-  color: navy;
+header {
+  width: 100%;
+  min-width: 1340px;
+}
+
+header > .header__container:first-child {
+  padding: 0 30px;
+  width: 100%;
+  height: 60px;
+  background-color: #1E47F1;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header > .header__container:nth-child(2) {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+header > .header__container > .header__logo {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+header > .header__container > nav > a.header__btn {
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+a.header__btn.login-btn {
+  background-color: white;
+  color: #15266d;
+}
+
+a.header__btn.my-btn {
+  background-color: #637DF3;
+  color: white;
+}
+
+a.header__btn:hover {
+  color: #3264FF;
+}
+
+a.header__btn.my-btn:hover {
+  background-color: white;
+}
+
+header .header__banner {
+  width: 100%;
+  height: 820px;
+  background-color: #688d6f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 50px;
+}
+
+header .header__banner > .header__banner--wrap {
+  width: 1300px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.header__banner--wrap > .header__banner--btn {
+  width: 50px;
+  height: 55px;
+  border: none;
+  background-color: #00000000;
+  background-image: url(/static/images/header-icons.png);
+  background-size: 350px;
+  background-position-x: -30px;
+}
+
+.header__banner--btn.prev-btn {
+  transform: rotateY(180deg);
+}
+
+header .header__search-bar {
+  position: absolute;
+  bottom: -20px;
+  height: 120px;
+  width: 1200px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 43px 0 rgba(0,0,0,.13);
+  padding: 30px 50px;
+  border-radius: 5px;
+}
+
+header .header__search-bar > #header__search-input {
+  width: 100%;
+  height: 60px;
+  border: none;
+  font-size: 20px;
+  font-weight: 300;
+  border-bottom: 1px solid lightgray;
+  padding: 0 30px 0 20px;
+  transition: .3s ease-in-out;
+}
+
+header .header__search-bar > #header__search-input:focus {
+  border-bottom: 1px solid #797979;
+}
+
+header .header__search-bar > #header__search-input + button {
+  position: absolute;
+  right: 50px;
+  height: 28px;
+  width: 28px;
+  background-image: url(/static/images/header-icons.png);
+  background-size: 365px;
+  background-color: #00000000;
+  opacity: .6;
+  border: none;
 }
