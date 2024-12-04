@@ -6,8 +6,8 @@ from category.models import Category
 class Place(models.Model):
   place_id = models.IntegerField(primary_key=True)
 
-  category = models.ForeignKey(AreaCode, on_delete=models.DO_NOTHING)
-  area_code = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
+  category = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
+  area_code = models.ForeignKey(AreaCode, on_delete=models.DO_NOTHING)
 
   title = models.CharField(max_length=100, null=False)
   address = models.CharField(max_length=100, null=False)
