@@ -1,5 +1,6 @@
 import requests
 from django.conf import settings
+from category.models import Category
 
 API_KEY = settings.API_KEY
 API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1"
@@ -88,4 +89,39 @@ def get_all_areacode(area_code=None):
 
   return result
 
-
+def get_all_category(cat1=None, content_types=[]):
+  result = []
+  num_of_rows = 50
+  page_no = 1
+  path = "categoryCode1"
+  params = {
+      'numOfRows': num_of_rows,
+      'pageNo': page_no,
+      'cat1': cat1,
+    }
+  keys = ['response', 'body', 'items', 'item']
+  # 모든 Content_Type에 대한 cat1 데이터 추출
+  if cat1 == None:
+    cat1_data = get_api_list(path=path, params=params, keys=keys, content_types=content_types)
+    result = get_all_category(cat1=cat1_data, content_types=content_types)
+  else:
+    # 해당 Content_Type에 대한 cat1값의 cat2값 분류
+    for indx, two_list in enumerate(cat1):
+      for data in two_list:
+        params = {
+          'numOfRows': num_of_rows,
+          'pageNo': page_no,
+          'cat1': data['code'],
+        }
+        # 분류된 cat2값 추출
+        for i in get_api_list(path=path, params=params, keys=keys, content_types=[content_types[indx]]):
+          for j in i:
+            params = {
+              'numOfRows': num_of_rows,
+              'pageNo': page_no,
+              'cat1': data['code'],
+              'cat2': j['code'],
+            }
+            result.append({'content_type':content_types[indx], 'category':j['code'], 'name':j['name']})
+    return result
+  return result
