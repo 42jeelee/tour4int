@@ -7,6 +7,6 @@ def all(request):
   return JsonResponse({"result": "empty"})
 
 def test(request):
-  for i in [12, 14, 15, 25]:
-    get_all_category(contentid=i)
+  # for i in [12, 14, 15, 25]:
+  #   get_all_category(contentid=i)
   return redirect('/')

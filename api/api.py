@@ -1,5 +1,6 @@
 import requests
 from django.conf import settings
+from category.models import Category
 
 API_KEY = settings.API_KEY
 API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1"
@@ -88,58 +89,39 @@ def get_all_areacode(area_code=None):
 
   return result
 
-def get_all_category(cat1=None, contentid=12):
+def get_all_category(cat1=None, content_types=[]):
+  result = []
   num_of_rows = 50
   page_no = 1
-  url = API_BASE_URL + f'/categoryCode1?serviceKey={API_KEY}'
-
-  print(f'contentid = {contentid}')
-  print('=='* 50)
-  if cat1 == None:
-    cat1_list = []
-    params = {
+  path = "categoryCode1"
+  params = {
       'numOfRows': num_of_rows,
       'pageNo': page_no,
-      'MobileOS': 'ETC',
-      'MobileApp': 'AppTest',
-      '_type': 'json',
-      'contentTypeId': contentid,
       'cat1': cat1,
     }
-    res = requests.get(url, params=params)
-    data = res.json()
-    items = data['response']['body']['items']['item']
-    for item in items:
-      cat1_list.append(item.get('code'))
-    get_all_category(cat1=cat1_list, contentid=contentid)
-  elif cat1 != None:
-    for i in cat1:
-      params = {
-      'numOfRows': num_of_rows,
-      'pageNo': page_no,
-      'MobileOS': 'ETC',
-      'MobileApp': 'AppTest',
-      '_type': 'json',
-      'contentTypeId': contentid,
-      'cat1': i,
-      }
-      res = requests.get(url, params=params)
-      data = res.json()
-      items = data['response']['body']['items']['item']
-      for item in items:
-        # print(f'{contentid} = 아이디 , {item.get('code')}')
+  keys = ['response', 'body', 'items', 'item']
+  # 모든 Content_Type에 대한 cat1 데이터 추출
+  if cat1 == None:
+    cat1_data = get_api_list(path=path, params=params, keys=keys, content_types=content_types)
+    result = get_all_category(cat1=cat1_data, content_types=content_types)
+  else:
+    # 해당 Content_Type에 대한 cat1값의 cat2값 분류
+    for indx, two_list in enumerate(cat1):
+      for data in two_list:
         params = {
           'numOfRows': num_of_rows,
           'pageNo': page_no,
-          'MobileOS': 'ETC',
-          'MobileApp': 'AppTest',
-          '_type': 'json',
-          'contentTypeId': contentid,
-          'cat1': i,
-          'cat2': item.get('code'),
-          }
-        res = requests.get(url, params=params)
-        data_pe = res.json()
-        items_pe = data_pe['response']['body']['items']['item']
-        for test in items_pe:
-          print(f'{contentid} = 아이디, {item.get('code')} , {test.get('name')}')
+          'cat1': data['code'],
+        }
+        # 분류된 cat2값 추출
+        for i in get_api_list(path=path, params=params, keys=keys, content_types=[content_types[indx]]):
+          for j in i:
+            params = {
+              'numOfRows': num_of_rows,
+              'pageNo': page_no,
+              'cat1': data['code'],
+              'cat2': j['code'],
+            }
+            result.append({'content_type':content_types[indx], 'category':j['code'], 'name':j['name']})
+    return result
+  return result
