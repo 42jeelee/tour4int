@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <title>로컬페이지</title>
+</head>
+<body>
+  <div class='wrap'> 
+    {% comment %} 관광지 리스트 {% endcomment %}
+    
+    <div class='tourList'>
+      <h2>관광지 추천 리스트</h2>
+
+      <ul class='list'>
+
+        <li class='item'>
+          <div class='photo'><img src="{% static 'images/test.do' %}"></div>
+          <div class='subject'>
+            <a href='#'>여기, 인천의 작지만 위대한 책방들</a>
+          </div>
+          <div class='tag'>
+            #인천책방 #독립서점 #인천여행 #텍스트힙 #인천책방	 
+        </div>
+        </li>
+
+        <li class='item'>
+          <div class='photo'><img src="{% static 'images/test.do' %}"></div>
+          <div class='subject'>
+            <a href='#'>여기, 인천의 작지만 위대한 책방들</a>
+          </div>
+          <div class='tag'>
+            #인천책방 #독립서점 #인천여행 #텍스트힙 #인천책방	 
+        </div>
+        </li>
+
+        <li class='item'>
+          <div class='photo'>
+            <img src="{% static 'images/test.do' %}">
+          </div>
+          <div class='subject'>
+            <a href='#'>여기, 인천의 작지만 위대한 책방들</a>
+          </div>
+          <div class='tag'>
+            #인천책방 #독립서점 #인천여행 #텍스트힙 #인천책방	 
+        </div>
+        </li>
+
+        <li class='item'>
+          <div class='photo'><img src="{% static 'images/test.do' %}"></div>
+          <div class='subject'>
+            <a href='#'>여기, 인천의 작지만 위대한 책방들</a>
+          </div>
+          <div class='tag'>
+            #인천책방 #독립서점 #인천여행 #텍스트힙 #인천책방	 
+        </div>
+        </li>
+
+      </ul>
+    </div>
+    {% comment %} 관광지 리스트 end {% endcomment %}
+    <div class='festivalList'>
+      <h2>축제리스트</h2>
+      <div class='relative'>
+        <div class='slide'>
+
+          <div class='slideItem'>
+            <a href='#'>
+                <div class='slidePhoto'>
+                <img src="{% static 'images/test2.jpg/' %}">
+                </div>
+              <div class='slideContent'>
+                <span class='slideContent_local'>지역 위치</span>
+                <span class='slideContent_title'>페스티벌 제목</span>
+                <div class='festivalTag'>
+                  #음악 #미술 #축제 #블라블라블라
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class='slideItem'>
+            <a href='#'>
+                <div class='slidePhoto'>
+                <img src="{% static 'images/test2.jpg/' %}">
+                </div>
+              <div class='slideContent'>
+                <span class='slideContent_local'>지역 위치</span>
+                <span class='slideContent_title'>페스티벌 제목</span>
+                <div class='festivalTag'>
+                  #음악 #미술 #축제 #블라블라블라
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class='slideItem'>
+            <a href='#'>
+                <div class='slidePhoto'>
+                <img src="{% static 'images/test2.jpg/' %}">
+                </div>
+              <div class='slideContent'>
+                <span class='slideContent_local'>지역 위치</span>
+                <span class='slideContent_title'>페스티벌 제목</span>
+                <div class='festivalTag'>
+                  #음악 #미술 #축제 #블라블라블라
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class='slideItem'>
+            <a href='#'>
+                <div class='slidePhoto'>
+                <img src="{% static 'images/test2.jpg/' %}">
+                </div>
+              <div class='slideContent'>
+                <span class='slideContent_local'>지역 위치</span>
+                <span class='slideContent_title'>페스티벌 제목</span>
+                <div class='festivalTag'>
+                  #음악 #미술 #축제 #블라블라블라
+                </div>
+              </div>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class='footer'>
+    <div class='footerCopyright'>
+      <p>
+        상호명 Tour4INT | 팀장 안원영 | 개인정보보호책임자 이정호 | 사업자등록번호 000-00-000000 | 통신판매업신고번호 2019-서울서초-0260 | 관광사업등록번호 : 제2019-3호<br>
+        주소 서울특별시 서초구 강남대로 311, 드림플러스 강남 18층 (서초동, 한화생명보험빌딩) | 이메일 help@myrealtrip.com | 마케팅 문의 marketing@myrealtrip.com<br>
+        제휴 문의 partnership@myrealtrip.com<br><br>
+        
+        자사는 서울특별시관광협회 공제영업보증보험에 가입되어 있습니다.  영업보증보험: 1.5억원 / 기획여행보증: 2억원<br>
+        
+        마이리얼트립은 통신판매중개자이며 통신판매의 당사자가 아닙니다. 따라서 상품·거래정보 및 거래에 대하여 책임을 지지않습니다.<br>
+        
+        부득이한 사정에 의해 확정된 여행일정이 변경되는 경우 여행자의 사전 동의를 받습니다.<br>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
