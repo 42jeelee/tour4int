@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class='wrap'> 
+  {% comment %} 관광지 리스트 {% endcomment %}
+  
+  <div class='tourList'>
+    <h2>관광지 추천 리스트</h2>
+    <div>areacode : {{ areacode }}</div>
+
+    <ul class='list'>
+
+      <li class='item'>
+        <div class='photo'><img src="{% static 'images/test.do' %}"></div>
+        <div class='subject'>
+          <a href='#'>여기, 인천의 작지만 위대한 책방들</a>
+        </div>
+        <div class='tag'>
+          #인천책방 #독립서점 #인천여행 #텍스트힙 #인천책방	 
+      </div>
+      </li>
+
+      <li class='item'>
+        <div class='photo'><img src="{% static 'images/test.do' %}"></div>
+        <div class='subject'>
+          <a href='#'>여기, 인천의 작지만 위대한 책방들</a>
+        </div>
+        <div class='tag'>
+          #인천책방 #독립서점 #인천여행 #텍스트힙 #인천책방	 
+      </div>
+      </li>
+
+      <li class='item'>
+        <div class='photo'>
+          <img src="{% static 'images/test.do' %}">
+        </div>
+        <div class='subject'>
+          <a href='#'>여기, 인천의 작지만 위대한 책방들</a>
+        </div>
+        <div class='tag'>
+          #인천책방 #독립서점 #인천여행 #텍스트힙 #인천책방	 
+      </div>
+      </li>
+
+      <li class='item'>
+        <div class='photo'><img src="{% static 'images/test.do' %}"></div>
+        <div class='subject'>
+          <a href='#'>여기, 인천의 작지만 위대한 책방들</a>
+        </div>
+        <div class='tag'>
+          #인천책방 #독립서점 #인천여행 #텍스트힙 #인천책방	 
+      </div>
+      </li>
+
+    </ul>
+  </div>
+  {% comment %} 관광지 리스트 end {% endcomment %}
+  <div class='festivalList'>
+    <h2>축제리스트</h2>
+    <div class='relative'>
+      <div class='slide'>
+
+        <div class='slideItem'>
+          <a href='#'>
+              <div class='slidePhoto'>
+              <img src="{% static 'images/test2.jpg/' %}">
+              </div>
+            <div class='slideContent'>
+              <span class='slideContent_local'>지역 위치</span>
+              <span class='slideContent_title'>페스티벌 제목</span>
+              <div class='festivalTag'>
+                #음악 #미술 #축제 #블라블라블라
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class='slideItem'>
+          <a href='#'>
+              <div class='slidePhoto'>
+              <img src="{% static 'images/test2.jpg/' %}">
+              </div>
+            <div class='slideContent'>
+              <span class='slideContent_local'>지역 위치</span>
+              <span class='slideContent_title'>페스티벌 제목</span>
+              <div class='festivalTag'>
+                #음악 #미술 #축제 #블라블라블라
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class='slideItem'>
+          <a href='#'>
+              <div class='slidePhoto'>
+              <img src="{% static 'images/test2.jpg/' %}">
+              </div>
+            <div class='slideContent'>
+              <span class='slideContent_local'>지역 위치</span>
+              <span class='slideContent_title'>페스티벌 제목</span>
+              <div class='festivalTag'>
+                #음악 #미술 #축제 #블라블라블라
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class='slideItem'>
+          <a href='#'>
+              <div class='slidePhoto'>
+              <img src="{% static 'images/test2.jpg/' %}">
+              </div>
+            <div class='slideContent'>
+              <span class='slideContent_local'>지역 위치</span>
+              <span class='slideContent_title'>페스티벌 제목</span>
+              <div class='festivalTag'>
+                #음악 #미술 #축제 #블라블라블라
+              </div>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock content %}
