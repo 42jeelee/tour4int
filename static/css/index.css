@@ -1,0 +1,48 @@
+.index-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.index-wrap > .wrap__line {
+  width: 100%;
+  padding: 0 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+
+.index-wrap > .wrap__line:not(:last-child) {
+  margin-bottom: 15px;
+}
+
+.index-wrap .itemlist {
+  width: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.index-wrap .areabox {
+  width: 230px;
+  height: 300px;
+  border: 1px solid;
+  border-radius: 10px;
+}
+
+.index-wrap .areabox:not(:last-child) {
+  margin-right: 10px;
+}
+
+.index-wrap .eventbox {
+  height: 300px;
+  border: 1px solid;
+  border-radius: 10px;
+  flex-grow: 1;
+}
+
+.index-wrap .eventbox:not(:last-child) {
+  margin-right: 10px;
+}

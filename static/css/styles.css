@@ -5,6 +5,8 @@
 
 /* Components */
 @import url(./header.css);
+@import url(./main.css);
+@import url(./index.css);
 @import url(./localpage.css);
 
 
