@@ -3,5 +3,5 @@ from . import views
 
 app_name = 'place'
 urlpatterns = [
-    path('', views.all, name='all'),
+    path('local/<str:areacode>/', views.local, name='local'),
 ]

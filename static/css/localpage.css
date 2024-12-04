@@ -171,7 +171,7 @@ ol, ul, ul li {
 /* ---------------------------- */
 
 /* 푸터 */
-.footer{
+footer{
   position: relative;
   width: 1200px;
   margin: 0 auto;
@@ -179,7 +179,7 @@ ol, ul, ul li {
   border-top: 1px solid #e9ecef;
 }
 
-.footer .footerCopyright p{
+footer .footerCopyright p{
   font-size: 12px;
   letter-spacing: -0.2px;
   color: #848c94;
