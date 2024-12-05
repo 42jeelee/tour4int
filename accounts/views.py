@@ -23,9 +23,8 @@ def signup_view(request):
                 user = form.save()
                 user.is_email_verified = True
                 user.save()
-                login(request, user)
-                messages.success(request, '회원가입이 성공적으로 완료되었습니다!')
-                return redirect('index')
+                messages.success(request, '회원가입이 완료되었습니다. 로그인해주세요.')
+                return redirect('accounts:login')
             else:
                 messages.error(request, '이메일 인증이 필요합니다.')
                 return redirect('accounts:verify_email')

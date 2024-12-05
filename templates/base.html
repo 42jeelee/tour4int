@@ -11,12 +11,12 @@
     
     <!-- 사용자 정의 CSS -->
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-
+    
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
-    <!-- 헤더 영역 (나중에 공통 헤더로 대체) -->
-    <header>
+    <!-- 헤더 영역 -->
+    <header class="header">
         <div class="header__container">
             <a class="header__logo" href="{% url 'index' %}">Tour4Int</a>
             <nav>
@@ -29,6 +29,8 @@
                 {% endif %}
             </nav>
         </div>
+        <!-- 로그인, 회원가입, 마이페이지에서 헤더 배너와 검색바를 숨기기 위한 블럭 처리-->
+        {% block header_content %}
         <div class="header__container">
             <div class="header__banner">
                 <div class="header__banner--wrap">
@@ -41,6 +43,7 @@
                 <button id="header__search-btn"></button>
             </div>
         </div>
+        {% endblock %}
     </header>
 
     <!-- 메시지 영역 -->
@@ -59,7 +62,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- 푸터 영역 (나중에 공통 푸터로 대체) -->
+    <!-- 푸터 영역 -->
     <footer>
         <div class='footerCopyright'>
           <p>

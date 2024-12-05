@@ -17,7 +17,9 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environ
+# environ 초기화
+# 환경 변수를 관리하는 라이브러리를 설정합니다.
+# 이를 통해 중요한 설정 값들을 안전하게 관리할 수 있습니다.
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / '.env')
 
