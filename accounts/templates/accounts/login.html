@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+{# 페이지 스타일 설정 #}
+{# - 미니멀, 심플, 모던한 스타일 적용 #}
+{# - 반응형 디자인으로 모바일에서도 잘 보이도록 구현 #}
 <style>
     .login-container {
         min-height: 100vh;
@@ -81,13 +85,21 @@
     }
 </style>
 
+{# GSAP 애니메이션 라이브러리 로드 #}
+{# - 부드러운 페이지 전환과 요소 등장 효과를 위해 사용 #}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
+{# 로그인 폼 컨테이너 #}
+{# - 중앙 정렬된 깔끔한 흰색 박스 디자인 #}
+{# - 그림자 효과로 입체감 부여 #}
 <div class="login-container">
     <div class="login-box">
         <h2 class="login-title">로그인</h2>
         
+        {# 로그인 폼 #}
+        {# - 이메일과 비밀번호 입력 필드 #}
+        {# - 부트스트랩 스타일의 입력 필드와 버튼 #}
         <form method="post">
             {% csrf_token %}
             
@@ -133,12 +145,17 @@
             <button type="submit" class="btn-login">로그인</button>
         </form>
         
+        {# 회원가입 링크 #}
+        {# - 계정이 없는 사용자를 위한 회원가입 페이지 링크 #}
         <div class="signup-link">
             <p>계정이 없으신가요? <a href="{% url 'accounts:signup' %}">회원가입</a></p>
         </div>
     </div>
 </div>
 
+{# 페이지 애니메이션 스크립트 #}
+{# - 스크롤에 따른 요소 등장 효과 #}
+{# - 부드러운 페이드인과 슬라이드 효과 #}
 <script>
     gsap.registerPlugin(ScrollTrigger);
     
