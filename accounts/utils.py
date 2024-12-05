@@ -10,7 +10,7 @@ def send_verification_email(email, verification_code):
     
 회원가입을 위한 이메일 인증 코드입니다:
 
-인증 코드: {verification_code}
+{verification_code}
 
 이 코드는 30분 동안만 유효합니다.
 코드를 입력하여 이메일 인증을 완료해주세요.

@@ -16,18 +16,12 @@ def signup_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get('email')
-            verified_email = request.session.get('verified_email')
-
-            if verified_email and verified_email == email:
-                user = form.save()
-                user.is_email_verified = True
-                user.save()
-                messages.success(request, '회원가입이 완료되었습니다. 로그인해주세요.')
-                return redirect('accounts:login')
-            else:
-                messages.error(request, '이메일 인증이 필요합니다.')
-                return redirect('accounts:verify_email')
+            user = form.save()
+            user.is_email_verified = True
+            user.save()
+            login(request, user)
+            messages.success(request, '환영합니다! 회원가입이 완료되었습니다. 즐거운 여행 되세요!')
+            return redirect('index')
     else:
         form = SignUpForm()
     
