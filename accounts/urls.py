@@ -17,7 +17,7 @@ urlpatterns = [
     # 마이페이지
     path('my/', views.mypage_view, name='mypage'),
     
-    # 이메일 인증
+    # 이메일 인증 코드 전송 엔드포인트
     path('send-verification-code/', views.send_verification_code, name='send_verification_code'),
     path('verify-email/', views.verify_email, name='verify_email'),
 ]
