@@ -9,8 +9,7 @@ class SignUpForm(UserCreationForm):
     """
     email = forms.EmailField(
         label='이메일', 
-        max_length=255, 
-        help_text='로그인에 사용할 이메일 주소를 입력해주세요.'
+        max_length=255
     )
     name = forms.CharField(
         label='이름',
@@ -28,6 +27,15 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('email', 'password1', 'password2', 'name', 'nickname', 'address')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 비밀번호 필드의 help_text 제거
+        self.fields['password1'].help_text = None
+        self.fields['password2'].help_text = None
+        # 비밀번호 필드 레이블 변경
+        self.fields['password1'].label = '비밀번호'
+        self.fields['password2'].label = '비밀번호 확인'
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -65,12 +73,20 @@ class LoginForm(forms.Form):
     )
 
 class UserUpdateForm(forms.ModelForm):
-    """
-    사용자 정보 수정 폼
-    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 모든 필드의 help_text 제거
+        for field in self.fields.values():
+            field.help_text = None
+
     class Meta:
         model = User
         fields = ['name', 'nickname', 'address']
+        labels = {
+            'name': '이름',
+            'nickname': '닉네임',
+            'address': '주소',
+        }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'nickname': forms.TextInput(attrs={'class': 'form-control'}),
