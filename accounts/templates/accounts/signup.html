@@ -1,29 +1,360 @@
 {% extends 'base.html' %}
 
+{# 헤더 배너와 검색바를 숨김 처리 #}
+{% block header_content %}{% endblock %}
+
 {% block content %}
+{# 페이지 스타일 설정 #}
+{# - 미니멀, 심플, 모던한 스타일 적용 #}
+{# - 반응형 디자인으로 모바일에서도 잘 보이도록 구현 #}
+<style>
+    .signup-container {
+        min-height: 100vh;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        margin: 40px 0;
+    }
+    .signup-box {
+        width: 100%;
+        max-width: 500px;
+        padding: 40px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+    }
+    .signup-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .form-control {
+        height: 50px;
+        padding: 12px 16px;
+        border: 1px solid #d2d2d7;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #0071e3;
+        box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+    }
+    .form-label {
+        font-size: 14px;
+        color: #86868b;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .btn-signup {
+        width: 100%;
+        height: 50px;
+        background: #0071e3;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-signup:hover {
+        background: #0077ed;
+        transform: translateY(-1px);
+    }
+    .btn-verify {
+        height: 50px;
+        min-width: 110px;
+        background: #0071e3;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    .btn-verify:hover {
+        background: #0077ed;
+    }
+    .btn-verify:disabled {
+        background: #d2d2d7;
+        cursor: not-allowed;
+    }
+    .login-link {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 14px;
+    }
+    .login-link a {
+        color: #0071e3;
+        text-decoration: none;
+    }
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+    .alert-danger {
+        background-color: #fff2f2;
+        border: 1px solid #ff3b30;
+        color: #ff3b30;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 14px;
+        margin: 8px 0;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .email-group {
+        display: flex;
+        gap: 10px;
+    }
+    .email-input {
+        flex: 1;
+    }
+    .verification-group {
+        display: none;
+        margin-top: 10px;
+    }
+    .verification-group.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .timer {
+        font-size: 14px;
+        color: #86868b;
+        margin-top: 4px;
+    }
+</style>
+
+{# GSAP 애니메이션 라이브러리 로드 #}
+{# - 부드러운 페이지 전환과 요소 등장 효과를 위해 사용 #}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+{# 회원가입 폼 컨테이너 #}
+{# - 중앙 정렬된 깔끔한 흰색 박스 디자인 #}
+{# - 그림자 효과로 입체감 부여 #}
 <div class="signup-container">
-    <h2>회원가입</h2>
-    <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
+    <div class="signup-box">
+        <h2 class="signup-title">회원가입</h2>
+        
+        {# 회원가입 폼 #}
+        {# - 이메일, 비밀번호, 이름, 닉네임, 주소 입력 필드 #}
+        {# - 각 필드별 유효성 검사와 에러 메시지 표시 #}
+        <form method="post" id="signupForm">
+            {% csrf_token %}
             <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}
-                    <small class="form-text text-muted">{{ field.help_text }}</small>
-                {% endif %}
-                {% if field.errors %}
-                    <div class="alert alert-danger">
-                        {{ field.errors }}
+                <label class="form-label">이메일</label>
+                <div class="email-group">
+                    <div class="email-input">
+                        <input type="text" 
+                               name="email" 
+                               id="email" 
+                               class="form-control"
+                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                               required
+                               oninvalid="this.setCustomValidity(this.validity.valueMissing ? '이메일을 입력해주세요' : '올바른 이메일 형식이 아닙니다')"
+                               oninput="setCustomValidity(''); checkEmail(this)">
                     </div>
-                {% endif %}
+                    <button type="button" class="btn-verify" id="sendVerificationBtn" onclick="sendVerificationCode()">인증코드 받기</button>
+                </div>
+                <div class="verification-group" id="verificationGroup">
+                    <div class="email-group" style="margin-top: 10px;">
+                        <input type="text" 
+                               name="verification_code" 
+                               id="verificationCode" 
+                               class="form-control" 
+                               placeholder="인증코드 6자리 입력"
+                               maxlength="6" 
+                               pattern="\d{6}"
+                               required>
+                        <button type="button" class="btn-verify" onclick="verifyCode()">확인</button>
+                    </div>
+                    <div class="timer" id="verificationTimer"></div>
+                </div>
             </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary">가입하기</button>
-    </form>
-    <p>
-        이미 계정이 있으신가요? 
-        <a href="{% url 'accounts:login' %}">로그인</a>
-    </p>
+
+            {% for field in form %}
+                {% if field.name != 'email' %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if field.name == 'password1' or field.name == 'password2' %}
+                        <input type="password" 
+                               name="{{ field.name }}" 
+                               id="{{ field.id_for_label }}" 
+                               class="form-control"
+                               required
+                               oninvalid="this.setCustomValidity('비밀번호를 입력해주세요')"
+                               oninput="this.setCustomValidity('')">
+                    {% else %}
+                        <input type="text" 
+                               name="{{ field.name }}" 
+                               id="{{ field.id_for_label }}" 
+                               class="form-control"
+                               required
+                               oninvalid="this.setCustomValidity('{{ field.label }}을(를) 입력해주세요')"
+                               oninput="this.setCustomValidity('')">
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="alert alert-danger">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            <button type="submit" class="btn-signup" id="submitBtn" disabled>가입하기</button>
+        </form>
+        
+        {# 로그인 페이지 링크 #}
+        {# - 이미 계정이 있는 사용자를 위한 로그인 페이지 링크 #}
+        <div class="login-link">
+            <p>이미 계정이 있으신가요? <a href="{% url 'accounts:login' %}">로그인</a></p>
+        </div>
+    </div>
 </div>
+
+{# 페이지 애니메이션 스크립트 #}
+{# - 스크롤에 따른 요소 등장 효과 #}
+{# - 부드러운 페이드인과 슬라이드 효과 #}
+<script>
+    gsap.registerPlugin(ScrollTrigger);
+    
+    gsap.from(".signup-container", {
+        scrollTrigger: {
+            trigger: ".signup-container",
+            start: "top center",
+            toggleActions: "play none none reverse"
+        },
+        duration: 1,
+        y: 50,
+        opacity: 0,
+        ease: "power2.out"
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        gsap.from(".signup-box", {
+            duration: 1,
+            y: 30,
+            opacity: 0,
+            ease: "power3.out"
+        });
+    });
+
+    let verificationTimer;
+    let isEmailVerified = false;
+
+    function startTimer(duration) {
+        let timer = duration;
+        const timerDisplay = document.getElementById('verificationTimer');
+        
+        clearInterval(verificationTimer);
+        verificationTimer = setInterval(function() {
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+            if (--timer < 0) {
+                clearInterval(verificationTimer);
+                timerDisplay.textContent = '인증 시간이 만료되었습니다. 다시 시도해주세요.';
+            }
+        }, 1000);
+    }
+
+    function sendVerificationCode() {
+        const email = document.getElementById('email').value;
+        if (!email) {
+            alert('이메일을 입력해주세요.');
+            return;
+        }
+
+        fetch('{% url "accounts:send_verification_code" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: `email=${encodeURIComponent(email)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('verificationGroup').classList.add('show');
+                document.getElementById('sendVerificationBtn').textContent = '재전송';
+                startTimer(300); // 5분 타이머
+            }
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('인증코드 전송에 실패했습니다. 다시 시도해주세요.');
+        });
+    }
+
+    function verifyCode() {
+        const email = document.getElementById('email').value;
+        const code = document.getElementById('verificationCode').value;
+
+        fetch('{% url "accounts:verify_email" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: `email=${encodeURIComponent(email)}&verification_code=${encodeURIComponent(code)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                isEmailVerified = true;
+                document.getElementById('email').readOnly = true;
+                document.getElementById('verificationCode').readOnly = true;
+                document.getElementById('sendVerificationBtn').disabled = true;
+                document.getElementById('submitBtn').disabled = false;
+                clearInterval(verificationTimer);
+                document.getElementById('verificationTimer').textContent = '이메일 인증이 완료되었습니다.';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('인증에 실패했습니다. 다시 시도해주세요.');
+        });
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        if (!isEmailVerified) {
+            e.preventDefault();
+            alert('이메일 인증이 필요합니다.');
+        }
+    });
+
+    function checkEmail(input) {
+        if (input.value === '') {
+            input.setCustomValidity('이메일을 입력해주세요');
+        } else if (!input.value.includes('@')) {
+            input.setCustomValidity('올바른 이메일 형식이 아닙니다');
+        } else {
+            input.setCustomValidity('');
+        }
+    }
+</script>
 {% endblock %}

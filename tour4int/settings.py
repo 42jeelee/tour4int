@@ -12,13 +12,16 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import environ
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+# environ 초기화
+# 환경 변수를 관리하는 라이브러리를 설정합니다.
+# 이를 통해 중요한 설정 값들을 안전하게 관리할 수 있습니다.
 env = environ.Env()
-environ.Env.read_env()
+environ.Env.read_env(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -139,5 +142,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Custom User Model
+# 커스텀 유저 모델
 AUTH_USER_MODEL = 'accounts.User'
+
+# 회원가입시 이메일 인증 코드 전송을 위한 설정
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='coo@739c.kr')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
