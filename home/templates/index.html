@@ -1,21 +1,53 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <div class="index-wrap">
   <div class="wrap__line">
-    <div class="itemlist">
-      <div class="areabox"></div>
-      <div class="areabox"></div>
-      <div class="areabox"></div>
-      <div class="areabox"></div>
-      <div class="areabox"></div>
+    <div class="item-screen">
+      <div class="item-screen__contents">
+        <div class="itemlist">
+          {% for a in area_codes %}
+            <div class="areabox" id="{{ a.area_code }}">
+              <h2 class="areabox__title">{{ a.name }}</h2>
+              <button class="areabox__btn">둘러보기</button>
+              <div class="itemlist__item-background"></div>
+            </div>
+          {% empty %}
+            <div class="itemlist__empty">지역이 존재하지 않습니다.</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="item-screen__btns">
+        <button class="item-screen__btn prev-btn disable-btn"></button>
+        <button class="item-screen__btn"></button>
+      </div>
     </div>
   </div>
   <div class="wrap__line">
-    <div class="itemlist">
-      <div class="eventbox"></div>
-      <div class="eventbox"></div>
-      <div class="eventbox"></div>
+    <div class="item-screen">
+      <div class="item-screen__contents">
+        <div class="itemlist">
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+          <div class="eventbox"></div>
+        </div>
+      </div>
+      <div class="item-screen__btns big-btn">
+        <button class="item-screen__btn prev-btn disable-btn"></button>
+        <button class="item-screen__btn"></button>
+      </div>
     </div>
   </div>
 </div>
+<script src="{% static 'js/index.js' %}"></script>
 {% endblock content %}
