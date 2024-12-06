@@ -1,13 +1,13 @@
 from django.db import models
-from areacode.models import AreaCode
+from areacode.models import SigunguCode
 from category.models import Category
 
 # Create your models here.
 class Place(models.Model):
   place_id = models.IntegerField(primary_key=True)
 
-  category = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
-  area_code = models.ForeignKey(AreaCode, on_delete=models.DO_NOTHING)
+  category = models.ForeignKey(Category, on_delete=models.CASCADE)
+  sigungu_code = models.ForeignKey(SigunguCode, on_delete=models.CASCADE)
 
   title = models.CharField(max_length=100, null=False)
   address = models.CharField(max_length=100, null=False)
@@ -20,6 +20,10 @@ class Place(models.Model):
 
   start_time = models.DateTimeField(null=True)
   end_time = models.DateTimeField(null=True)
+
+  is_detail = models.BooleanField(default=False)
+  homepage_url = models.CharField(max_length=500, null=True)
+  overview = models.TextField(null=True)
 
   updated_at = models.DateTimeField(auto_now=True)
   created_at = models.DateTimeField(auto_now_add=True)
