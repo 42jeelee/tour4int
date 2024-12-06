@@ -3,7 +3,9 @@ from . import views
 
 app_name = 'api'
 urlpatterns = [
-    path('get_place/', views.get_place, name='get_place'),
-    path('get_category/', views.get_category, name='get_category'),
-    path('get_areacode/', views.get_areacode, name='get_areacode'),
+    path('init_all/', views.init_all, name='init_all'),
+    path('init_place/', views.init_place, name='init_place'),
+    path('init_category/', views.init_category, name='init_category'),
+    path('init_areacode/', views.init_areacode, name='init_areacode'),
+    path('init_sigungucode/', views.init_sigungucode, name='init_sigungucode'),
 ]
