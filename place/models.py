@@ -25,8 +25,8 @@ class Place(models.Model):
   homepage_url = models.CharField(max_length=500, null=True)
   overview = models.TextField(null=True)
 
-  updated_at = models.DateTimeField(auto_now=True)
-  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateField(auto_now=True)
+  created_at = models.DateField(auto_now_add=True)
 
   def __str__(self):
     return f"{self.title} ({self.address})"

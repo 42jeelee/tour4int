@@ -8,4 +8,6 @@ urlpatterns = [
     path('init_category/', views.init_category, name='init_category'),
     path('init_areacode/', views.init_areacode, name='init_areacode'),
     path('init_sigungucode/', views.init_sigungucode, name='init_sigungucode'),
+    path('get_pinfo/', views.get_pinfo, name='get_pinfo'),
+    path('get_event/', views.get_event, name='get_event'),
 ]

@@ -111,3 +111,39 @@ def get_all_category(cat1=None, content_types=[]):
       result += get_category(content_type=ct)
 
   return result
+
+
+
+def get_event_info(datetime, pageNo=1, event=[]):
+  path = "searchFestival1"
+  params = {
+      'numOfRows': 50,
+      'pageNo': pageNo,
+      'eventStartDate': datetime,
+    }
+  keys = ['response', 'body', 'items', 'item']
+  data = get_api_list(path=path, params=params, keys=keys)
+  for i in data:
+    event.append(i)
+  if len(event)  == len(data) * (pageNo):
+    get_event_info(datetime=datetime, pageNo=pageNo+1, event=event)
+  event_data = []
+  for e_info in event:
+    event_data.append({'contentid':e_info['contentid'], 'eventstartdate':e_info['eventstartdate'], 'eventenddate':e_info['eventenddate']})
+  return event_data
+
+def get_place_info(contentid):
+  path = "detailCommon1"
+  params = {
+      'numOfRows': 1,
+      'pageNo': 1,
+      'defaultYN': 'Y',
+      'defaultYN': 'Y',
+      'overviewYN': 'Y',
+      'contentId': contentid
+    }
+  keys = ['response', 'body', 'items', 'item']
+  data = get_api_list(path=path, params=params, keys=keys)
+  info = data[0]
+  # return False
+  return {'contentid':info['contentid'], 'homepage':info['homepage'], 'overview':info['overview']}

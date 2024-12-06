@@ -28,7 +28,7 @@ def init_place(request):
       sigungucode_all = SigunguCode.objects.all()
 
       if category_all and sigungucode_all:
-        data = api.get_all_place(content_types=CONTANT_TYPE)
+        data = api.get_all_place(content_types=[12, 14, 25])
 
         Place.objects.all().delete()
 
@@ -155,4 +155,88 @@ def init_category(request):
   except Exception as e:
     context['result'] = 'fail'
     context['error'] = str(e)
+  return JsonResponse(context)
+
+# 이벤트 정보
+def get_event(request):
+  context = {}
+  eventime = datetime.now().replace(day=1).date().strftime(f'%Y%m%d')
+  try:
+    with transaction.atomic():
+
+      category_all = Category.objects.all()
+      areacode_all = AreaCode.objects.all()
+      sigungucode_all = SigunguCode.objects.all()
+
+      if category_all and sigungucode_all:
+        data = api.get_all_place(content_types=[15])
+        Place.objects.filter(category__content_type = 15).delete()
+
+        event_data = api.get_event_info(eventime)
+
+        for i in data:
+          place_id = i.get('contentid', '')
+          start_time = end_time = None
+          for event in event_data:
+            if place_id == event['contentid']:
+              if event['eventstartdate'] != '': start_time = event['eventstartdate']
+              if event['eventenddate'] != '': end_time = event['eventenddate']
+              break
+          if start_time is None: continue
+          
+          areacode = i.get('areacode', '')
+          sigungucode = i.get('sigungucode', '')
+          category_id = i.get('cat2', '')
+
+          map_x = i.get('mapx', '')
+          map_y = i.get('mapy', '')
+          
+          if any(i == '' for i in [areacode, sigungucode, category_id, map_x, map_y]):
+            continue
+          
+          category = category_all.filter(category=category_id)
+          if len(category) == 0:
+            continue
+
+          category = category[0]
+
+          area_code = areacode_all.get(area_code=areacode)
+          sigungu_code = sigungucode_all.get(sigungu_code=sigungucode, area_code=area_code)
+
+          title = i.get('title', '')
+          address = i.get('addr1', '') + i.get('addr2', '')
+          map_x = i.get('mapx', '')
+          map_y = i.get('mapy', '')
+
+          tel = i.get('tel', '')
+          image = i.get('firstimage', '')
+          thumb_img = i.get('firstimage2', '')
+
+          modified_time = i.get('modifiedtime', '')
+          created_time = i.get('createdtime', '')
+
+          if modified_time != '': modified_time = datetime.strptime(modified_time, '%Y%m%d%H%M%S')
+          if created_time != '': created_time = datetime.strptime(created_time, '%Y%m%d%H%M%S')
+
+          Place.objects.create(place_id=place_id, category=category, \
+            sigungu_code=sigungu_code, title=title, address=address, \
+            map_x=map_x, map_y=map_y, tel=tel, image=image, thumb_img=thumb_img,\
+            updated_at=modified_time, created_at=created_time,\
+            start_time=start_time, end_time=end_time)
+
+        context['result'] = "success"
+        context['data'] = data
+      else:
+        context['result'] = "fail"
+        context['error'] = "We don't have category or sigungucode"
+  except Exception as e:
+    context['result'] = 'fail'
+    context['error'] = str(e)
+  return JsonResponse(context)
+
+# overview
+def get_pinfo(request):
+  context = {}
+  context['result'] = "success"
+  context['data'] = api.get_place_info(126508, 12)
   return JsonResponse(context)
