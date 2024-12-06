@@ -1,6 +1,7 @@
 import requests
 from django.conf import settings
 from category.models import Category
+from datetime import datetime as dt
 
 API_KEY = settings.API_KEY
 API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1"
@@ -125,3 +126,37 @@ def get_all_category(cat1=None, content_types=[]):
             result.append({'content_type':content_types[indx], 'category':j['code'], 'name':j['name']})
     return result
   return result
+
+def get_event_info(datetime, pageNo=1, event=[]):
+  path = "searchFestival1"
+  params = {
+      'numOfRows': 50,
+      'pageNo': pageNo,
+      'eventStartDate': datetime,
+    }
+  keys = ['response', 'body', 'items', 'item']
+  data = get_api_list(path=path, params=params, keys=keys)
+  for i in data:
+    event.append(i)
+  if len(event)  == len(data) * (pageNo):
+    get_event_info(datetime=datetime, pageNo=pageNo+1, event=event)
+  event_data = []
+  for e_info in event:
+    event_data.append({'contentid':e_info['contentid'], 'eventstartdate':e_info['eventstartdate'], 'eventenddate':e_info['eventenddate']})
+  return event_data
+
+def get_place_info(contentid, contentTypeId):
+  path = "detailCommon1"
+  params = {
+      'numOfRows': 1,
+      'pageNo': 1,
+      'defaultYN': 'Y',
+      'defaultYN': 'Y',
+      'overviewYN': 'Y',
+      'contentId': contentid
+    }
+  keys = ['response', 'body', 'items', 'item']
+  data = get_api_list(path=path, params=params, keys=keys, content_types=[contentTypeId])
+  info = data[0][0]
+  # return False
+  return {'contentid':info['contentid'], 'homepage':info['homepage'], 'overview':info['overview']}

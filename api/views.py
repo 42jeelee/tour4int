@@ -111,3 +111,18 @@ def get_category(request):
     context['result'] = 'fail'
     context['error'] = str(e)
   return JsonResponse(context)
+
+# 이벤트 정보
+def get_event(request):
+  context = {}
+  eventime = datetime.now().replace(day=1).date().strftime(f'%Y%m%d')
+  context['result'] = "success"
+  context['data'] = api.get_event_info(eventime)
+  return JsonResponse(context)
+
+# overview
+def get_pinfo(request):
+  context = {}
+  context['result'] = "success"
+  context['data'] = api.get_place_info(126508, 12)
+  return JsonResponse(context)
