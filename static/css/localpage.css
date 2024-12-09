@@ -56,10 +56,11 @@ ol, ul, ul li {
 }
 
 .item .photo img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
+  width:277px;
+  height:200px;
+  object-fit:cover
 }
+
 
 .item .subject{
   margin: 25px 20px;

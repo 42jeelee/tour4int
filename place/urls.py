@@ -4,5 +4,6 @@ from . import views
 app_name = 'place'
 urlpatterns = [
     path('local/<str:areacode>/', views.local, name='local'),
-    path('view/<str:areacode>/', views.view, name='view'),
+    path('<str:areacode>/view/<str:content_id>', views.view, name='view'),
+    path('test/', views.test, name='test'),
 ]
