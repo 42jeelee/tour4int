@@ -1,47 +1,196 @@
 {% extends 'base.html' %}
 
+{# 헤더 배너와 검색바를 숨김 처리 #}
+{% block header_content %}{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card mt-5">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">로그인</h2>
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        
-                        {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                            <div class="alert alert-danger mt-1">
-                                {{ field.errors }}
-                            </div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">로그인</button>
-                        </div>
-                    </form>
-                    
-                    <div class="text-center mt-3">
-                        <p>계정이 없으신가요? <a href="{% url 'accounts:signup' %}">회원가입</a></p>
-                    </div>
-                </div>
+
+{# 페이지 스타일 설정 #}
+{# - 미니멀, 심플, 모던한 스타일 적용 #}
+{# - 반응형 디자인으로 모바일에서도 잘 보이도록 구현 #}
+<style>
+    .login-container {
+        min-height: 100vh;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .login-box {
+        width: 100%;
+        max-width: 400px;
+        padding: 40px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+    }
+    .login-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .form-control {
+        height: 50px;
+        padding: 12px 16px;
+        border: 1px solid #d2d2d7;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #0071e3;
+        box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+    }
+    .form-label {
+        font-size: 14px;
+        color: #86868b;
+        margin-bottom: 8px;
+    }
+    .btn-login {
+        width: 100%;
+        height: 50px;
+        background: #0071e3;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-login:hover {
+        background: #0077ed;
+        transform: translateY(-1px);
+    }
+    .signup-link {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 14px;
+    }
+    .signup-link a {
+        color: #0071e3;
+        text-decoration: none;
+    }
+    .signup-link a:hover {
+        text-decoration: underline;
+    }
+    .alert-danger {
+        background-color: #fff2f2;
+        border: 1px solid #ff3b30;
+        color: #ff3b30;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+</style>
+
+{# GSAP 애니메이션 라이브러리 로드 #}
+{# - 부드러운 페이지 전환과 요소 등장 효과를 위해 사용 #}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+{# 로그인 폼 컨테이너 #}
+{# - 중앙 정렬된 깔끔한 흰색 박스 디자인 #}
+{# - 그림자 효과로 입체감 부여 #}
+<div class="login-container">
+    <div class="login-box">
+        <h2 class="login-title">로그인</h2>
+        
+        {# 로그인 폼 #}
+        {# - 이메일과 비밀번호 입력 필드 #}
+        {# - 부트스트랩 스타일의 입력 필드와 버튼 #}
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
             </div>
+            {% endif %}
+            
+            {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {% if field.name == 'email' %}
+                    <input type="text" 
+                           name="{{ field.name }}" 
+                           id="{{ field.id_for_label }}" 
+                           class="form-control"
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                           required
+                           oninvalid="this.setCustomValidity(this.validity.valueMissing ? '이메일을 입력해주세요' : '올바른 이메일 형식이 아닙니다')"
+                           oninput="setCustomValidity(''); checkEmail(this)"
+                           {% if field.value %}value="{{ field.value }}"{% endif %}>
+                {% elif field.name == 'password' %}
+                    <input type="password" 
+                           name="{{ field.name }}" 
+                           id="{{ field.id_for_label }}" 
+                           class="form-control"
+                           required
+                           oninvalid="this.setCustomValidity('비밀번호를 입력해주세요')"
+                           oninput="this.setCustomValidity('')"
+                           {% if field.value %}value="{{ field.value }}"{% endif %}>
+                {% endif %}
+                {% if field.errors %}
+                <div class="alert alert-danger mt-2">
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn-login">로그인</button>
+        </form>
+        
+        {# 회원가입 링크 #}
+        {# - 계정이 없는 사용자를 위한 회원가입 페이지 링크 #}
+        <div class="signup-link">
+            <p>계정이 없으신가요? <a href="{% url 'accounts:signup' %}">회원가입</a></p>
         </div>
     </div>
 </div>
+
+{# 페이지 애니메이션 스크립트 #}
+{# - 스크롤에 따른 요소 등장 효과 #}
+{# - 부드러운 페이드인과 슬라이드 효과 #}
+<script>
+    gsap.registerPlugin(ScrollTrigger);
+    
+    gsap.from(".login-container", {
+        scrollTrigger: {
+            trigger: ".login-container",
+            start: "top center",
+            toggleActions: "play none none reverse"
+        },
+        duration: 1,
+        y: 50,
+        opacity: 0,
+        ease: "power2.out"
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        gsap.from(".login-box", {
+            duration: 1,
+            y: 30,
+            opacity: 0,
+            ease: "power3.out"
+        });
+    });
+
+    function checkEmail(input) {
+        if (input.value === '') {
+            input.setCustomValidity('이메일을 입력해주세요');
+        } else if (!input.value.includes('@')) {
+            input.setCustomValidity('올바른 이메일 형식이 아닙니다');
+        } else {
+            input.setCustomValidity('');
+        }
+    }
+</script>
 {% endblock %}
