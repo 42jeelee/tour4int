@@ -47,15 +47,20 @@ ol, ul, ul li {
   box-shadow: 8.192px 5.736px 32px 0 #11111126;
 }
 
+.item a{
+  text-decoration: none;
+}
+
 .tourList .item:first-child{
   margin-left: 0;
 }
 
 .item .photo img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
+  width:277px;
+  height:200px;
+  object-fit:cover
 }
+
 
 .item .subject{
   margin: 25px 20px;
@@ -67,7 +72,6 @@ ol, ul, ul li {
   font-size: 20px;
   width: 100%;
   min-height: 44px;
-  text-decoration: none;
   color: #333;
 }
 
