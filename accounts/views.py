@@ -125,7 +125,7 @@ def logout_view(request):
     messages.success(request, '로그아웃 되었습니다.')
     return redirect('index')
 
-@login_required
+@login_required # 로그인 후만 사용가능
 def mypage_view(request):
     """
     마이페이지 뷰 - 사용자 정보 조회 및 수정
