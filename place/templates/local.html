@@ -35,6 +35,9 @@
   <!-- festivalList -->
   <div class='festivalList'>
     <h2>축제리스트</h2>
+    <div class='all_list'>
+      <a href='/place/local/{{areacode}}/list'>목록</a>
+    </div>
       <div class='slide'>
         {% for event in event_list %}
         <div class='slideItem'>
@@ -46,7 +49,7 @@
                 <span class='slideContent_local'>{{event.sigungu_code.name}}</span>
               <span class='slideContent_title'>{{event.title}}</span>
               <div class='festivalTag'>
-                {{event.start_time}}-{{event.end_time}}
+                {{event.start_time}} - {{event.end_time}}
               </div>
             </div>
           </a>

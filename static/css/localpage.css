@@ -25,10 +25,9 @@ ol, ul, ul li {
 }
 
 .tourList .list{
-  margin-top: 40px;
+  margin-top: 60px;
   display: flex;
   flex-wrap: wrap;
-  margin-top: 36px;
 }
 
 
@@ -83,8 +82,8 @@ ol, ul, ul li {
 
 .all_list{
   float: right;
-  margin-right: 20px;
-  font-size: 20px;
+  margin: 0 20px 20px 0;
+  font-size: 18px;
   text-align: center;
   color: white;
   background-color: #333;
@@ -111,7 +110,7 @@ ol, ul, ul li {
   font-weight: 700;
   line-height: 1.2;
   margin-left: 30px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .slide {
@@ -162,12 +161,22 @@ ol, ul, ul li {
   margin-bottom: 16px;
 }
 
-.slideItem .slideContent .slideContent_title{
+.slideItem .slideContent .slideContent_title {
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 16px;
-  height: 59px;
-  overflow-wrap: break-word;
+  max-height: 59px;
+  overflow: hidden;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: box;
+  -webkit-box-orient: vertical;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  word-wrap: break-word;
+  line-height: 1.2em;
 }
 
 .slideItem .slideContent .festivalTag{
