@@ -6,58 +6,76 @@
   <div class='tourList'>
     <h2>관광지 추천 리스트</h2>
     <div>areacode : {{ areacode }}</div>
+    <div>areacode_image_url : {{ tour_list.sigungu_code }}</div>
+    <div>tour_list : {{ tour_list.length }}</div>
+    <div class="item-screen__btns">
+      <p id='items_point'></p>
+      <button id="prevBtn">뒤로</button>
+      <button id="nextBtn">앞으로</button>
+    </div>
 
     <ul class='list'>
-
+      {% for tour in tour_list %}
       <li class='item'>
-        <a href='/place/local/{{areacode}}/view/35788'>
-          <div class='photo'><img src="{% static 'images/test-image/test333.jpg' %}"></div>
+        <a href='/place/local/{{areacode}}/view/{{tour.place_id}}'>
+          {% if tour.thumb_img != '' %}
+          <div class='photo'><img src="{{tour.thumb_img}}"></div>
+          {% else %}
+          <div class='photo'><img src="{{tour.sigungu_code.area_code.image_url}}"></div>
+          {% endif %}
           <div class='subject'>
-            <span class='subjectTitle'>여기, 인천의 작지만 위대한 책방들</span>
+            <a href='#' class='subjectTitle'>{{tour.title}}</a>
           </div>
           <div class='tag'>
-            #인천책방 #독립서점 #인천여행 #텍스트ힵ #인천책방	 
+            {{tour.address}}
           </div>
         </a>
       </li>
-      <li class='item'>
-        <a href='#'>
-          <div class='photo'><img src="{% static 'images/test-image/test.do' %}"></div>
-          <div class='subject'>
-            <span class='subjectTitle'>여기, 인천의 작지만 위대한 책방들</span>
-          </div>
-          <div class='tag'>
-            #인천책방 #독립서점 #인천여행 #텍스트ힵ #인천책방	 
-          </div>
-        </a>
-      </li>
-      <li class='item'>
-        <a href='#'>
-          <div class='photo'><img src="{% static 'images/test-image/test.do' %}"></div>
-          <div class='subject'>
-            <span class='subjectTitle'>여기, 인천의 작지만 위대한 책방들</span>
-          </div>
-          <div class='tag'>
-            #인천책방 #독립서점 #인천여행 #텍스트ힵ #인천책방	 
-          </div>
-        </a>
-      </li>
-      <li class='item'>
-        <a href='#'>
-          <div class='photo'><img src="{% static 'images/test-image/test.do' %}"></div>
-          <div class='subject'>
-            <span class='subjectTitle'>여기, 인천의 작지만 위대한 책방들</span>
-          </div>
-          <div class='tag'>
-            #인천책방 #독립서점 #인천여행 #텍스트ힵ #인천책방	 
-          </div>
-        </a>
-      </li>
-      
-
-
+      {% endfor %}
     </ul>
-  </div>  <!-- //tourList -->
+  </div>
+
+  <script>
+    let items = document.querySelectorAll(".item")
+    var currentIndex = 0;
+    function displayItems(){
+      items.forEach(function(item) {
+        item.style.display = "none";
+      });
+      for (var i = currentIndex; i < currentIndex + 4 && i < items.length; i++) {
+        items[i].style.display = "inline-block";
+        if (i % 4 === 0){
+          items[i].style.marginLeft = '0';
+        }
+      }
+      $('#items_point').text("현재 페이지: " + currentIndex + '/ 총 길이 : ' + items.length)
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+      displayItems();
+    });
+    $(function(){
+      console.log(items)
+      $('#prevBtn').click(function(){
+        if (currentIndex - 4 < 0) {
+          currentIndex = items.length - 4;
+        } else {
+          currentIndex -= 4; // 마지막 페이지에서 돌아가면 첫 번째 페이지로 돌아감
+        }
+        displayItems();
+      })
+      $('#nextBtn').click(function(){
+        if (currentIndex + 4 < items.length) {
+          currentIndex += 4;
+        } else if (currentIndex + 4 > items.length){
+          currentIndex = items.length - 4
+        } else if (currentIndex + 4 == items.length){
+          currentIndex = 0; // 마지막 페이지에서 돌아가면 첫 번째 페이지로 돌아감
+        }
+        displayItems();
+      })
+    })
+  </script>
+<!-- //tourList -->
   
   <!-- festivalList -->
   <div class='festivalList'>
