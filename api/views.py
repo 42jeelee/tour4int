@@ -36,7 +36,7 @@ def init_areacode(request):
       for d in data:
         area_code = d['code']
         name = d['name']
-        image_url = f"/static/images/area-image/{area_code}.png"
+        image_url = f"/static/images/area-image/{area_code}.jpg"
 
         AreaCode.objects.create(area_code=area_code, name=name, image_url=image_url)
 
@@ -103,25 +103,6 @@ def get_event(request):
   eventime = datetime.now().replace(day=1).date().strftime(f'%Y%m%d')
   event_data = api.get_event_info(eventime)
   context = insert_place(event_data, content_types=[15], isEvent=True)
-  return JsonResponse(context)
-
-# overview
-def get_pinfo(request):
-  content_id = request.GET.get('content_id')
-  data = Place.objects.filter(place_id=content_id)
-  context = {}
-  if len(data):
-    if data[0].is_detail:
-      context['result'] = "success"
-      context['data'] = data[0].overview
-    else:
-      overview = api.get_place_info(content_id)
-      data[0].overview = overview['overview']
-      data[0].homepage_url = overview['homepage']
-      data[0].is_detail = True
-      data[0].save()
-      context['result'] = 'info_success'
-      context['data'] = overview
   return JsonResponse(context)
 
 def insert_place(data, content_types=CONTANT_TYPE, isEvent=False):
