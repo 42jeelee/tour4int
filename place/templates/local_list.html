@@ -1,0 +1,416 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container">
+  <!-- 스티키 헤더 필터 -->
+  <div class="filter-header">
+    <div class="filter-options">
+      <button class="filter-btn active" data-filter="events">축제/행사</button>
+      <button class="filter-btn" data-filter="places">관광지</button>
+    </div>
+  </div>
+
+  <!-- 축제/행사 섹션 -->
+  <section class="events-section active" id="events" data-content-type="15">
+    <div class="grid-container">
+      {% for place in places %}
+      {% if place.category.content_type == 15 %}
+      <div class="card event-card">
+        <div class="card-image">
+          <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+        </div>
+        <div class="card-content">
+          <span class="event-location">{{ place.address }}</span>
+          <h3 class="card-title">{{ place.title }}</h3>
+          {% if place.start_time and place.end_time %}
+          <div class="event-period">
+            {{ place.start_time|date:"Y.m.d" }} - {{ place.end_time|date:"Y.m.d" }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="loading-spinner" style="display: none;">
+      <div class="spinner"></div>
+    </div>
+  </section>
+
+  <!-- 관광지 섹션 -->
+  <section class="places-section" id="places" data-content-type="other" style="display: none;">
+    <div class="grid-container">
+      {% for place in places %}
+      {% if place.category.content_type == 12 or place.category.content_type == 14 or place.category.content_type == 25 %}
+      <div class="card place-card">
+        <div class="card-image">
+          <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">{{ place.title }}</h3>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="loading-spinner" style="display: none;">
+      <div class="spinner"></div>
+    </div>
+  </section>
+</div>
+
+<!-- 스타일 세션-->
+<style>
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Sticky Header Filter */
+.filter-header {
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  z-index: 100;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.filter-options {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.filter-btn {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.filter-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #000;
+  transition: width 0.3s ease;
+}
+
+.filter-btn:hover::after,
+.filter-btn.active::after {
+  width: 100%;
+}
+
+.filter-btn.active {
+  color: #000;
+  font-weight: 500;
+}
+
+/* Grid Layout */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+/* Card Styles */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-image {
+  position: relative;
+  padding-top: 75%;
+  overflow: hidden;
+}
+
+.card-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .card-image img {
+  transform: scale(1.05);
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  color: #000;
+  line-height: 1.4;
+}
+
+/* Event Card Specific Styles */
+.event-card .event-location {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.event-card .event-period {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 2rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 끝 메시지 스타일 */
+.end-message {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .grid-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // DOM 요소 참조
+  const filterBtns = document.querySelectorAll('.filter-btn');  // 필터 버튼들
+  const placesSection = document.getElementById('places');      // 관광지/문화시설/여행코스 섹션
+  const eventsSection = document.getElementById('events');      // 축제/행사 섹션
+
+  // 상태 변수들
+  let currentPage = 1;      // 현재 페이지 번호
+  let isLoading = false;    // 데이터 로딩 중 여부
+  let hasMoreData = true;   // 더 불러올 데이터가 있는지 여부
+  let activeSection = eventsSection;  // 현재 활성화된 섹션 (기본값: 축제/행사)
+  
+  // Django 템플릿 변수
+  const areacode = {{ areacode|safe }};  // 지역 코드
+
+  /**
+   * 데이터 초기화 함수
+   * - 페이지 번호 초기화
+   * - 상태 변수 초기화
+   * - 그리드 컨테이너 비우기
+   * - 끝 메시지 제거
+   */
+  function resetData() {
+    currentPage = 1;
+    hasMoreData = true;
+    isLoading = false;
+    activeSection.querySelector('.grid-container').innerHTML = '';
+    
+    // 기존 end-message가 있다면 제거
+    const endMessage = activeSection.querySelector('.end-message');
+    if (endMessage) {
+      endMessage.remove();
+    }
+  }
+
+  /**
+   * 필터 버튼 클릭 이벤트 처리
+   * - 버튼 활성화 상태 변경
+   * - 해당하는 섹션 표시/숨김
+   * - 데이터 초기화 후 새로 로드
+   */
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // 버튼 활성화 상태 변경
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // 필터에 따른 섹션 전환
+      const filter = btn.dataset.filter;
+      if (filter === 'events') {  // 축제/행사
+        eventsSection.style.display = 'block';
+        placesSection.style.display = 'none';
+        activeSection = eventsSection;
+      } else if (filter === 'places') {  // 관광지/문화시설/여행코스
+        eventsSection.style.display = 'none';
+        placesSection.style.display = 'block';
+        activeSection = placesSection;
+      }
+
+      // 데이터 초기화 후 새로 로드
+      resetData();
+      loadMorePlaces();
+    });
+  });
+
+  /**
+   * 추가 데이터 로드 함수
+   * - 로딩 중이거나 더 이상 데이터가 없으면 중단
+   * - AJAX로 데이터 요청
+   * - 받은 데이터로 카드 생성 및 추가
+   */
+  function loadMorePlaces() {
+    // 로딩 중이거나 더 이상 데이터가 없으면 중단
+    if (isLoading || !hasMoreData) return;
+    
+    // 로딩 스피너 표시
+    const spinner = activeSection.querySelector('.loading-spinner');
+    isLoading = true;
+    spinner.style.display = 'block';
+
+    // AJAX 요청
+    fetch(`/place/local/${areacode}/list/?page=${currentPage}&content_type=${activeSection.dataset.contentType}`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      const container = activeSection.querySelector('.grid-container');
+      
+      // 데이터가 없는 경우
+      if (data.places.length === 0) {
+        hasMoreData = false;
+        spinner.style.display = 'none';
+        
+        // 첫 페이지가 아닐 때만 끝 메시지 표시
+        if (currentPage > 1) {
+          const endMessage = document.createElement('div');
+          endMessage.className = 'end-message';
+          endMessage.textContent = '더 이상 표시할 항목이 없습니다';
+          container.parentNode.appendChild(endMessage);
+        }
+        return;
+      }
+      
+      // 받은 데이터로 카드 생성 및 추가
+      data.places.forEach(place => {
+        // 카드 요소 생성
+        const card = document.createElement('div');
+        card.className = activeSection.id === 'events' ? 'card event-card' : 'card place-card';
+        
+        // 기간 정보 HTML (축제/행사인 경우)
+        let periodHtml = '';
+        if (place.start_time && place.end_time) {
+          periodHtml = `
+            <div class="event-period">
+              ${place.start_time} - ${place.end_time}
+            </div>
+          `;
+        }
+
+        // 위치 정보 HTML (축제/행사인 경우)
+        let locationHtml = activeSection.id === 'events' ? `<span class="event-location">${place.address}</span>` : '';
+
+        // 카드 내용 구성
+        card.innerHTML = `
+          <div class="card-image">
+            <img src="${place.thumb_img}" alt="${place.title}">
+          </div>
+          <div class="card-content">
+            ${locationHtml}
+            <h3 class="card-title">${place.title}</h3>
+            ${periodHtml}
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+
+      // 다음 페이지 처리
+      if (data.has_next) {
+        currentPage = data.next_page;
+      } else {
+        hasMoreData = false;
+      }
+
+      // 로딩 상태 해제
+      isLoading = false;
+      spinner.style.display = 'none';
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      isLoading = false;
+      hasMoreData = false;
+      spinner.style.display = 'none';
+    });
+  }
+
+  /**
+   * 스크롤 이벤트 처리
+   * - 페이지 하단에 도달하면 추가 데이터 로드
+   */
+  window.addEventListener('scroll', () => {
+    if (!hasMoreData) return;  // 더 이상 데이터가 없으면 스크롤 이벤트 무시
+    
+    // 스크롤이 페이지 하단에 도달했는지 확인
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight - 100) {  // 하단 100px 전에 로드 시작
+      loadMorePlaces();
+    }
+  });
+
+  // 초기 데이터 로드
+  resetData();
+  loadMorePlaces();
+});
+</script>
+
+{% endblock %}
