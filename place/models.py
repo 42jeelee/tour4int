@@ -18,15 +18,15 @@ class Place(models.Model):
   image = models.CharField(max_length=100)
   thumb_img = models.CharField(max_length=100)
 
-  start_time = models.DateTimeField(null=True)
-  end_time = models.DateTimeField(null=True)
+  start_time = models.DateField(null=True)
+  end_time = models.DateField(null=True)
 
   is_detail = models.BooleanField(default=False)
   homepage_url = models.CharField(max_length=500, null=True)
   overview = models.TextField(null=True)
 
-  updated_at = models.DateField(auto_now=True)
-  created_at = models.DateField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
+  created_at = models.DateTimeField(auto_now_add=True)
 
   def __str__(self):
     return f"{self.title} ({self.address})"

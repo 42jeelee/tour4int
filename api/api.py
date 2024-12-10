@@ -129,7 +129,7 @@ def get_event_info(datetime, pageNo=1, event=[]):
     get_event_info(datetime=datetime, pageNo=pageNo+1, event=event)
   event_data = []
   for e_info in event:
-    event_data.append({'contentid':e_info['contentid'], 'eventstartdate':e_info['eventstartdate'], 'eventenddate':e_info['eventenddate']})
+    event_data.append(e_info)
   return event_data
 
 def get_place_info(contentid):
@@ -145,5 +145,4 @@ def get_place_info(contentid):
   keys = ['response', 'body', 'items', 'item']
   data = get_api_list(path=path, params=params, keys=keys)
   info = data[0]
-  # return False
   return {'contentid':info['contentid'], 'homepage':info['homepage'], 'overview':info['overview']}

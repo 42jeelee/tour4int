@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b53d3e95e27811083b5ac0f850526bb3"></script>
 <article class='wrap'>
 
   <div class='view_wrap'>
 
     <div class='view_header'>
-      <h2 class='subject'>상세페이지</h2>
+      <h2 class='subject'>{{data.title}}</h2>
       <div class='location'>
         <ul class='list'>
           <li>
-            <strong class='title'>주소</strong>
-            <sapn class='text'>인천 계양구 계양문화로 7 문화빌딩 2층 심장박물관</sapn>
+            <strong class='title'>주소 | </strong>
+            <sapn class='text'>{{data.address}}</sapn>
           </li>
           <li>
             <strong class='title'>전화번호</strong>
-            <sapn class='text'>032-546-9501~2</sapn>
+            <sapn class='text'>{{data.tel}}</sapn>
           </li>
         </ul>
       </div>
@@ -25,11 +25,16 @@
     <div class='info'>
       <button>좋아요</button>
       <span>조회 0</span>
-      <span>등록일 | 2024-12-05</span>
+      <span>등록일 | {{data.created_at}}</span>
+      <span>수정일 | {{data.updated_at}}</span>
     </div>
 
     <div class='view_photos'>
-      <div><img src="{%static 'images/test-image/test3.do'%}"></div>
+      {% if data.image != '' %}
+      <div><img src="{{data.image}}"></div>
+      {% else %}
+      <div><img src="{{data.sigungu_code.area_code.image_url}}"></div>
+      {% endif %}
     </div>
 
     <div class='view_tap'>
@@ -46,7 +51,7 @@
 
     <div id='intro'>
       <div class='cont_wrap'>
-        <p>심장을 이해하고 경험하고 생각하는 공간인 심장박물관으로 (재)우촌심뇌혈관연구재단에서 운영하는 국내 유일의 심장 관련된 박물관이자 의학 전문박물관이다. 심장과 심장병에 대해 알아보고 다양한 체험할 수 있으며, 의료기기의 발달과 심장 치료의 역사, 그리고 뇌혈관 질환과 관련하여 전문적인 지식을 알아볼 수 있다.</p>
+        <p>{{data.overview}}</p>
       </div>
     </div>
 
@@ -136,22 +141,73 @@
           <script>
             var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
               mapOption = { 
-                center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
-                level: 3 // 지도의 확대 레벨
+                center: new kakao.maps.LatLng({{data.map_y}}, {{data.map_x}} + 0.004), // 지도의 중심좌표
+                level: 4 // 지도의 확대 레벨
             };
 
             var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
 
-            // 마커가 표시될 위치입니다 
-            var markerPosition  = new kakao.maps.LatLng(33.450701, 126.570667); 
+            var positions = [
+            {% for around_data in around %}
+              {
+                content: '<div>{{around_data.title}}</div>', 
+                latlng: new kakao.maps.LatLng({{around_data.map_y}}, {{around_data.map_x}})
+              },
+            {% endfor %}
+            ];
+            for (var i = 0; i < positions.length; i ++) {
+              // 마커를 생성합니다
+              var marker = new kakao.maps.Marker({
+                  map: map, // 마커를 표시할 지도
+                  position: positions[i].latlng // 마커의 위치
+              });
+          
+              // 마커에 표시할 인포윈도우를 생성합니다 
+              var infowindow = new kakao.maps.InfoWindow({
+                  content: positions[i].content // 인포윈도우에 표시할 내용
+              });
+          
+              // 마커에 mouseover 이벤트와 mouseout 이벤트를 등록합니다
+              // 이벤트 리스너로는 클로저를 만들어 등록합니다 
+              // for문에서 클로저를 만들어 주지 않으면 마지막 마커에만 이벤트가 등록됩니다
+              kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+              kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+              }
 
-            // 마커를 생성합니다
-            var marker = new kakao.maps.Marker({
+              // 인포윈도우를 표시하는 클로저를 만드는 함수입니다 
+              function makeOverListener(map, marker, infowindow) {
+                  return function() {
+                      infowindow.open(map, marker);
+                  };
+              }
+              
+              // 인포윈도우를 닫는 클로저를 만드는 함수입니다 
+              function makeOutListener(infowindow) {
+                  return function() {
+                      infowindow.close();
+                  };
+              }
+
+              // main_content marker start
+              var markerPosition  = new kakao.maps.LatLng({{data.map_y}}, {{data.map_x}}); 
+
+              var marker = new kakao.maps.Marker({
                 position: markerPosition
-            });
+              });
 
-            // 마커가 지도 위에 표시되도록 설정합니다
-            marker.setMap(map);
+              marker.setMap(map);
+
+              var iwContent = '<div style="padding:5px;">{{data.title}}</div>', // 인포윈도우에 표출될 내용으로 HTML 문자열이나 document element가 가능합니다
+              iwPosition = new kakao.maps.LatLng({{data.map_y}}, {{data.map_x}});
+
+              var infowindow = new kakao.maps.InfoWindow({
+                position : iwPosition, 
+                content : iwContent 
+              });
+              infowindow.open(map, marker);
+              // main_content marker end
+
+              marker.setMap(map);
           </script>
 
           <script src="{% static 'js/view.js' %}"></script>
@@ -168,19 +224,35 @@
               <span>주변 숙박업소</span>
             </a>
           </div>
-
           <div id='tap1' class="tap_body active">
             <ul>
+              {% if len != 1 %}
+                {% for aro in around %}
+                  {% if data.title != aro.title %}
+                    <li class='item'>
+                      <div class='near_photo'>
+                        {% if aro.thumb_img != '' %}
+                        <img src="{{aro.thumb_img}}">
+                        {% else %}
+                        <img src="{{aro.sigungu_code.area_code.image_url}}">
+                        {% endif %}
+                      </div>
+                      <div class='cont'>
+                        <div class='near_subject'>{{aro.title}}</div>
+                        <div class='near_tel'>{{aro.tel}}</div>
+                        <div class='near_address'>{{aro.address}}</div>
+                        <a href='/place/local/{{aro.sigungu_code.area_code.area_code}}/view/{{aro.place_id}}' class='near_more'>자세히 보기</a>
+                      </div>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              {% else %}
               <li class='item'>
-                <div class='near_photo'>
-                  <img src="{% static "images/test-image/near_photo.do" %}">
-                </div>
                 <div class='cont'>
-                  <div class='near_subject'>계양꽃마루</div>
-                  <div class='near_tel'>032-450-5653(공원녹지과녹지조경팀)</div>
-                  <a href='#' class='near_more'>자세히 보기</a>
+                인근 관광지가 없습니다.
                 </div>
               </li>
+              {% endif %}
             </ul>
           </div>
 
