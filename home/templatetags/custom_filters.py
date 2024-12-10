@@ -28,7 +28,7 @@ def get_diffday(value):
 
 @register.filter
 def custom_date(value):
-  if value and isinstance(value, datetime):
+  if value and (isinstance(value, date) or isinstance(value, datetime)):
     weeks = ['일', '월', '화', '수', '목', '금', '토']
     
     return value.strftime(f"%Y년 %m월 %d일 ({weeks[value.weekday()]})")
