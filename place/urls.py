@@ -5,5 +5,5 @@ app_name = 'place'
 
 urlpatterns = [
     path('local/<str:areacode>/', views.local, name='local'),
-    path('<str:areacode>/view/<str:content_id>', views.view, name='view'),
+    path('local/<str:areacode>/view/<str:content_id>', views.view, name='view'),
 ]

@@ -17,7 +17,7 @@
     <ul class='list'>
       {% for tour in tour_list %}
       <li class='item'>
-        <a href='/place/{{areacode}}/view/{{tour.place_id}}'>
+        <a href='/place/local/{{areacode}}/view/{{tour.place_id}}'>
           {% if tour.thumb_img != '' %}
           <div class='photo'><img src="{{tour.thumb_img}}"></div>
           {% else %}

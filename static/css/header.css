@@ -54,7 +54,7 @@ a.header__btn.my-btn:hover {
 
 header .header__banner {
   width: 100%;
-  height: 820px;
+  height: 410px;
   background-color: #688d6f;
   display: flex;
   justify-content: center;
@@ -84,7 +84,7 @@ header .header__banner > .header__banner--wrap {
 
 header .header__search-bar {
   position: absolute;
-  bottom: -20px;
+  bottom: -60px;
   height: 120px;
   width: 1200px;
   background-color: white;
