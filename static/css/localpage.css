@@ -44,6 +44,11 @@ ol, ul, ul li {
   border-radius: 20px;
   background-color: #fff;
   box-shadow: 8.192px 5.736px 32px 0 #11111126;
+  transition: .2s ease-in-out;
+}
+
+.tourList .item:hover{
+  transform: translateY(-4px);
 }
 
 .item a{
@@ -132,12 +137,12 @@ ol, ul, ul li {
   padding-bottom: 20px;
   border-radius: 20px;
   background-color: #fff;
-  box-shadow: 0px 0px 6px #11111126;
+  box-shadow: 8.192px 5.736px 32px 0 #11111126;
+  transition: .2s ease-in-out;
 }
 
-.slideItem a{
-  text-decoration: none;
-  color: inherit;
+.slideItem:hover{
+  transform: translateY(-4px);
 }
 
 .slideContent{
