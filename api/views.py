@@ -36,7 +36,7 @@ def init_areacode(request):
       for d in data:
         area_code = d['code']
         name = d['name']
-        image_url = f"/static/images/area-image/{area_code}.png"
+        image_url = f"/static/images/area-image/{area_code}.jpg"
 
         AreaCode.objects.create(area_code=area_code, name=name, image_url=image_url)
 
