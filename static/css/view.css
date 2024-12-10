@@ -1,0 +1,311 @@
+.view_wrap{
+  padding: 95px 0 ;
+}
+
+/* 뷰 헤더 */
+.view_header{
+  padding: 30px 0;
+  border-top: 3px solid #333;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.view_header .subject{
+  font-size: 45px;
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: -3px;
+  font-weight: 500;
+}
+
+.view_header .list{
+  text-align: center;
+  margin-top: 25px;
+}
+.view_header .list li{
+  display: inline-block;
+  position: relative;
+  margin-left: 10px;
+  padding-left: 10px;
+  font-size: 18px;
+}
+.view_header .list li:first-child{
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.view_header .list li:last-child::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 1px;
+  height: 16px;
+  background-color: #e0e0e0;
+}
+.view_header .list .title{
+  font-weight: 500;
+}
+
+.view_header .list .text{
+  font-weight: 300;
+}
+
+
+/* --- info --- */
+.view_wrap .info {
+  margin-top: 13px;
+  text-align: center;
+  color: #666;
+  font-weight: 300;
+}
+
+.view_wrap .info button{
+  margin: 0 10px;
+}
+
+.view_wrap .info span{
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+/* photos */
+.view_wrap .view_photos {
+  position: relative;
+  width: 820px;
+  height: 544px;
+  margin: 55px auto 0;
+}
+
+.view_wrap .view_photos img{
+  object-fit:cover;
+  max-width: 100%;
+  max-height: 544px;
+  vertical-align: middle;
+}
+
+
+/* --- view_tap --- */
+.view_tap{
+  display: flex;
+  margin-top: 62px;
+  border-bottom: 1px solid #858585;
+}
+
+
+.view_tap .link{
+  flex: 1 0;
+  padding: 0 20px;
+  text-align: center;
+}
+
+
+.view_wrap .view_tap .link span{
+  position: relative;
+  padding: 15px 0;
+  font-size: 20px;
+  font-weight: 300;
+  color: #787878;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.view_wrap .view_tap .link .active span{
+  color: #267bca;
+  font-weight: 500;
+}
+
+/* 관광지소개 */
+#intro{
+  position: relative;
+  margin-top: 70px;
+}
+
+.cont_wrap{
+  max-width: 1000px;
+  margin: auto;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+}
+
+
+/* 이용안내 */
+#guide{
+  position: relative;
+  margin-top: 70px;
+}
+
+.view_wrap h3{
+  margin-bottom: 35px;
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+caption {
+  position: relative;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  background: 0 0;
+  font-size: 0;
+  color: transparent;
+  line-height: 0;
+  text-indent: 100%;
+}
+
+.table{
+  position: relative;
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-top: 1px solid #969696;
+  border-bottom: 1px solid #969696;
+}
+
+.table tr{
+  height: 54px;
+  place-items: center;
+}
+
+.table td, .table th {
+  padding: 11px 40px 12px;
+  border-top: 1px solid #e0e1e3;
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+.table th {
+  text-align: left;
+  font-weight: 500;
+}
+
+.table tr:nth-child(even) td, .table tr:nth-child(even) th {
+  background: #f9f9f9;
+}
+
+/* 무장애관광 정보 */
+.view_wrap .section {
+  position: relative;
+  margin-top: 70px;
+}
+
+
+/* 주변관광지 */
+.view_wrap .map_wrap {
+  display: flex;
+}
+
+.view_wrap .map {
+  flex: 1 0;
+  height: 755px;
+  border: 1px solid #e0e0e0;
+}
+
+.view_wrap .near_map {
+  flex: 1 0 380px;
+  max-width: 380px;
+  margin-left: 30px;
+}
+
+div.near_tap {
+  display: flex;
+  border-bottom: 1px solid #858585;
+  height: 44px;
+}
+
+div.near_tap > a.near_btn{
+  flex: 1 0;
+  padding: 0 15px;
+  text-align: center;
+}
+
+div.near_tap > a.near_btn.active > span:before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 100%;
+  height: 3px;
+  background-color: #267bca;
+}
+
+div.near_map > div.near_tap > a.near_btn.active > span {
+  color: #267bca;
+  font-weight: 500;
+}
+
+
+div.near_map > div.near_tap > a > span {
+  position: relative;
+  padding: 0 0 15px;
+  font-size: 19px;
+  font-weight: 300;
+  color: #787878;
+  letter-spacing: -1px;
+}
+
+.tap_body {
+  display: none;
+}
+
+.tap_body.active {
+  display: block;
+}
+
+.near_map ul {
+  margin-top: 12px;
+}
+
+.near_map .item{
+  display: flex;
+  padding: 7px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.near_map ul .item .near_photo {
+  position: relative;
+  overflow: hidden;
+  width: 120px;
+  height: 120px;
+}
+
+.near_map ul .item .near_photo img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.near_map ul .item .cont{
+  margin-left: 12px;
+  max-width: 246px;
+}
+.near_map ul .item .cont .near_subject{
+  position: relative;
+  overflow: hidden;
+  font-size: 18px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 10px;
+}
+
+.near_map ul .item .cont .near_tel{
+  margin-top: 2px;
+  font-weight: 300;
+}
+
+.near_map ul .item .cont .near_more{
+  height: 30px;
+  padding: 0 18px;
+  line-height: 28px;
+  margin-top: 27px;
+  background-color: #737373;
+  color: #fff;
+  display: inline-block;
+  vertical-align: middle;
+}

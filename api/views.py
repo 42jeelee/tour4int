@@ -20,7 +20,7 @@ def init_all(request):
 
 def init_place(request):
   content_types = [12, 14, 25]
-  data = data = api.get_all_place(content_types=content_types)
+  data = api.get_all_place(content_types=content_types)
   context = insert_place(data, content_types=content_types)
 
   return JsonResponse(context)
