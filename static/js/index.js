@@ -74,4 +74,9 @@ $(function () {
     }
   });
 
+  // 둘러보기 페이지 이동
+  $(document).on('click', '.areabox__btn', function(){
+    location.href = '/place/local/' + $(this).parent().attr("id");
+  });
+
 });
