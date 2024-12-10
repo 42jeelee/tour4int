@@ -1,13 +1,13 @@
 from django import template
 from django.utils import timezone
-from datetime import timedelta, datetime
+from datetime import datetime, date
 
 register = template.Library()
 
 @register.filter
 def is_close_deadline(value, days):
-  if value and isinstance(value, datetime):
-    today = timezone.now()
+  if value and isinstance(value, date):
+    today = timezone.now().date()
 
     diff = value - today
 
@@ -17,8 +17,8 @@ def is_close_deadline(value, days):
 
 @register.filter
 def get_diffday(value):
-  if value and isinstance(value, datetime):
-    today = timezone.now()
+  if value and isinstance(value, date):
+    today = timezone.now().date()
 
     diff = value - today
 
