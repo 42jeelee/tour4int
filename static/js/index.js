@@ -61,7 +61,7 @@ $(function () {
     
     const moveDistance = getDistance(screenWidth, itemList, isPrev);
 
-    itemList.animate({ left: moveDistance.distance + "px"}, 100);
+    itemList.animate({ left: moveDistance.distance + "px"}, 500, "swing");
 
     btns.removeClass("disable-btn");
 
@@ -74,9 +74,10 @@ $(function () {
     }
   });
 
-  // 둘러보기 페이지 이동
-  $(document).on('click', '.areabox__btn', function(){
-    location.href = '/place/local/' + $(this).parent().attr("id");
+  $(document).on("click", ".areabox__btn", function() {
+    const area_code = $(this).closest(".areabox").attr("id");
+
+    location.href = `/place/local/${area_code}/`;
   });
 
 });

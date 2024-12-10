@@ -8,7 +8,14 @@
         <div class="itemlist">
           {% for a in area_codes %}
             <div class="areabox" id="{{ a.area_code }}">
-              <h2 class="areabox__title">{{ a.name }}</h2>
+              <h2 class="areabox__title">
+                {% if a.name|length < 5 %}
+                <div>{{ a.name }}</div>
+                {% else %}
+                <div>{{ a.name|slice:'2' }}</div>
+                <div>{{ a.name|slice:'2:' }}</div>
+                {% endif %}
+              </h2>
               <button class="areabox__btn">둘러보기</button>
               <div class="itemlist__item-background"></div>
             </div>
