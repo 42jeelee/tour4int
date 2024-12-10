@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load custom_filters %}
 {% block content %}
 <div class="index-wrap">
   <div class="wrap__line">
@@ -34,19 +35,33 @@
     <div class="item-screen">
       <div class="item-screen__contents">
         <div class="itemlist">
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
-          <div class="eventbox"></div>
+          {% for e in events %}
+          <div class="eventbox">
+            <div class="eventbox__image">
+              <img src="{{ e.image }}" alt="{{ e.title }}">
+            </div>
+            <div class="eventbox__info">
+              <div class="eventbox__info--wrap">
+                <div class="eventbox__category">
+                  {{ e.category.name }} <span class="separate-ball"></span>
+                  {{ e.sigungu_code.area_code.name }} {{ e.sigungu_code.name }}
+                </div>
+                <div class="eventbox__title">{{ e.title|truncatechars:25 }}</div>
+              </div>
+              <div class="eventbox__info--wrap">
+                <div class="eventbox__time">{{ e.start_time|custom_date }}</div>
+                <div class="eventbox__time--separate"></div>
+                <div class="eventbox__time big {% if e.end_time|is_close_deadline:2 %}deadline{% endif %}">
+                  {{ e.end_time|custom_date }}
+                  {% if e.end_time|is_close_deadline:2 %}<span>[D-{{ e.end_time|get_diffday }}]</span>{% endif %}
+                </div>
+              </div>
+            </div>
+            <a href="/local/{{ e.sigungu_code.area_code.area_code }}/view/{{ e.place_id }}/" class="eventbox__link"></a>
+          </div>
+          {% empty %}
+          <div class="itemlist__empty">이벤트가 존재하지 않습니다.</div>
+          {% endfor %}
         </div>
       </div>
       <div class="item-screen__btns big-btn">
