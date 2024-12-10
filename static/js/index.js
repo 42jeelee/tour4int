@@ -43,13 +43,6 @@ $(function () {
     
     return result;
   }
-  
-  $.each(areaboxs, function(idx, areabox) {
-    const area_box = $(areabox)
-    const area_id = area_box.attr("id");
-    
-    area_box.css('background-image', `url(/static/images/area-image/${area_id}.jpg)`);
-  });
 
   $(document).on("click", ".item-screen__btn", function() {
     const btns = $(this).parent().children();

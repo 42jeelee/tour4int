@@ -8,7 +8,7 @@
       <div class="item-screen__contents">
         <div class="itemlist">
           {% for a in area_codes %}
-            <div class="areabox" id="{{ a.area_code }}">
+            <div class="areabox" id="{{ a.area_code }}" style="background-image: url({{ a.image_url }})">
               <h2 class="areabox__title">
                 {% if a.name|length < 5 %}
                 <div>{{ a.name }}</div>
@@ -51,9 +51,9 @@
               <div class="eventbox__info--wrap">
                 <div class="eventbox__time">{{ e.start_time|custom_date }}</div>
                 <div class="eventbox__time--separate"></div>
-                <div class="eventbox__time big {% if e.end_time|is_close_deadline:2 %}deadline{% endif %}">
+                <div class="eventbox__time big {% if e.end_time|is_close_deadline:3 %}deadline{% endif %}">
                   {{ e.end_time|custom_date }}
-                  {% if e.end_time|is_close_deadline:2 %}<span>[D-{{ e.end_time|get_diffday }}]</span>{% endif %}
+                  {% if e.end_time|is_close_deadline:3 %}<span>[D-{{ e.end_time|get_diffday }}]</span>{% endif %}
                 </div>
               </div>
             </div>
