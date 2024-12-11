@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'category.apps.CategoryConfig',
     'api.apps.ApiConfig',
     'accounts.apps.AccountsConfig',
+    'touradmin.apps.TouradminConfig',
 ]
 
 MIDDLEWARE = [
