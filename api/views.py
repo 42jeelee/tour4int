@@ -6,6 +6,7 @@ from place.models import Place
 from api.apilog import logType, logging_fetch_log, has_fetch
 from . import api
 from datetime import datetime
+from api.exceptions import ApiResultException
 
 CONTANT_TYPE = [12, 14, 15, 25]
 
@@ -115,15 +116,15 @@ def init_place(request):
   content_types = [12, 14, 25]
   data = api.get_all_place(content_types=content_types)
 
-  with transaction.atomic():
-    try:
+  try:
+    with transaction.atomic():
       Place.objects.filter(category__content_type__in = content_types).delete()
       context = insert_place(data)
 
-      if context['result'] == 'fail': raise Exception("Fail from insert place")
+      if context['result'] == 'fail': raise ApiResultException("Fail from insert place", context)
     
-    except Exception as e:
-      pass
+  except ApiResultException as e:
+    return JsonResponse(e.context)
 
   return JsonResponse(context)
 
@@ -139,15 +140,16 @@ def get_event(request):
   eventime = datetime.now().replace(day=1).date().strftime(f'%Y%m%d')
   event_data = api.get_event_info(eventime)
 
-  with transaction.atomic():
-    try:
+  try:
+    with transaction.atomic():
       Place.objects.filter(category__content_type=15).delete()
       context = insert_place(event_data, isEvent=True)
 
-      if context['result'] == 'fail': raise Exception("Fail from insert place")
+      if context.get('result') == 'fail': raise ApiResultException("Fail from insert place", context)
 
-    except Exception as e:
-      pass
+  except ApiResultException as e:
+    return JsonResponse(e.context)
+
   return JsonResponse(context)
 
 def get_place(request):
