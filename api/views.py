@@ -3,7 +3,7 @@ from django.db import transaction
 from areacode.models import AreaCode, SigunguCode
 from category.models import Category
 from place.models import Place
-from api.apilog import logType, logging_fetch_log
+from api.apilog import logType, logging_fetch_log, has_fetch
 from . import api
 from datetime import datetime
 
@@ -104,9 +104,16 @@ def init_category(request):
   return JsonResponse(context)
 
 def init_place(request):
+
+  if not has_fetch(logType.CATEGORY) and not has_fetch(logType.SIGUNGUCODE):
+    context = {
+      'result': 'fail',
+      'error': "We don't have category or sigungucode"
+    }
+    return JsonResponse(context)
+
   content_types = [12, 14, 25]
   data = api.get_all_place(content_types=content_types)
-  context = {}
 
   with transaction.atomic():
     try:
@@ -121,9 +128,16 @@ def init_place(request):
   return JsonResponse(context)
 
 def get_event(request):
+
+  if not has_fetch(logType.CATEGORY) and not has_fetch(logType.SIGUNGUCODE):
+    context = {
+      'result': 'fail',
+      'error': "We don't have category or sigungucode"
+    }
+    return JsonResponse(context)
+
   eventime = datetime.now().replace(day=1).date().strftime(f'%Y%m%d')
   event_data = api.get_event_info(eventime)
-  context = {}
 
   with transaction.atomic():
     try:
@@ -138,8 +152,14 @@ def get_event(request):
 
 def get_place(request):
   content_types = [12, 14, 25]
-  data = api.get_all_place(content_types=content_types, isModify=True)
-  context = insert_place(data)
+  if not has_fetch(logType.PLACE):
+    context = {
+      'result': 'fail',
+      'error': 'we need init place.'
+    }
+  else:
+    data = api.modify_all_place(content_types=content_types)
+    context = insert_place(data)
 
   return JsonResponse(context)
 
@@ -198,7 +218,6 @@ def insert_place(data, isEvent=False):
           if created_time != '': created_time = datetime.strptime(created_time, '%Y%m%d%H%M%S')
 
           place_data = {
-            'place_id': place_id,
             'category': category,
             'sigungu_code': sigungu_code,
             'title': title,
@@ -218,7 +237,11 @@ def insert_place(data, isEvent=False):
               'end_time': eventenddate,
             })
 
-          Place.objects.create(**place_data)
+          if Place.objects.filter(place_id=place_id).exists():
+            Place.objects.filter(place_id=place_id).update(**place_data)
+          else:
+            Place.objects.create(place_id=place_id, **place_data)
+
           context['modifed_count'] += 1
 
         context['result'] = "success"

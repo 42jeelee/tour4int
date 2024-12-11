@@ -3,7 +3,6 @@ from api.models import ApiFetchLog
 from category.models import Category
 from areacode.models import AreaCode, SigunguCode
 from place.models import Place
-from datetime import datetime
 from django.utils import timezone
 from django.db.models import Q
 
@@ -20,8 +19,9 @@ def logging_fetch_log(fetchType=logType.EMPTY, context=0):
     return
   
   api_logger = ApiFetchLog.objects.get(id=1)
-  data_num = len(context['data'])
-  modify_num = context['modifed_count']
+
+  data_num = len(context.get('data', []))
+  modify_num = context.get('modifed_count', 0)
   save_num = 0
 
   if fetchType == logType.CATEGORY:
@@ -64,21 +64,34 @@ def logging_fetch_log(fetchType=logType.EMPTY, context=0):
   
   msg = f"💾 {fetchType.name} logging save [{modify_num}/{data_num}] current total [{save_num}]"
   print(msg)
-  
-def get_modify_time(fetchType=logType.PLACE):
+
+def has_fetch(logType=logType.EMPTY):
   api_logger = ApiFetchLog.objects.get(id=1)
 
-  modified_time = datetime.strptime('20210625', '%Y%m%d')
+  if logType == logType.CATEGORY: return api_logger.is_category
+  if logType == logType.AREACODE: return api_logger.is_areacode
+  if logType == logType.SIGUNGUCODE: return api_logger.is_sigungucode
+  if logType == logType.PLACE: return api_logger.is_place
+  if logType == logType.EVENT: return api_logger.is_event
 
-  if fetchType == logType.CATEGORY and  api_logger.modify_category is not None:
-    modified_time =  api_logger.modify_category
-  if fetchType == logType.AREACODE and  api_logger.modify_areacode is not None:
-    modified_time =  api_logger.modify_areacode
-  if fetchType == logType.SIGUNGUCODE and  api_logger.modify_sigungucode is not None:
-    modified_time =  api_logger.modify_sigungucode
-  if fetchType == logType.PLACE and  api_logger.modify_place is not None:
-    modified_time =  api_logger.modify_place
-  if fetchType == logType.EVENT and  api_logger.modify_event is not None:
-    modified_time =  api_logger.modify_event
+  return False
+  
+def get_modify_time(fetchType=logType.EMPTY):
+  api_logger = ApiFetchLog.objects.get(id=1)
+  modified_time = timezone.now()
+
+  if api_logger is not None:
+
+    if fetchType == logType.CATEGORY and api_logger.modify_category is not None:
+      modified_time =  api_logger.modify_category
+    if fetchType == logType.AREACODE and api_logger.modify_areacode is not None:
+      modified_time =  api_logger.modify_areacode
+    if fetchType == logType.SIGUNGUCODE and api_logger.modify_sigungucode is not None:
+      modified_time =  api_logger.modify_sigungucode
+    if fetchType == logType.PLACE and api_logger.modify_place is not None:
+      modified_time =  api_logger.modify_place
+      print("!", modified_time)
+    if fetchType == logType.EVENT and api_logger.modify_event is not None:
+      modified_time =  api_logger.modify_event
 
   return modified_time

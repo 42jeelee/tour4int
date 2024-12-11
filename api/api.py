@@ -1,6 +1,8 @@
 import requests
 from django.conf import settings
 from api.apilog import logType, get_modify_time
+from django.utils import timezone
+from datetime import timedelta
 
 API_KEY = settings.API_KEY
 API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1"
@@ -37,12 +39,12 @@ def get_api_list(path, params={}, keys=[]):
 
   return []
 
-def get_all_place(content_types=[], isModify=False):
+def get_all_place(content_types=[], modified_time=""):
   path = "areaBasedList1"
   params = { 'numOfRows': 10000, 'pageNo': 1, 'arrange': 'C' }
   keys = ['response', 'body', 'items', 'item']
 
-  if isModify: params['modifiedtime'] = get_modify_time(logType.PLACE).strftime("%Y%m%d")
+  if len(modified_time) > 0: params['modifiedtime'] = modified_time
 
   data_list = []
   data_len = 1
@@ -62,6 +64,19 @@ def get_all_place(content_types=[], isModify=False):
       data_list += tmp
       params['pageNo'] += 1
 
+  return data_list
+
+def modify_all_place(content_types=[]):
+  data_list = []
+  modified_place = get_modify_time(logType.PLACE)
+  today = timezone.now()
+
+  modified_place += timedelta(days=1)
+  while modified_place <= today:
+    modified_time = modified_place.date().strftime("%Y%m%d")
+    data_list += get_all_place(content_types=content_types, modified_time=modified_time)
+    modified_place += timedelta(days=1)
+  
   return data_list
 
 
