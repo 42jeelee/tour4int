@@ -3,6 +3,7 @@ from django.db import transaction
 from areacode.models import AreaCode, SigunguCode
 from category.models import Category
 from place.models import Place
+from api.apilog import logType, logging_fetch_log
 from . import api
 from datetime import datetime
 
@@ -18,13 +19,6 @@ def init_all(request):
   init_place(request)
   return JsonResponse(context)
 
-def init_place(request):
-  content_types = [12, 14, 25]
-  data = api.get_all_place(content_types=content_types)
-  context = insert_place(data, content_types=content_types)
-
-  return JsonResponse(context)
-
 def init_areacode(request):
   context = {}
   try:
@@ -33,15 +27,19 @@ def init_areacode(request):
 
       AreaCode.objects.all().delete()
 
+      context['modifed_count'] = 0
       for d in data:
         area_code = d['code']
         name = d['name']
         image_url = f"/static/images/area-image/{area_code}.jpg"
 
         AreaCode.objects.create(area_code=area_code, name=name, image_url=image_url)
+        context['modifed_count'] += 1
 
       context['result'] = "success"
       context['data'] = data
+
+      logging_fetch_log(logType.AREACODE, context)
   except Exception as e:
     context['result'] = 'fail'
     context['error'] = str(e)
@@ -54,6 +52,7 @@ def init_sigungucode(request):
 
   try:
     with transaction.atomic():
+      context['modifed_count'] = 0
       for c in area_codes:
         curr_list = api.get_all_sigungucode(c.area_code)
         context['data'] += curr_list
@@ -65,8 +64,11 @@ def init_sigungucode(request):
           name = s['name']
 
           SigunguCode.objects.create(sigungu_code=sigungu_code, area_code=area_code, name=name)
+          context['modifed_count'] += 1
 
       context['result'] = 'success'
+
+      logging_fetch_log(logType.SIGUNGUCODE, context)
   except Exception as e:
     context['result'] = 'fail'
     context['error'] = str(e)
@@ -83,29 +85,65 @@ def init_category(request):
 
       Category.objects.all().delete()
 
+      context['modifed_count'] = 0
       for d in data:
         category = d['code']
         content_type = d['content_type']
         name = d['name']
 
         Category.objects.create(category=category, content_type=content_type, name=name)
+        context['modifed_count'] += 1
 
     context['result'] = "success"
     context['data'] = data
+
+    logging_fetch_log(logType.CATEGORY, context)
   except Exception as e:
     context['result'] = 'fail'
     context['error'] = str(e)
   return JsonResponse(context)
 
-# 이벤트 정보
-def get_event(request):
+def init_place(request):
+  content_types = [12, 14, 25]
+  data = api.get_all_place(content_types=content_types)
   context = {}
-  eventime = datetime.now().replace(day=1).date().strftime(f'%Y%m%d')
-  event_data = api.get_event_info(eventime)
-  context = insert_place(event_data, content_types=[15], isEvent=True)
+
+  with transaction.atomic():
+    try:
+      Place.objects.filter(category__content_type__in = content_types).delete()
+      context = insert_place(data)
+
+      if context['result'] == 'fail': raise Exception("Fail from insert place")
+    
+    except Exception as e:
+      pass
+
   return JsonResponse(context)
 
-def insert_place(data, content_types=CONTANT_TYPE, isEvent=False):
+def get_event(request):
+  eventime = datetime.now().replace(day=1).date().strftime(f'%Y%m%d')
+  event_data = api.get_event_info(eventime)
+  context = {}
+
+  with transaction.atomic():
+    try:
+      Place.objects.filter(category__content_type=15).delete()
+      context = insert_place(event_data, isEvent=True)
+
+      if context['result'] == 'fail': raise Exception("Fail from insert place")
+
+    except Exception as e:
+      pass
+  return JsonResponse(context)
+
+def get_place(request):
+  content_types = [12, 14, 25]
+  data = api.get_all_place(content_types=content_types, isModify=True)
+  context = insert_place(data)
+
+  return JsonResponse(context)
+
+def insert_place(data, isEvent=False):
   context = {}
   try:
     with transaction.atomic():
@@ -115,7 +153,7 @@ def insert_place(data, content_types=CONTANT_TYPE, isEvent=False):
       sigungucode_all = SigunguCode.objects.all()
 
       if category_all and sigungucode_all:
-        Place.objects.filter(category__content_type__in = content_types).delete()
+        context['modifed_count'] = 0
         for i in data:
           areacode = i.get('areacode', '')
           sigungucode = i.get('sigungucode', '')
@@ -181,9 +219,13 @@ def insert_place(data, content_types=CONTANT_TYPE, isEvent=False):
             })
 
           Place.objects.create(**place_data)
+          context['modifed_count'] += 1
 
         context['result'] = "success"
         context['data'] = data
+
+        if isEvent: logging_fetch_log(logType.EVENT, context)
+        else: logging_fetch_log(logType.PLACE, context)
       else:
         context['result'] = "fail"
         context['error'] = "We don't have category or sigungucode"

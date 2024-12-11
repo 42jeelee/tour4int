@@ -1,5 +1,6 @@
 import requests
 from django.conf import settings
+from api.apilog import logType, get_modify_time
 
 API_KEY = settings.API_KEY
 API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1"
@@ -36,10 +37,12 @@ def get_api_list(path, params={}, keys=[]):
 
   return []
 
-def get_all_place(content_types=[]):
+def get_all_place(content_types=[], isModify=False):
   path = "areaBasedList1"
-  params = { 'numOfRows': 10000, 'pageNo': 1 }
+  params = { 'numOfRows': 10000, 'pageNo': 1, 'arrange': 'C' }
   keys = ['response', 'body', 'items', 'item']
+
+  if isModify: params['modifiedtime'] = get_modify_time(logType.PLACE).strftime("%Y%m%d")
 
   data_list = []
   data_len = 1
