@@ -5,13 +5,8 @@
    <!-- tourList -->
   <div class='tourList'>
     <h2>관광지 추천 리스트</h2>
-    <div>areacode : {{ areacode }}</div>
-    <div>areacode_image_url : {{ tour_list.sigungu_code }}</div>
-    <div>tour_list : {{ tour_list.length }}</div>
-    <div class="item-screen__btns">
-      <p id='items_point'></p>
-      <button id="prevBtn">뒤로</button>
-      <button id="nextBtn">앞으로</button>
+    <div class='all_list'>
+      <a href='/place/local/{{areacode}}/list'>목록</a>
     </div>
 
     <ul class='list'>
@@ -24,7 +19,7 @@
           <div class='photo'><img src="{{tour.sigungu_code.area_code.image_url}}"></div>
           {% endif %}
           <div class='subject'>
-            <a href='#' class='subjectTitle'>{{tour.title}}</a>
+            <a href='/place/local/{{areacode}}/view/{{tour.place_id}}' class='subjectTitle'>{{tour.title}}</a>
           </div>
           <div class='tag'>
             {{tour.address}}
@@ -35,116 +30,32 @@
     </ul>
   </div>
 
-  <script>
-    let items = document.querySelectorAll(".item")
-    var currentIndex = 0;
-    function displayItems(){
-      items.forEach(function(item) {
-        item.style.display = "none";
-      });
-      for (var i = currentIndex; i < currentIndex + 4 && i < items.length; i++) {
-        items[i].style.display = "inline-block";
-        if (i % 4 === 0){
-          items[i].style.marginLeft = '0';
-        }
-      }
-      $('#items_point').text("현재 페이지: " + currentIndex + '/ 총 길이 : ' + items.length)
-    }
-    document.addEventListener("DOMContentLoaded", function() {
-      displayItems();
-    });
-    $(function(){
-      console.log(items)
-      $('#prevBtn').click(function(){
-        if (currentIndex - 4 < 0) {
-          currentIndex = items.length - 4;
-        } else {
-          currentIndex -= 4; // 마지막 페이지에서 돌아가면 첫 번째 페이지로 돌아감
-        }
-        displayItems();
-      })
-      $('#nextBtn').click(function(){
-        if (currentIndex + 4 < items.length) {
-          currentIndex += 4;
-        } else if (currentIndex + 4 > items.length){
-          currentIndex = items.length - 4
-        } else if (currentIndex + 4 == items.length){
-          currentIndex = 0; // 마지막 페이지에서 돌아가면 첫 번째 페이지로 돌아감
-        }
-        displayItems();
-      })
-    })
-  </script>
 <!-- //tourList -->
   
   <!-- festivalList -->
   <div class='festivalList'>
     <h2>축제리스트</h2>
-    <div class='relative'>
+    <div class='all_list'>
+      <a href='/place/local/{{areacode}}/list'>목록</a>
+    </div>
       <div class='slide'>
-
+        {% for event in event_list %}
         <div class='slideItem'>
           <a href='#'>
-              <div class='slidePhoto'>
-              <img src="{% static 'images/test-image/test2.jpg/' %}">
+            <div class='slidePhoto'>
+              <img src="{{event.image}}">
               </div>
-            <div class='slideContent'>
-              <span class='slideContent_local'>지역 위치</span>
-              <span class='slideContent_title'>페스티벌 제목</span>
+              <div class='slideContent'>
+                <span class='slideContent_local'>{{event.sigungu_code.name}}</span>
+              <span class='slideContent_title'>{{event.title}}</span>
               <div class='festivalTag'>
-                #음악 #미술 #축제 #블라블라블라
+                {{event.start_time}} - {{event.end_time}}
               </div>
             </div>
           </a>
         </div>
-
-        <div class='slideItem'>
-          <a href='#'>
-              <div class='slidePhoto'>
-              <img src="{% static 'images/test-image/test2.jpg/' %}">
-              </div>
-            <div class='slideContent'>
-              <span class='slideContent_local'>지역 위치</span>
-              <span class='slideContent_title'>페스티벌 제목</span>
-              <div class='festivalTag'>
-                #음악 #미술 #축제 #블라블라블라
-              </div>
-            </div>
-          </a>
-        </div>
-
-        <div class='slideItem'>
-          <a href='#'>
-              <div class='slidePhoto'>
-              <img src="{% static 'images/test-image/test2.jpg/' %}">
-              </div>
-            <div class='slideContent'>
-              <span class='slideContent_local'>지역 위치</span>
-              <span class='slideContent_title'>페스티벌 제목</span>
-              <div class='festivalTag'>
-                #음악 #미술 #축제 #블라블라블라
-              </div>
-            </div>
-          </a>
-        </div>
-
-        <div class='slideItem'>
-          <a href='#'>
-              <div class='slidePhoto'>
-              <img src="{% static 'images/test-image/test2.jpg/' %}">
-              </div>
-            <div class='slideContent'>
-              <span class='slideContent_local'>지역 위치</span>
-              <span class='slideContent_title'>페스티벌 제목</span>
-              <div class='festivalTag'>
-                #음악 #미술 #축제 #블라블라블라
-              </div>
-            </div>
-          </a>
-        </div>
-
-      </div> <!-- //slide -->
-    </div> <!-- //relative -->
+        {% endfor %}
+      </div>
   </div>  <!-- //festivalList -->
 </div> <!-- //wrap -->
 {% endblock content %}
