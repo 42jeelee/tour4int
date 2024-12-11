@@ -5,9 +5,9 @@
    <!-- tourList -->
   <div class='tourList'>
     <h2>관광지 추천 리스트</h2>
-    <div class='all_list'>
-      <a href='/place/local/{{areacode}}/list'>목록</a>
-    </div>
+    <a href='/place/local/{{areacode}}/list'>
+      <div class='all_list'>목록</div>
+    </a>
 
     <ul class='list'>
       {% for tour in tour_list %}
@@ -35,9 +35,10 @@
   <!-- festivalList -->
   <div class='festivalList'>
     <h2>축제리스트</h2>
-    <div class='all_list'>
-      <a href='/place/local/{{areacode}}/list'>목록</a>
-    </div>
+    <a href='/place/local/{{areacode}}/list'>
+      <div class='all_list'>목록</div>
+    </a>
+    
       <div class='slide'>
         {% for event in event_list %}
         <div class='slideItem'>
