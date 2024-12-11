@@ -33,7 +33,7 @@
       {% if data.image != '' %}
       <div><img src="{{data.image}}"></div>
       {% else %}
-      <div><img src="{{data.sigungu_code.area_code.image_url}}"></div>
+      <div><img src="{% static "images/no-image.jpg" %}"></div>
       {% endif %}
     </div>
 
@@ -234,7 +234,7 @@
                         {% if aro.thumb_img != '' %}
                         <img src="{{aro.thumb_img}}">
                         {% else %}
-                        <img src="{{aro.sigungu_code.area_code.image_url}}">
+                        <img src="{% static "images/no-image.jpg" %}">
                         {% endif %}
                       </div>
                       <div class='cont'>
