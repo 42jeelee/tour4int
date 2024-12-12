@@ -50,16 +50,8 @@ function get_place_data(areaCode) {
             <tr id='${areaCode}_${i}'>
               <td>${data.areaCode[i].place_id}</td>
               <td>${data.areaCode[i].title}</td>
-              <td>${data.areaCode[i].thumb_img}</td>
-              <td>${data.areaCode[i].image}</td>
+              <td>${data.areaCode[i].address}</td>
               <td><button class='modBut'>수정하기</button></td>
-            </tr>
-            <tr id='${data.areaCode[i].place_id}' class='modi no_display'>
-              <td>${data.areaCode[i].place_id}</td>
-              <td><input id='${data.areaCode[i].place_id}_title' type='text' value='${data.areaCode[i].title}'></td>
-              <td><input id='${data.areaCode[i].place_id}_thumb_img' type='text' value='${data.areaCode[i].thumb_img}'></td>
-              <td><input id='${data.areaCode[i].place_id}_image' type='text' value='${data.areaCode[i].image}'></td>
-              <td><button class='sumBut'>적용하기</button></td>
             </tr>
             `
           }
@@ -91,16 +83,9 @@ function get_event_data(areaCode) {
             <tr id='${areaCode}_${i}'>
               <td>${data.event[i].place_id}</td>
               <td>${data.event[i].title}</td>
-              <td>${data.event[i].thumb_img}</td>
-              <td>${data.event[i].image}</td>
+              <td>${data.event[i].address}</td>
+              <td>${data.event[i].start_time} - ${data.event[i].end_time}</td>
               <td><button class='modBut'>수정하기</button></td>
-            </tr>
-            <tr id='${data.event[i].place_id}' class='modi no_display'>
-              <td>${data.event[i].place_id}</td>
-              <td><input id='${data.event[i].place_id}_title' type='text' value='${data.event[i].title}'></td>
-              <td><input id='${data.event[i].place_id}_thumb_img' type='text' value='${data.event[i].thumb_img}'></td>
-              <td><input id='${data.event[i].place_id}_image' type='text' value='${data.event[i].image}'></td>
-              <td><button class='sumBut'>적용하기</button></td>
             </tr>
             `
           }

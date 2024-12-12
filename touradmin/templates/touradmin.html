@@ -11,124 +11,135 @@
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>관리자 대시보드</h1>
-    </header>
-    <nav>
-        <ul class="tabs">
-            <li data-tab="users">회원 관리</li>
-            <li data-tab="dataSetting">데이터 관리</li>
-            <li data-tab="AreaCodes">지역</li>
-            <li data-tab="touristspots">관광지</li>
-            <li data-tab="events">이벤트</li>
-        </ul>
-    </nav>
-    <main>
-        <!-- 회원 관리 -->
-        <section id="users" class="tab-content active">
-            <h2>회원 관리</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>이름</th>
-                        <th>닉네임</th>
-                        <th>가입 날짜</th>
-                        <th>액션</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.nickname }}</td>
-                        <td>{{ user.created_at }}</td>
-                        <td><button class="delete-btn" data-id="{{ user.id }}">삭제</button></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
+    <div class='header'>
+        <div class='banner'>
+            <a href='/touradmin/'><h2>관리자 대시보드</h2></a>
+        </div>
+        <div></div>
+    </div>
+    <div class='container'>
+        <div class='banner'>
+            <nav>
+                <ul class="tabs">
+                    <a href='/'><li>Tour4Int</li></a>
+                    <li data-tab="users">회원 관리</li>
+                    <li data-tab="dataSetting">데이터 관리</li>
+                    <li data-tab="touristspots">관광지</li>
+                    <li data-tab="events">이벤트</li>
+                </ul>
+            </nav>
+        </div>
+        <div class= 'content'>
+            <main>
+                <!-- 회원 관리 -->
+                <section id="users" class="tab-content active">
+                    <h2>회원 관리</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>닉네임</th>
+                                <th>가입 날짜</th>
+                                <th>액션</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.nickname }}</td>
+                                <td>{{ user.created_at }}</td>
+                                <td><button class="delete-btn" data-id="{{ user.id }}">삭제</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+                
+                <!-- dataSetting -->
+                <section id="dataSetting" class="tab-content">
+                    <h2>데이터 셋팅</h2>
+                    <ul>
+                        <li><a href='/api/init_all'>모든 데이터 가져오기</a></li>
+                        <li><a href='/api/get_event'>모든 이벤트 가져오기</a></li>
+                    </ul>
+                </section>
+                
+                <!-- 관광지 관리 -->
+                <section id="touristspots" class="tab-content">
+                    <h2>관광지</h2>
+                    <nav>
+                        <ul class="sub-tabs">
+                            {% for AreaCode in AreaCodes %}
+                            <li data-subtab="AreaCode-{{ AreaCode.area_code }}" onclick="get_place_data('{{ AreaCode.area_code }}')">{{ AreaCode.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    <div class="sub-tab-contents">
+                        {% for AreaCode in AreaCodes %}
+                        <div id="AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
+                            <h3>{{ AreaCode.name }}의 관광지</h3>
+                            <table>
+                                <colgroup>
+                                    <col style='width: 10%;'>
+                                    <col style='width: 30%;'>
+                                    <col style='width: 50%;'>
+                                    <col >
+                                </colgroup>
+                                <thead>
+                                    <th>고유번호</th>
+                                    <th>타이틀</th>
+                                    <th>주소</th>
+                                    <th>수정하기</th>
+                                </thead>
+                                <tbody id='place'>
+                                    <!-- 데이터 들어가는 부분 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
 
-        <!-- dataSetting -->
-        <section id="dataSetting" class="tab-content">
-            <h2>데이터 셋팅</h2>
-            <ul>
-                <li><a href='/api/init_all'>모든 데이터 가져오기</a></li>
-                <li><a href='/api/get_event'>모든 이벤트 가져오기</a></li>
-            </ul>
-        </section>
-
-        <!-- 지역 관리 -->
-        <section id="AreaCodes" class="tab-content">
-            <h2>지역</h2>
-            <ul>
-                {% for AreaCode in AreaCodes %}
-                <li>{{ AreaCode.name }}</li>
-                {% endfor %}
-            </ul>
-        </section>
-
-        <!-- 관광지 관리 -->
-        <section id="touristspots" class="tab-content">
-          <h2>관광지</h2>
-          <nav>
-              <ul class="sub-tabs">
-                  {% for AreaCode in AreaCodes %}
-                  <li data-subtab="AreaCode-{{ AreaCode.area_code }}" onclick="get_place_data('{{ AreaCode.area_code }}')">{{ AreaCode.name }}</li>
-                  {% endfor %}
-              </ul>
-          </nav>
-          <div class="sub-tab-contents">
-              {% for AreaCode in AreaCodes %}
-              <div id="AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
-                <h3>{{ AreaCode.name }}의 관광지</h3>
-                <table>
-                  <thead>
-                    <th>고유번호</th>
-                    <th>타이틀</th>
-                    <th>썸네일</th>
-                    <th>이미지</th>
-                    <th>수정하기</th>
-                  </thead>
-                  <tbody id='place'>
-                    <!-- 데이터 들어가는 부분 -->
-                  </tbody>
-                </table>
-              </div>
-              {% endfor %}
-          </div>
-        </section>
-
-        <!-- 이벤트 관리 -->
-        <section id="events" class="tab-content">
-          <h2>이벤트</h2>
-          <nav>
-              <ul class="sub-tabs">
-                  {% for AreaCode in AreaCodes %}
-                  <li data-subtab="event-AreaCode-{{ AreaCode.area_code }}" onclick="get_event_data('{{ AreaCode.area_code }}')">{{ AreaCode.name }}</li>
-                  {% endfor %}
-              </ul>
-          </nav>
-          <div class="sub-tab-contents">
-              {% for AreaCode in AreaCodes %}
-              <div id="event-AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
-                <h3>{{ AreaCode.name }}의 이벤트</h3>
-                <table>
-                  <thead>
-                    <th>고유번호</th>
-                    <th>타이틀</th>
-                    <th>썸네일</th>
-                    <th>이미지</th>
-                    <th>수정하기</th>
-                  </thead>
-                  <tbody id='place'>
-                    <!-- 데이터 들어가는 부분 -->
-                  </tbody>
-                </table>
-              </div>
-            {% endfor %}  
-          </div>
-        </section>
-    </main>
+                <!-- 이벤트 관리 -->
+                <section id="events" class="tab-content">
+                    <h2>이벤트</h2>
+                    <nav>
+                        <ul class="sub-tabs">
+                            {% for AreaCode in AreaCodes %}
+                            <li data-subtab="event-AreaCode-{{ AreaCode.area_code }}" onclick="get_event_data('{{ AreaCode.area_code }}')">{{ AreaCode.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    <div class="sub-tab-contents">
+                        {% for AreaCode in AreaCodes %}
+                        <div id="event-AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
+                            <h3>{{ AreaCode.name }}의 이벤트</h3>
+                            <table>
+                                <colgroup>
+                                    <col style='width: 10%;'>
+                                    <col style='width: 30%;'>
+                                    <col style='width: 30%;'>
+                                    <col style='width: 20%;'>
+                                    <col >
+                                </colgroup>
+                                <thead>
+                                    <th>고유번호</th>
+                                    <th>타이틀</th>
+                                    <th>주소</th>
+                                    <th>일정</th>
+                                    <th>수정하기</th>
+                                </thead>
+                                <tbody id='place'>
+                                    <!-- 데이터 들어가는 부분 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endfor %}  
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
 </body>
 </html>
