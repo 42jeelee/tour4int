@@ -42,7 +42,7 @@
                         <td>{{ user.name }}</td>
                         <td>{{ user.nickname }}</td>
                         <td>{{ user.created_at }}</td>
-                        <td><button class="delete-btn" data-id="{{ user.id }}">삭제</button></td>
+                        <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -131,9 +131,9 @@
         </section>
 
         <!-- 모달창 관광지, 이벤트 -->
-        <div id="modal" class="modal">
-          <div class="modal-content">
-            <span class="close">&times;</span>
+        <div id="place-modal" class="place-modal">
+          <div class="place-modal-content">
+            <span class="place-close">&times;</span>
             <h2 id='modi_No'>번호</h2>
             <p>수정할 내용을 작성하세요.</p>
         
@@ -167,6 +167,28 @@
         
             <!-- Submit Button -->
             <button class='sumBut'>적용하기</button>
+          </div>
+        </div>
+
+        <!-- 모달 회원정보 수정 -->
+         <!-- 회원정보 수정 버튼 -->
+
+        <!-- 모달 -->
+        <div id="editProfileModal" class="user-modal-overlay">
+          <div class="user-modal-container">
+            <div class="user-modal-header">
+              <h2>회원정보 수정</h2>
+              <button id="closeModal" class="user-modal-close-btn">&times;</button>
+            </div>
+            <div class="user-modal-body">
+              <label for="username">사용자 이름</label>
+              <input type="text" id="username" name="username" class="form-input" required>
+              <label for="email">이메일</label>
+              <input type="email" id="email" name="email" class="form-input" required>
+              <label for="password">비밀번호</label>
+              <input type="password" id="password" name="password" class="form-input">
+              <button type="button" class="user-modibtn">수정 완료</button>
+            </div>
           </div>
         </div>
 

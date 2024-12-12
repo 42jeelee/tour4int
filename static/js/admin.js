@@ -52,7 +52,7 @@ function get_place_data(areaCode) {
               <td>${data.areaCode[i].title}</td>
               <td>${data.areaCode[i].thumb_img}</td>
               <td>${data.areaCode[i].image}</td>
-              <td><button class="open-modal">수정하기</button></td>
+              <td><button class="open-place-modal">수정하기</button></td>
             </tr>
             `
           }
@@ -86,7 +86,7 @@ function get_event_data(areaCode) {
               <td>${data.event[i].title}</td>
               <td>${data.event[i].thumb_img}</td>
               <td>${data.event[i].image}</td>
-              <td><button class="open-modal">수정하기</button></td>
+              <td><button class="open-place-modal">수정하기</button></td>
             </tr>
             `
           }
@@ -102,15 +102,20 @@ function get_event_data(areaCode) {
 
 // 모달
 document.addEventListener('DOMContentLoaded', function() {
-  var modal = document.getElementById("modal");
-  var span = document.getElementsByClassName("close")[0];
-  var no; // 수정 번호
-  var modi_content; // 수정 정보 데이터
+  // place
+  var placemodal = document.getElementById("place-modal");
+  var placespan = document.getElementsByClassName("place-close")[0];
+  // user
+  var usermodal = document.getElementById("editProfileModal");
+  var userspan = document.getElementsByClassName("user-modal-close-btn")[0];
+
+  var no; // place 수정 번호
+  var modi_content; // place 수정 정보 데이터
   let csrfToken = $('meta[name=csrf_token]').attr('content')
 
-  // 모달창 열기
-  $(document).on('click', '.open-modal', function(){
-    modal.style.display = "block";
+  // place 열기
+  $(document).on('click', '.open-place-modal', function(){
+    placemodal.style.display = "block";
     var modi_no = $(this).closest('tr').attr('id')
     $('#modi_No').html(modi_no+' 번 수정')
 
@@ -142,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }) // ajax
   })
 
-  // 데이터 수정하기
+  // place 데이터 수정하기
   $(document).on('click', '.sumBut', function(){
     // 수정 데이터 확인
     if(confirm('수정 하시겠습니까?')){
@@ -178,25 +183,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }) // ajax
     }// confirm
-    modal.style.display = 'none';
+    placemodal.style.display = 'none';
   })
 
-  // 모달창 닫기
-  span.onclick = function() {
-    modal.style.display = "none";
+  // user 열기
+  $(document).on('click', '.user-btn', function(){
+    usermodal.style.display = "flex";
+
+    // ajax 요청
+    modi_content = $(this).closest('tr').children()
+  })
+
+  // user 데이터 수정
+  $(document).on('click', '.user-modibtn', function(){
+    // 수정 데이터 확인
+    usermodal.style.display = 'none';
+  })
+
+  // place 모달창 닫기
+  placespan.onclick = function() {
+    placemodal.style.display = "none";
+  }
+  // user 모달창 닫기
+  userspan.onclick = function() {
+    usermodal.style.display = "none";
   }
 
+  // place
   window.onclick = function(event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
+    console.log('user')
+    if (event.target == usermodal || event.target == placemodal) {
+      usermodal.style.display = "none";
+      placemodal.style.display = "none";
     }
   }
 });
-
-
-
-
-
-
-
-
