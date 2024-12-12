@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
           contents.forEach((c) => c.classList.remove("active"));
 
           tab.classList.add("active");
+          if (tab.dataset.tab == '/') {
+            return;
+          }
           document.getElementById(tab.dataset.tab).classList.add("active");
       });
   });

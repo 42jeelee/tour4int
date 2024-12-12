@@ -22,7 +22,7 @@
         <div class='banner'>
             <nav>
                 <ul class="tabs">
-                    <li><a href='/'>Tour4Int</a></li>
+                    <li data-tab='/'><a href='/'>Tour4Int</a></li>
                     <li data-tab="users">회원 관리</li>
                     <li data-tab="dataSetting">데이터 관리</li>
                     <li data-tab="touristspots">관광지</li>
@@ -38,6 +38,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>아이디</th>
                                 <th>이름</th>
                                 <th>닉네임</th>
                                 <th>가입 날짜</th>
@@ -47,6 +48,7 @@
                         <tbody>
                             {% for user in users %}
                             <tr>
+                                <td>{{ user.email }}</td>
                                 <td>{{ user.name }}</td>
                                 <td>{{ user.nickname }}</td>
                                 <td>{{ user.created_at }}</td>
