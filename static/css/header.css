@@ -55,45 +55,116 @@ a.header__btn.my-btn:hover {
 header .header__banner {
   width: 100%;
   height: 410px;
-  background-color: #688d6f;
+  position: relative;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 50px;
 }
 
 header .header__banner > .header__banner--wrap {
   width: 1300px;
-  display: flex;
-  justify-content: space-between;
+  height: 100%;
+  position: relative;
 }
 
-.header__banner--wrap > .header__banner--btn {
-  width: 50px;
-  height: 55px;
+header .header__banner > .header__banner--wrap > .header__banner--btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
   border: none;
-  background-color: #00000000;
-  background-image: url(/static/images/header-icons.png);
-  background-size: 350px;
-  background-position-x: -30px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
 }
 
-.header__banner--btn.prev-btn {
-  transform: rotateY(180deg);
+/* 이전/다음 버튼 위치 */
+.header__banner--wrap > .header__banner--btn.prev-btn {
+  left: 20px;
+}
+
+.header__banner--wrap > .header__banner--btn.next-btn {
+  right: 20px;
+}
+
+/* 버튼 화살표 */
+.header__banner--btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid rgba(0, 0, 0, 0.8);
+  border-right: 2px solid rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+/* 다음 버튼 화살표 */
+.header__banner--btn.next-btn::before {
+  transform: translate(-60%, -50%) rotate(45deg);
+}
+
+/* 이전 버튼 화살표 */
+.header__banner--btn.prev-btn::before {
+  transform: translate(-40%, -50%) rotate(-135deg);
+}
+
+/* 버튼 호버 효과 */
+.header__banner--wrap > .header__banner--btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.header__banner--btn:hover::before {
+  border-color: rgba(0, 0, 0, 0.8);
+}
+
+/* 슬라이드 컨테이너 */
+.banner-slides {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 개별 슬라이드 */
+.banner-slide {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.banner-slide.active {
+  opacity: 1;
 }
 
 header .header__search-bar {
   position: absolute;
-  bottom: -60px;
-  height: 120px;
-  width: 1200px;
-  background-color: white;
+  bottom: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1190px;
+  height: 80px;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: center;
   align-items: center;
-  box-shadow: 0 0 43px 0 rgba(0,0,0,.13);
-  padding: 30px 50px;
-  border-radius: 5px;
+  padding: 0 40px;
+  z-index: 2;
 }
 
 header .header__search-bar > #header__search-input {

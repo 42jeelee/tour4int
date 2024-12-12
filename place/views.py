@@ -5,6 +5,8 @@ from areacode.models import SigunguCode
 from category.models import Category
 from place.models import Place
 import logging
+import os
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 from api import api
@@ -13,10 +15,19 @@ from api import api
 def local(request, areacode):
   tour_list = Place.objects.all().filter(sigungu_code__area_code=areacode, category__content_type=12).order_by('-thumb_img', '-updated_at')[:4]
   event_list = Place.objects.all().filter(sigungu_code__area_code=areacode, category__content_type=15).order_by('-thumb_img', '-start_time')[:3]
+  
+  # 실제 존재하는 배너 이미지만 리스트에 추가
+  banner_images = []
+  for i in range(1, 4):
+      image_path = f'images/banners/local_{areacode}_{i}.jpg'
+      if os.path.exists(os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), image_path)):
+          banner_images.append(image_path)
+  
   context = {
     'areacode': areacode,
     'tour_list': tour_list,
-    'event_list': event_list
+    'event_list': event_list,
+    'banner_images': banner_images
   }
   return render(request, 'local.html', context)
 
@@ -138,8 +149,16 @@ def local_list(request, areacode):
           return JsonResponse(response_data)
       
       # 일반 요청일 경우 템플릿 렌더링
+      # 실제 존재하는 배너 이미지만 리스트에 추가
+      banner_images = []
+      for i in range(1, 4):
+          image_path = f'images/banners/local_{areacode}_{i}.jpg'
+          if os.path.exists(os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), image_path)):
+              banner_images.append(image_path)
+      
       context = {
           'areacode': areacode,
+          'banner_images': banner_images,
           'places': page_obj,
           'sigungu_list': sigungu_list,
       }
