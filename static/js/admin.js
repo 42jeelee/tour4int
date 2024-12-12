@@ -52,14 +52,7 @@ function get_place_data(areaCode) {
               <td>${data.areaCode[i].title}</td>
               <td>${data.areaCode[i].thumb_img}</td>
               <td>${data.areaCode[i].image}</td>
-              <td><button class='modBut'>수정하기</button></td>
-            </tr>
-            <tr id='${data.areaCode[i].place_id}' class='modi no_display'>
-              <td>${data.areaCode[i].place_id}</td>
-              <td><input id='${data.areaCode[i].place_id}_title' type='text' value='${data.areaCode[i].title}'></td>
-              <td><input id='${data.areaCode[i].place_id}_thumb_img' type='text' value='${data.areaCode[i].thumb_img}'></td>
-              <td><input id='${data.areaCode[i].place_id}_image' type='text' value='${data.areaCode[i].image}'></td>
-              <td><button class='sumBut'>적용하기</button></td>
+              <td><button class="open-modal">수정하기</button></td>
             </tr>
             `
           }
@@ -93,14 +86,7 @@ function get_event_data(areaCode) {
               <td>${data.event[i].title}</td>
               <td>${data.event[i].thumb_img}</td>
               <td>${data.event[i].image}</td>
-              <td><button class='modBut'>수정하기</button></td>
-            </tr>
-            <tr id='${data.event[i].place_id}' class='modi no_display'>
-              <td>${data.event[i].place_id}</td>
-              <td><input id='${data.event[i].place_id}_title' type='text' value='${data.event[i].title}'></td>
-              <td><input id='${data.event[i].place_id}_thumb_img' type='text' value='${data.event[i].thumb_img}'></td>
-              <td><input id='${data.event[i].place_id}_image' type='text' value='${data.event[i].image}'></td>
-              <td><button class='sumBut'>적용하기</button></td>
+              <td><button class="open-modal">수정하기</button></td>
             </tr>
             `
           }
@@ -114,21 +100,103 @@ function get_event_data(areaCode) {
 
 }
 
-$(document).on('click', '.modBut', function(){
-  // 모든 modi가져와서 active 되있는거 꺼주기
-  var all_modi = document.querySelectorAll('.modi')
-  all_modi.forEach((c) => c.classList.add("no_display"))
+// 모달
+document.addEventListener('DOMContentLoaded', function() {
+  var modal = document.getElementById("modal");
+  var span = document.getElementsByClassName("close")[0];
+  var no; // 수정 번호
+  var modi_content; // 수정 정보 데이터
+  let csrfToken = $('meta[name=csrf_token]').attr('content')
 
-  // 현제 누른 tr 다음거 활성화 하기
-  var test = $(this).closest('tr').attr('id')
-  $(this).closest('tr').next().removeClass('no_display')
-})
+  // 모달창 열기
+  $(document).on('click', '.open-modal', function(){
+    modal.style.display = "block";
+    var modi_no = $(this).closest('tr').attr('id')
+    $('#modi_No').html(modi_no+' 번 수정')
 
-$(document).on('click', '.sumBut', function(){
-  // 수정 데이터 확인
-  var modi_id = $(this).closest('tr').attr('id')
-  var modi_title = $('#' + modi_id + '_title').val()
-  var modi_thumb_img = $('#' + modi_id + '_thumb_img')
-  var modi_image = $('#' + modi_id + '_image')
-  console.log(modi_id + ' : ' + modi_title)
-})
+    // ajax 요청
+    modi_content = $(this).closest('tr').children()
+    no = modi_content.eq(0).text()
+
+    $.ajax({
+      headers:{'X-CSRFToken':csrfToken}, // scrf_token
+      url:'/touradmin/get_view/', // 보내는 주소
+      type:'post', // get, post // 서버쪽으로 보내는 변수데이터
+      data:{'no':no},
+      success:function(data){ // 서버에서 받은 데이터 : data
+          console.log('성공 여부 : ' + data.result)
+          if(data.result != 'fail'){
+            let viewData = JSON.parse(data.view)
+            $('#title').val(viewData[0].fields.title)
+            $('#address').val(viewData[0].fields.address)
+            $('#tel').val(viewData[0].fields.tel)
+            $('#image').val(viewData[0].fields.image)
+            $('#thumb_img').val(viewData[0].fields.thumb_img)
+            $('#homepage_url').val(viewData[0].fields.homepage_url)
+            $('#overview').val(viewData[0].fields.overview)
+          }
+      },
+      error:function(){
+          alert('실패')
+      }
+    }) // ajax
+  })
+
+  // 데이터 수정하기
+  $(document).on('click', '.sumBut', function(){
+    // 수정 데이터 확인
+    if(confirm('수정 하시겠습니까?')){
+      var target = no
+      var title = $('#title').val()
+      var address = $('#address').val()
+      var tel = $('#tel').val()
+      var image = $('#image').val()
+      var thumb_img = $('#thumb_img').val()
+      var homepage_url = $('#homepage_url').val()
+      var overview = $('#overview').val()
+  
+      // ajax
+      $.ajax({
+        headers:{'X-CSRFToken':csrfToken}, // scrf_token
+        url:'/touradmin/update/', // 보내는 주소
+        type:'post', // get, post // 서버쪽으로 보내는 변수데이터
+        data:{'target':target, 'title':title, 'address':address,
+          'tel':tel, 'image':image, 'thumb_img':thumb_img,
+          'homepage_url':homepage_url, 'overview':overview
+        },
+        success:function(data){ // 서버에서 받은 데이터 : data
+            console.log('성공 여부 : ' + data.result)
+            if(data.result == 'success'){
+              let viewData = JSON.parse(data.view)
+              modi_content.eq(1).text(viewData[0].fields.title)
+              modi_content.eq(2).text(viewData[0].fields.thumb_img)
+              modi_content.eq(3).text(viewData[0].fields.image)
+            }
+        },
+        error:function(){
+            alert('실패')
+        }
+      }) // ajax
+    }// confirm
+    modal.style.display = 'none';
+  })
+
+  // 모달창 닫기
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+});
+
+
+
+
+
+
+
+
