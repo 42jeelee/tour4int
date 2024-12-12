@@ -33,8 +33,23 @@
         <div class="header__container">
             <div class="header__banner">
                 <div class="header__banner--wrap">
-                    <button class="header__banner--btn prev-btn"></button>
-                    <button class="header__banner--btn next-btn"></button>
+                    {# 배너 이미지가 2개 이상일 경우 이전 버튼 표시 #}
+                    {% if banner_images|length > 1 %}
+                    <button class="header__banner--btn prev-btn" onclick="prevSlide()"></button>
+                    {% endif %}
+                    
+                    {# 배너 슬라이드 컨테이너 #}
+                    <div class="banner-slides">
+                        {# 각 배너 이미지에 대한 슬라이드 생성 #}
+                        {% for image in banner_images %}
+                        <div class="banner-slide {% if forloop.first %}active{% endif %}" style="background-image: url('{% static image %}')"></div>
+                        {% endfor %}
+                    </div>
+                    
+                    {# 배너 이미지가 2개 이상일 경우 다음 버튼 표시 #}
+                    {% if banner_images|length > 1 %}
+                    <button class="header__banner--btn next-btn" onclick="nextSlide()"></button>
+                    {% endif %}
                 </div>
             </div>
             <div class="header__search-bar">
@@ -81,5 +96,66 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/script.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentSlide = 0;  // 현재 슬라이드 인덱스
+            const slides = document.querySelectorAll('.banner-slide');  // 모든 슬라이드 요소 선택
+            let slideInterval;  // 자동 슬라이드를 위한 interval 변수
+
+            function showSlide(index) {
+                if (slides.length <= 1) return;  // 슬라이드가 1개 이하면 동작하지 않음
+                
+                // 슬라이드 인덱스 순환 처리
+                if (index >= slides.length) {
+                    currentSlide = 0;
+                } else if (index < 0) {
+                    currentSlide = slides.length - 1;
+                } else {
+                    currentSlide = index;
+                }
+
+                // 모든 슬라이드에서 'active' 클래스 제거 후 현재 슬라이드에만 추가
+                slides.forEach(slide => slide.classList.remove('active'));
+                slides[currentSlide].classList.add('active');
+            }
+
+            function nextSlide() {
+                showSlide(currentSlide + 1);  // 다음 슬라이드 표시
+            }
+
+            function prevSlide() {
+                showSlide(currentSlide - 1);  // 이전 슬라이드 표시
+            }
+
+            // 슬라이드가 2개 이상일 때만 자동 슬라이드 시작
+            if (slides.length > 1) {
+                slideInterval = setInterval(nextSlide, 5000);  // 5초마다 다음 슬라이드로 자동 전환
+            }
+
+            // 이전/다음 버튼 요소 선택
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            
+            if (prevBtn && nextBtn) {
+                // 이전 버튼 클릭 이벤트
+                prevBtn.addEventListener('click', function() {
+                    clearInterval(slideInterval);  // 수동 조작 시 자동 슬라이드 중지
+                    prevSlide();  // 이전 슬라이드 표시
+                    if (slides.length > 1) {
+                        slideInterval = setInterval(nextSlide, 5000);  // 5초 후 다시 자동 슬라이드 시작
+                    }
+                });
+
+                // 다음 버튼 클릭 이벤트
+                nextBtn.addEventListener('click', function() {
+                    clearInterval(slideInterval);  // 수동 조작 시 자동 슬라이드 중지
+                    nextSlide();  // 다음 슬라이드 표시
+                    if (slides.length > 1) {
+                        slideInterval = setInterval(nextSlide, 5000);  // 5초 후 다시 자동 슬라이드 시작
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
