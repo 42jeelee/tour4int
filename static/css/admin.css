@@ -95,6 +95,7 @@ nav ul li:hover, .tabs li.active, div.banner > nav > ul > a{
 .sub-tab-contents{
   display: flex;
   justify-content: center;
+  margin-top: 50px;
 }
 
 .no_display {

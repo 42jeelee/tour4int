@@ -35,26 +35,34 @@
                 <!-- 회원 관리 -->
                 <section id="users" class="tab-content active">
                     <h2>회원 관리</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>이름</th>
-                                <th>닉네임</th>
-                                <th>가입 날짜</th>
-                                <th>액션</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for user in users %}
-                            <tr>
-                                <td>{{ user.name }}</td>
-                                <td>{{ user.nickname }}</td>
-                                <td>{{ user.created_at }}</td>
-                                <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="sub-tab-contents">
+                        <table>
+                            <colgroup>
+                                <col style='width: 15%;'>
+                                <col style='width: 15%;'>
+                                <col style='width: 40%;'>
+                                <col >
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>이름</th>
+                                    <th>닉네임</th>
+                                    <th>가입 날짜</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.nickname }}</td>
+                                    <td>{{ user.created_at }}</td>
+                                    <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
 
                 <!-- dataSetting -->
@@ -186,7 +194,7 @@
                         {% endfor %}  
                     </div>
                 </section>
-                
+
                 <!-- 모달창 관광지, 이벤트 -->
                 <div id="place-modal" class="place-modal">
                     <div class="place-modal-content">
