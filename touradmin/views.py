@@ -98,7 +98,8 @@ def update(request):
 def get_user_view(request):
   content = {}
   if request.method == "POST":
-    id = request.POST.get('userId')
-    user = User.objects.all()
-    print(user)
+    email = request.POST.get('email')
+    user = User.objects.filter(email=email)
+    content['result'] = 'success'
+    content['view'] = serializers.serialize('json', [user[0]])
   return JsonResponse(content)

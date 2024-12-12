@@ -110,6 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
   var usermodal = document.getElementById("editProfileModal");
   var userspan = document.getElementsByClassName("user-modal-close-btn")[0];
 
+  var email;
+  var user_modi_content; // place 수정 정보 데이터
+
   var no; // place 수정 번호
   var modi_content; // place 수정 정보 데이터
   let csrfToken = $('meta[name=csrf_token]').attr('content')
@@ -189,10 +192,26 @@ document.addEventListener('DOMContentLoaded', function() {
   $(document).on('click', '.user-btn', function(){
     usermodal.style.display = "flex";
     
-    modi_content = $(this).closest('tr').children()
-    var name = modi_content.eq(0).text()
-    console.log(name)
+    user_modi_content = $(this).closest('tr').children()
+    email = user_modi_content.eq(0).text()
     // ajax 요청
+    $.ajax({
+      headers:{'X-CSRFToken':csrfToken}, // scrf_token
+      url:'/touradmin/get_user_view/', // 보내는 주소
+      type:'post', // get, post // 서버쪽으로 보내는 변수데이터
+      data:{'email':email},
+      success:function(data){ // 서버에서 받은 데이터 : data
+          if(data.result == 'success'){
+            let viewData = JSON.parse(data.view)
+            $('#username').val(viewData[0].fields.name)
+            $('#nicname').val(viewData[0].fields.nickname)
+            $('#user_address').val(viewData[0].fields.address)
+          }
+      },
+      error:function(){
+          alert('실패')
+      }
+    }) // ajax
   })
 
   // user 데이터 수정
