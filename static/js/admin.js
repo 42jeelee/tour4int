@@ -1,4 +1,12 @@
 // admin.js
+const api_status = {
+  'category': false,
+  'areacode': false,
+  'sigungucode': false,
+  'place': false,
+  'event': false
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const tabs = document.querySelectorAll(".tabs li");
   const contents = document.querySelectorAll(".tab-content");
