@@ -10,6 +10,7 @@ $(function() {
 
 
   $("li[data-tab='dataSetting']").click(function() {
+    if (Object.values(api_status).includes(true)) return ;
     $.ajax({
       url: "/api/get_logged/",
       type: "get",
@@ -36,7 +37,11 @@ $(function() {
           !confirm("값을 다시 불러오는 경우 의존하는 데이터들도 모두 지워집니다.\n계속하시겠습니까?")) {
           return ;
         }
-      }      
+      }
+      if (isLoadingChild(boxId)) {
+        alert("의존하는 데이터가 로드중입니다.");
+        return ;
+      }
       fetchData(boxId);
     }
   });
@@ -48,12 +53,32 @@ $(function() {
     sigungucodeBox.hasClass("fetched") && categoryBox.hasClass("fetched"));
   }
 
+  function isLoadingChild(boxId) {
+    if (boxId == "place" || boxId == "event") return false;
+    if (boxId == "category" || boxId == "sigungucode") return api_status['place'] || api_status['event'];
+    if (boxId == "areacode") return api_status['sigungucode'] || api_status['place'] || api_status['event'];
+    return false;
+  }
+
+  function loadingItem(itemBox, boxId) {
+    if (api_status[boxId]) {
+      itemBox.removeClass("active-btn fetched");
+      itemBox.addClass("load-item");
+      return true;
+    } else {
+      itemBox.removeClass("load-item");
+    }
+    return false;
+  }
+
   function settingItemBox(itemBox, data) {
     const { fetched, modify_date, data_num } = data;
     const DAY_STRING = ['일', '월', '화', '수', '목', '금', '토'];
     const boxDate = itemBox.find(".data-item__modify");
     const boxNum = itemBox.find(".data-item__num");
     const boxId = itemBox.attr("id").substring(prefix.length);
+
+    if (loadingItem(itemBox, boxId)) return;
 
     if (!fetched) {
       boxDate.text("");
@@ -78,10 +103,6 @@ $(function() {
     itemBox.addClass("fetched");
 
     if (boxId === "areacode") sigungucodeBox.addClass("active-btn");
-    else if (boxId === "sigungucode" || boxId === "category") {
-      setting_placebox(true);
-    }
-
   }
 
   function settingAllBox(data) {
@@ -94,13 +115,15 @@ $(function() {
     settingItemBox(sigungucodeBox, sigungucode);
     settingItemBox(placeBox, place);
     settingItemBox(eventBox, event);
+
+    setting_placebox();
   }
   
   function fetchData(dataName) {
     const item = $("#"+prefix+dataName);
     
-    item.removeClass("active-btn fetched");
-    item.addClass("load-item");
+    api_status[dataName] = true;
+    loadingItem(item, dataName);
 
     let path = `init_${dataName}`;
     if (dataName == "place" || dataName == "event") path = `get_${dataName}`;      
@@ -112,12 +135,13 @@ $(function() {
       success: function(data) {
         const { result, log_info: logInfo } = data;
         
+        api_status[dataName] = false;
+        loadingItem(item, dataName);
         if (result === "success") settingAllBox(logInfo);
         else {
           alert("서버에 문제가 발생하였습니다.");
           initial_items(true);
         }
-        item.removeClass("load-item");
       },
       error: function(e) {
         console.log("fail :", e);
@@ -125,8 +149,9 @@ $(function() {
     });
   }
 
-  function setting_placebox(isActive=false) {
-    if (isActive) {
+  function setting_placebox() {
+
+    if (categoryBox.hasClass("fetched") && sigungucodeBox.hasClass("fetched")) {
       data_listBox.addClass("active-list");
       placeBox.addClass("active-btn");
       eventBox.addClass("active-btn");
