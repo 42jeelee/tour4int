@@ -5,6 +5,8 @@ from areacode.models import SigunguCode
 from category.models import Category
 from place.models import Place
 import logging
+from collections import defaultdict
+from datetime import datetime, timedelta
 import os
 from django.conf import settings
 
@@ -31,34 +33,54 @@ def local(request, areacode):
   }
   return render(request, 'local.html', context)
 
+view_counts = defaultdict(int)
+
 def view(request, areacode, content_id):
-  context = {}
-  range_offset = 0.004
-  content_data = Place.objects.filter(place_id=content_id)
-  context = {'around':''}
-  context = {'len':0}
-  if len(content_data):
-    around_data = Place.objects.filter(sigungu_code__area_code=areacode,
-      map_x__gte=float(content_data[0].map_x) - range_offset,  # map_x가 기준값 - 0.004 이상
-      map_x__lte=float(content_data[0].map_x) + range_offset,  # map_x가 기준값 + 0.004 이하
-      map_y__gte=float(content_data[0].map_y) - range_offset,  # map_y가 기준값 - 0.004 이상
-      map_y__lte=float(content_data[0].map_y) + range_offset   # map_y가 기준값 + 0.004 이하
-    )
-    if content_data[0].is_detail:
-      context['result'] = "success"
-      context['data'] = content_data[0]
-    else:
-      overview = api.get_place_info(content_id)
-      content_data[0].overview = overview['overview']
-      content_data[0].homepage_url = overview['homepage']
-      content_data[0].is_detail = True
-      content_data[0].save()
-      context['result'] = 'info_success'
-      context['data'] = content_data[0]
-    if around_data:
-      context['around'] = around_data
-      context['len'] = len(around_data)
-  return render(request, 'view.html', context)
+    global view_counts
+    context = {'around': '', 'len': 0}
+    range_offset = 0.004
+    content_data = Place.objects.filter(place_id=content_id)
+
+    if len(content_data):
+        # 조회수 관련 로직 추가
+        cookie_name = f'place_view_{content_id}'
+        
+        # 쿠키가 없으면 조회수 증가
+        if cookie_name not in request.COOKIES:
+            view_counts[content_id] += 1
+
+        # 현재 조회수를 컨텍스트에 추가
+        context['view_count'] = view_counts[content_id]
+
+        around_data = Place.objects.filter(sigungu_code__area_code=areacode,
+            map_x__gte=float(content_data[0].map_x) - range_offset,
+            map_x__lte=float(content_data[0].map_x) + range_offset,
+            map_y__gte=float(content_data[0].map_y) - range_offset,
+            map_y__lte=float(content_data[0].map_y) + range_offset
+        )
+        if content_data[0].is_detail:
+            context['result'] = "success"
+            context['data'] = content_data[0]
+        else:
+            overview = api.get_place_info(content_id)
+            content_data[0].overview = overview['overview']
+            content_data[0].homepage_url = overview['homepage']
+            content_data[0].is_detail = True
+            content_data[0].save()
+            context['result'] = 'info_success'
+            context['data'] = content_data[0]
+        if around_data:
+            context['around'] = around_data
+            context['len'] = len(around_data)
+
+    response = render(request, 'view.html', context)
+
+    # 쿠키가 없었을 경우에만 새 쿠키 설정
+    if cookie_name not in request.COOKIES:
+        expires = datetime.now() + timedelta(hours=24)
+        response.set_cookie(cookie_name, 'viewed', expires=expires)
+
+    return response
 
 def local_list(request, areacode):
   try:

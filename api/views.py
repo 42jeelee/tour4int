@@ -3,7 +3,7 @@ from django.db import transaction
 from areacode.models import AreaCode, SigunguCode
 from category.models import Category
 from place.models import Place
-from api.apilog import logType, logging_fetch_log, has_fetch
+from api.apilog import logType, logging_fetch_log, has_fetch, get_all_log
 from . import api
 from datetime import datetime
 from api.exceptions import ApiResultException
@@ -40,7 +40,7 @@ def init_areacode(request):
       context['result'] = "success"
       context['data'] = data
 
-      logging_fetch_log(logType.AREACODE, context)
+      context['log_info'] = logging_fetch_log(logType.AREACODE, context)
   except Exception as e:
     context['result'] = 'fail'
     context['error'] = str(e)
@@ -53,6 +53,9 @@ def init_sigungucode(request):
 
   try:
     with transaction.atomic():
+
+      SigunguCode.objects.all().delete()
+
       context['modifed_count'] = 0
       for c in area_codes:
         curr_list = api.get_all_sigungucode(c.area_code)
@@ -69,7 +72,7 @@ def init_sigungucode(request):
 
       context['result'] = 'success'
 
-      logging_fetch_log(logType.SIGUNGUCODE, context)
+      context['log_info'] = logging_fetch_log(logType.SIGUNGUCODE, context)
   except Exception as e:
     context['result'] = 'fail'
     context['error'] = str(e)
@@ -98,7 +101,7 @@ def init_category(request):
     context['result'] = "success"
     context['data'] = data
 
-    logging_fetch_log(logType.CATEGORY, context)
+    context['log_info'] = logging_fetch_log(logType.CATEGORY, context)
   except Exception as e:
     context['result'] = 'fail'
     context['error'] = str(e)
@@ -155,10 +158,7 @@ def get_event(request):
 def get_place(request):
   content_types = [12, 14, 25]
   if not has_fetch(logType.PLACE):
-    context = {
-      'result': 'fail',
-      'error': 'we need init place.'
-    }
+    return init_place(request)
   else:
     data = api.modify_all_place(content_types=content_types)
     context = insert_place(data)
@@ -249,8 +249,8 @@ def insert_place(data, isEvent=False):
         context['result'] = "success"
         context['data'] = data
 
-        if isEvent: logging_fetch_log(logType.EVENT, context)
-        else: logging_fetch_log(logType.PLACE, context)
+        if isEvent: context['log_info'] = logging_fetch_log(logType.EVENT, context)
+        else: context['log_info'] = logging_fetch_log(logType.PLACE, context)
       else:
         context['result'] = "fail"
         context['error'] = "We don't have category or sigungucode"
@@ -259,3 +259,6 @@ def insert_place(data, isEvent=False):
     context['error'] = str(e)
 
   return context
+
+def get_logged(request):
+  return JsonResponse(get_all_log())

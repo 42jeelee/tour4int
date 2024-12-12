@@ -1,33 +1,65 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/variable/pretendardvariable-dynamic-subset.css");
 /* admin.css */
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   margin: 0;
   padding: 0;
+  height: 100%;
 }
 
-header {
+a{
+  color: inherit;
+  outline: none;
+  text-decoration: none;
+}
+
+.header{
+  display: flex;
+}
+
+.header > .banner {
+  width: 10%;
+  height: 65px;
   background-color: #007bff;
   color: white;
-  padding: 10px;
+  font-size: 15px;
   text-align: center;
 }
 
-nav ul {
+.container{
+  display: flex;
+  min-height: 100vh;
+}
+
+.banner {
+  width: 10%;
+  background-color: #343a40;
+  flex-shrink: 0;
+}
+
+.content {
+  width: 90%;
+  padding: 0 50px 20px;
+  box-sizing: border-box;
+  flex-grow: 1;
+}
+
+body > div > div.banner > nav > ul {
   list-style: none;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  background-color: #343a40;
   margin: 0;
   padding: 0;
 }
 
-nav ul li {
-  padding: 10px 20px;
+body > div > div.banner > nav > ul > li, div.banner > nav > ul > a {
+  padding: 20px;
   color: white;
   cursor: pointer;
 }
 
-nav ul li:hover, .tabs li.active {
+nav ul li:hover, .tabs li.active, div.banner > nav > ul > a{
   background-color: #495057;
 }
 
@@ -37,11 +69,34 @@ nav ul li:hover, .tabs li.active {
 
 .tab-content.active, .sub-tab-content.active {
   display: block;
+  padding: 0 0 20px;
+}
+
+.sub-tabs{
+  list-style-type: none;
+  display: flex;
+  justify-content: center;
+  background-color: #343a40;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.sub-tabs li{
   padding: 20px;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 
-/* 이벤트 테이블 */
+/* 관광지, 이벤트 테이블 */
+.sub-tab-contents{
+  display: flex;
+  justify-content: center;
+}
+
 .no_display {
   display: none;
 }
@@ -50,19 +105,29 @@ nav ul li:hover, .tabs li.active {
   border: 1px solid black;
 }
 
-table {
+.sub-tab-contents table {
   border-collapse: collapse;
-  width: 100%;
+  width: 1200px;
 }
 
-table td {
+.sub-tab-contents table thead{
+  background-color: #343a40;
+  color: white;
+  height: 45px;
+}
+
+.sub-tab-contents table td {
   padding: 8px;
-  text-align: left;
+  text-align: center;
   vertical-align: middle;
+  height: 50px;
+}
+
+.sub-tab-contents table tr:nth-child(even) td, .sub-tab-contents table tr:nth-child(even) th {
+  background: #f9f9f9;
 }
 
 table td input[type="text"] {
-  width: 100%; /* 셀 너비에 맞게 확장 */
   box-sizing: border-box; /* 패딩과 보더를 포함한 크기 설정 */
   padding: 6px; /* 입력 필드 안의 여백 */
   border: 1px solid #ccc;
@@ -81,4 +146,142 @@ table button {
 
 table button:hover {
   background-color: #0056b3;
+}
+
+/* 모달 */
+.place-modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.place-modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-family: Arial, sans-serif;
+}
+
+.place-modal-content h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.place-modal-content p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.place-modal-content label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+.place-modal-content input,
+.place-modal-content textarea {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.place-modal-content button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.place-modal-content button:hover {
+  background-color: #45a049;
+}
+
+.place-close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.place-close:hover,
+.place-close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+/* 회원정보 수정 모달 */
+.user-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: none; /* 초기 상태에서 숨김 */
+  justify-content: center;
+  align-items: center;
+}
+
+.user-modal-container {
+  background: white;
+  padding: 20px;
+  width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.user-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.form-input {
+  width: calc(100% - 10px);
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.btn {
+  background: #007BFF;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #0056b3;
 }
