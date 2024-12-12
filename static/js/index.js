@@ -44,6 +44,14 @@ $(function () {
     return result;
   }
 
+  function needBtns(screen) {
+    const screenWidth = screen.outerWidth();
+    const itemlist = screen.find(".itemlist");
+    const itemlistWidth = itemlist.outerWidth();
+    
+    return itemlistWidth > screenWidth;
+  }
+
   $(document).on("click", ".item-screen__btn", function() {
     const btns = $(this).parent().children();
     const isPrev = $(this).hasClass("prev-btn");
@@ -72,5 +80,13 @@ $(function () {
 
     location.href = `/place/local/${area_code}/`;
   });
+
+  $(".item-screen__btns").each(function() {
+    const screen = $(this).closest(".item-screen");
+    
+    if (needBtns(screen)) {
+      $(this).children(".item-screen__btn").eq(1).removeClass("disable-btn");
+    }
+  })
 
 });

@@ -14,7 +14,36 @@ class logType(Enum):
   PLACE = 4
   EVENT = 5
 
-def logging_fetch_log(fetchType=logType.EMPTY, context=0):
+def trans_jsonformat(api_logger):
+  return {
+    'category': {
+      'fetched': api_logger.is_category,
+      'modify_date': api_logger.modify_category,
+      'data_num': api_logger.category_num,
+    },
+    'areacode': {
+      'fetched': api_logger.is_areacode,
+      'modify_date': api_logger.modify_areacode,
+      'data_num': api_logger.areacode_num,
+    },
+    'sigungucode': {
+      'fetched': api_logger.is_sigungucode,
+      'modify_date': api_logger.modify_sigungucode,
+      'data_num': api_logger.sigungu_num,
+    },
+    'place': {
+      'fetched': api_logger.is_place,
+      'modify_date': api_logger.modify_place,
+      'data_num': api_logger.place_num,
+    },
+    'event': {
+      'fetched': api_logger.is_event,
+      'modify_date': api_logger.modify_event,
+      'data_num': api_logger.event_num,
+    },
+  }
+
+def logging_fetch_log(fetchType=logType.EMPTY, context={}):
   if fetchType == logType.EMPTY or context['result'] != 'success':
     return
   
@@ -64,6 +93,35 @@ def logging_fetch_log(fetchType=logType.EMPTY, context=0):
   
   msg = f"💾 {fetchType.name} logging save [{modify_num}/{data_num}] current total [{save_num}]"
   print(msg)
+  return logging_current()
+
+def logging_current():
+  api_logger = ApiFetchLog.objects.get(id=1)
+
+  api_logger.category_num = Category.objects.count()
+  api_logger.is_category = api_logger.category_num > 0
+  if not api_logger.is_category: api_logger.modify_category = None
+  
+  api_logger.areacode_num = AreaCode.objects.count()
+  api_logger.is_areacode = api_logger.areacode_num > 0
+  if not api_logger.is_areacode: api_logger.modify_areacode = None
+  
+  api_logger.sigungu_num = SigunguCode.objects.count()
+  api_logger.is_sigungucode = api_logger.sigungu_num > 0
+  if not api_logger.is_sigungucode: api_logger.modify_sigungucode = None
+  
+  api_logger.place_num = Place.objects.filter(~Q(category__content_type=15)).count()
+  api_logger.is_place = api_logger.place_num > 0
+  if not api_logger.is_place: api_logger.modify_place = None
+  
+  api_logger.event_num = Place.objects.filter(category__content_type=15).count()
+  api_logger.is_event = api_logger.event_num > 0
+  if not api_logger.is_event: api_logger.modify_event = None
+
+  api_logger.save()
+
+  return trans_jsonformat(api_logger)
+
 
 def has_fetch(logType=logType.EMPTY):
   api_logger = ApiFetchLog.objects.get(id=1)
@@ -90,8 +148,12 @@ def get_modify_time(fetchType=logType.EMPTY):
       modified_time =  api_logger.modify_sigungucode
     if fetchType == logType.PLACE and api_logger.modify_place is not None:
       modified_time =  api_logger.modify_place
-      print("!", modified_time)
     if fetchType == logType.EVENT and api_logger.modify_event is not None:
       modified_time =  api_logger.modify_event
 
   return modified_time
+
+def get_all_log():
+  api_logger = ApiFetchLog.objects.get(id=1)
+
+  return trans_jsonformat(api_logger)
