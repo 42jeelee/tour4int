@@ -76,7 +76,6 @@ function get_event_data(areaCode) {
       type:'post', // get, post
       data:{'areaCode':areaCode}, // 서버쪽으로 보내는 변수데이터
       success:function(data){ // 서버에서 받은 데이터 : data
-          console.log('성공 여부 : ' + data.result)
           var li_data = ''
           for(let i = 0; i < data.event.length; i++){
             li_data += `
@@ -128,7 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
       type:'post', // get, post // 서버쪽으로 보내는 변수데이터
       data:{'no':no},
       success:function(data){ // 서버에서 받은 데이터 : data
-          console.log('성공 여부 : ' + data.result)
           if(data.result != 'fail'){
             let viewData = JSON.parse(data.view)
             $('#title').val(viewData[0].fields.title)
@@ -169,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
           'homepage_url':homepage_url, 'overview':overview
         },
         success:function(data){ // 서버에서 받은 데이터 : data
-            console.log('성공 여부 : ' + data.result)
             if(data.result == 'success'){
               let viewData = JSON.parse(data.view)
               modi_content.eq(1).text(viewData[0].fields.title)
@@ -210,7 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // place
   window.onclick = function(event) {
-    console.log('user')
     if (event.target == usermodal || event.target == placemodal) {
       usermodal.style.display = "none";
       placemodal.style.display = "none";
