@@ -39,3 +39,46 @@ nav ul li:hover, .tabs li.active {
   display: block;
   padding: 20px;
 }
+
+
+/* 이벤트 테이블 */
+.no_display {
+  display: none;
+}
+
+.modi {
+  border: 1px solid black;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table td {
+  padding: 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+table td input[type="text"] {
+  width: 100%; /* 셀 너비에 맞게 확장 */
+  box-sizing: border-box; /* 패딩과 보더를 포함한 크기 설정 */
+  padding: 6px; /* 입력 필드 안의 여백 */
+  border: 1px solid #ccc;
+  border-radius: 4px; /* 둥근 모서리 */
+  font-size: 14px;
+}
+
+table button {
+  padding: 6px 12px;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+table button:hover {
+  background-color: #0056b3;
+}

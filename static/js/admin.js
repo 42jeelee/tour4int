@@ -34,9 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// 지역
 function get_place_data(areaCode) {
   let csrfToken = $('meta[name=csrf_token]').attr('content')
-  console.log($('#AreaCode-'+areaCode).find('#place').children().length)
   if($('#AreaCode-'+areaCode).find('#place').children().length == 0){
     $.ajax({
       headers:{'X-CSRFToken':csrfToken}, // scrf_token
@@ -47,7 +47,20 @@ function get_place_data(areaCode) {
           var li_data = ''
           for(let i = 0; i < data.areaCode.length; i++){
             li_data += `
-            <li>${data.areaCode[i].title}</li>
+            <tr id='${areaCode}_${i}'>
+              <td>${data.areaCode[i].place_id}</td>
+              <td>${data.areaCode[i].title}</td>
+              <td>${data.areaCode[i].thumb_img}</td>
+              <td>${data.areaCode[i].image}</td>
+              <td><button class='modBut'>수정하기</button></td>
+            </tr>
+            <tr id='${data.areaCode[i].place_id}' class='modi no_display'>
+              <td>${data.areaCode[i].place_id}</td>
+              <td><input id='${data.areaCode[i].place_id}_title' type='text' value='${data.areaCode[i].title}'></td>
+              <td><input id='${data.areaCode[i].place_id}_thumb_img' type='text' value='${data.areaCode[i].thumb_img}'></td>
+              <td><input id='${data.areaCode[i].place_id}_image' type='text' value='${data.areaCode[i].image}'></td>
+              <td><button class='sumBut'>적용하기</button></td>
+            </tr>
             `
           }
           $('#AreaCode-'+areaCode).find('#place').html(li_data)
@@ -60,6 +73,7 @@ function get_place_data(areaCode) {
 
 }
 
+// 이벤트
 function get_event_data(areaCode) {
   let csrfToken = $('meta[name=csrf_token]').attr('content')
   
@@ -74,7 +88,20 @@ function get_event_data(areaCode) {
           var li_data = ''
           for(let i = 0; i < data.event.length; i++){
             li_data += `
-            <li>${data.event[i].title}</li>
+            <tr id='${areaCode}_${i}'>
+              <td>${data.event[i].place_id}</td>
+              <td>${data.event[i].title}</td>
+              <td>${data.event[i].thumb_img}</td>
+              <td>${data.event[i].image}</td>
+              <td><button class='modBut'>수정하기</button></td>
+            </tr>
+            <tr id='${data.event[i].place_id}' class='modi no_display'>
+              <td>${data.event[i].place_id}</td>
+              <td><input id='${data.event[i].place_id}_title' type='text' value='${data.event[i].title}'></td>
+              <td><input id='${data.event[i].place_id}_thumb_img' type='text' value='${data.event[i].thumb_img}'></td>
+              <td><input id='${data.event[i].place_id}_image' type='text' value='${data.event[i].image}'></td>
+              <td><button class='sumBut'>적용하기</button></td>
+            </tr>
             `
           }
           $('#event-AreaCode-'+areaCode).find('#place').html(li_data)
@@ -86,3 +113,22 @@ function get_event_data(areaCode) {
   }
 
 }
+
+$(document).on('click', '.modBut', function(){
+  // 모든 modi가져와서 active 되있는거 꺼주기
+  var all_modi = document.querySelectorAll('.modi')
+  all_modi.forEach((c) => c.classList.add("no_display"))
+
+  // 현제 누른 tr 다음거 활성화 하기
+  var test = $(this).closest('tr').attr('id')
+  $(this).closest('tr').next().removeClass('no_display')
+})
+
+$(document).on('click', '.sumBut', function(){
+  // 수정 데이터 확인
+  var modi_id = $(this).closest('tr').attr('id')
+  var modi_title = $('#' + modi_id + '_title').val()
+  var modi_thumb_img = $('#' + modi_id + '_thumb_img')
+  var modi_image = $('#' + modi_id + '_image')
+  console.log(modi_id + ' : ' + modi_title)
+})
