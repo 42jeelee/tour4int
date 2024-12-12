@@ -7,7 +7,9 @@
     <meta name='csrf_token' content='{{csrf_token}}'>
     <title>관리자 페이지</title>
     <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin-data.css' %}">
     <script src="{% static 'js/admin.js' %}" defer></script>
+    <script src="{% static 'js/admin-data.js' %}" defer></script>
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
@@ -51,11 +53,58 @@
 
         <!-- dataSetting -->
         <section id="dataSetting" class="tab-content">
-            <h2>데이터 셋팅</h2>
-            <ul>
-                <li><a href='/api/init_all'>모든 데이터 가져오기</a></li>
-                <li><a href='/api/get_event'>모든 이벤트 가져오기</a></li>
-            </ul>
+            <div class="wrapper">
+                <h2>데이터 세팅</h2>
+                <div class="wrapper-line">
+                    <div class="data-list">
+                        <div class="data-list__row">
+                            <div id="data-item__areacode" class="data-item active-btn">
+                                <div class="data-item__content">
+                                    <div class="data-item__title">지역코드</div>
+                                    <div class="data-item__modify">2024-12-11</div>
+                                    <div class="data-item__num">0 개</div>
+                                </div>
+                            </div>
+                            <div id="data-item__sigungucode" class="data-item">
+                                <div class="data-item__content">
+                                    <div class="data-item__title">시군구코드</div>
+                                    <div class="data-item__modify">2024-12-11</div>
+                                    <div class="data-item__num">0 개</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="data-list__row">
+                            <div id="data-item__category" class="data-item long active-btn">
+                                <div class="data-item__content">
+                                    <div class="data-item__title">카테고리</div>
+                                    <div class="data-item__modify">2024-12-11</div>
+                                    <div class="data-item__num">0 개</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-list">
+                        <div class="data-list__row">
+                            <div id="data-item__place" class="data-item">
+                                <div class="data-item__content">
+                                    <div class="data-item__title">장소</div>
+                                    <div class="data-item__modify">2024-12-11</div>
+                                    <div class="data-item__num">0 개</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="data-list__row">
+                            <div id="data-item__event" class="data-item">
+                                <div class="data-item__content">
+                                    <div class="data-item__title">이벤트</div>
+                                    <div class="data-item__modify">2024-12-11</div>
+                                    <div class="data-item__num">0 개</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- 지역 관리 -->
