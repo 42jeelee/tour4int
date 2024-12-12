@@ -43,7 +43,7 @@ def get_event(request):
     context['result'] = 'fail'
   return JsonResponse(context)
 
-# 수정 타겟 데이터
+# place 수정 타겟 데이터
 def get_view(request):
   content = {}
   if request.method == 'POST':
@@ -67,7 +67,7 @@ def get_view(request):
     content['result'] = 'fail'
   return JsonResponse(content)
 
-# 수정하기
+# place 수정하기
 def update(request):
   content = {}
   if request.method == 'POST':
@@ -93,4 +93,12 @@ def update(request):
     content['view'] = serializers.serialize('json', [data])
   else:
     content['result'] = 'fail'
+  return JsonResponse(content)
+
+def get_user_view(request):
+  content = {}
+  if request.method == "POST":
+    id = request.POST.get('userId')
+    user = User.objects.all()
+    print(user)
   return JsonResponse(content)
