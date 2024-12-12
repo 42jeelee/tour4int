@@ -13,236 +13,243 @@
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>관리자 대시보드</h1>
-    </header>
-    <nav>
-        <ul class="tabs">
-            <li data-tab="users">회원 관리</li>
-            <li data-tab="dataSetting">데이터 관리</li>
-            <li data-tab="AreaCodes">지역</li>
-            <li data-tab="touristspots">관광지</li>
-            <li data-tab="events">이벤트</li>
-        </ul>
-    </nav>
-    <main>
-        <!-- 회원 관리 -->
-        <section id="users" class="tab-content active">
-            <h2>회원 관리</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>아이디</th>
-                        <th>이름</th>
-                        <th>닉네임</th>
-                        <th>가입 날짜</th>
-                        <th>액션</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.nickname }}</td>
-                        <td>{{ user.created_at }}</td>
-                        <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
+    <div class='header'>
+        <div class='banner'>
+            <a href='/touradmin/'><h2>관리자 대시보드</h2></a>
+        </div>
+    </div>
+    <div class='container'>
+        <div class='banner'>
+            <nav>
+                <ul class="tabs">
+                    <li><a href='/'>Tour4Int</a></li>
+                    <li data-tab="users">회원 관리</li>
+                    <li data-tab="dataSetting">데이터 관리</li>
+                    <li data-tab="touristspots">관광지</li>
+                    <li data-tab="events">이벤트</li>
+                </ul>
+            </nav>
+        </div>
+        <div class='content'>
+            <main>
+                <!-- 회원 관리 -->
+                <section id="users" class="tab-content active">
+                    <h2>회원 관리</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>닉네임</th>
+                                <th>가입 날짜</th>
+                                <th>액션</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.nickname }}</td>
+                                <td>{{ user.created_at }}</td>
+                                <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
 
-        <!-- dataSetting -->
-        <section id="dataSetting" class="tab-content">
-            <div class="wrapper">
-                <h2>데이터 세팅</h2>
-                <div class="wrapper-line">
-                    <div class="data-list">
-                        <div class="data-list__row">
-                            <div id="data-item__areacode" class="data-item active-btn">
-                                <div class="data-item__content">
-                                    <div class="data-item__title">지역코드</div>
-                                    <div class="data-item__modify">2024-12-11</div>
-                                    <div class="data-item__num">0 개</div>
+                <!-- dataSetting -->
+                <section id="dataSetting" class="tab-content">
+                    <div class="wrapper">
+                        <h2>데이터 세팅</h2>
+                        <div class="wrapper-line">
+                            <div class="data-list">
+                                <div class="data-list__row">
+                                    <div id="data-item__areacode" class="data-item active-btn">
+                                        <div class="data-item__content">
+                                            <div class="data-item__title">지역코드</div>
+                                            <div class="data-item__modify">2024-12-11</div>
+                                            <div class="data-item__num">0 개</div>
+                                        </div>
+                                    </div>
+                                    <div id="data-item__sigungucode" class="data-item">
+                                        <div class="data-item__content">
+                                            <div class="data-item__title">시군구코드</div>
+                                            <div class="data-item__modify">2024-12-11</div>
+                                            <div class="data-item__num">0 개</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="data-list__row">
+                                    <div id="data-item__category" class="data-item long active-btn">
+                                        <div class="data-item__content">
+                                            <div class="data-item__title">카테고리</div>
+                                            <div class="data-item__modify">2024-12-11</div>
+                                            <div class="data-item__num">0 개</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div id="data-item__sigungucode" class="data-item">
-                                <div class="data-item__content">
-                                    <div class="data-item__title">시군구코드</div>
-                                    <div class="data-item__modify">2024-12-11</div>
-                                    <div class="data-item__num">0 개</div>
+                            <div class="data-list">
+                                <div class="data-list__row">
+                                    <div id="data-item__place" class="data-item">
+                                        <div class="data-item__content">
+                                            <div class="data-item__title">장소</div>
+                                            <div class="data-item__modify">2024-12-11</div>
+                                            <div class="data-item__num">0 개</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="data-list__row">
-                            <div id="data-item__category" class="data-item long active-btn">
-                                <div class="data-item__content">
-                                    <div class="data-item__title">카테고리</div>
-                                    <div class="data-item__modify">2024-12-11</div>
-                                    <div class="data-item__num">0 개</div>
+                                <div class="data-list__row">
+                                    <div id="data-item__event" class="data-item">
+                                        <div class="data-item__content">
+                                            <div class="data-item__title">이벤트</div>
+                                            <div class="data-item__modify">2024-12-11</div>
+                                            <div class="data-item__num">0 개</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="data-list">
-                        <div class="data-list__row">
-                            <div id="data-item__place" class="data-item">
-                                <div class="data-item__content">
-                                    <div class="data-item__title">장소</div>
-                                    <div class="data-item__modify">2024-12-11</div>
-                                    <div class="data-item__num">0 개</div>
-                                </div>
-                            </div>
+                </section>
+
+                <!-- 관광지 관리 -->
+                <section id="touristspots" class="tab-content">
+                    <h2>관광지</h2>
+                    <nav>
+                        <ul class="sub-tabs">
+                            {% for AreaCode in AreaCodes %}
+                            <li data-subtab="AreaCode-{{ AreaCode.area_code }}" onclick="get_place_data('{{ AreaCode.area_code }}')">{{ AreaCode.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    <div class="sub-tab-contents">
+                        {% for AreaCode in AreaCodes %}
+                        <div id="AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
+                            <h3>{{ AreaCode.name }}의 관광지</h3>
+                            <table>
+                                <colgroup>
+                                    <col style='width: 10%;'>
+                                    <col style='width: 30%;'>
+                                    <col style='width: 50%;'>
+                                    <col >
+                                </colgroup>
+                            <thead>
+                                <th>고유번호</th>
+                                <th>타이틀</th>
+                                <th>주소</th>
+                                <th>수정하기</th>
+                            </thead>
+                            <tbody id='place'>
+                                <!-- 데이터 들어가는 부분 -->
+                            </tbody>
+                            </table>
                         </div>
-                        <div class="data-list__row">
-                            <div id="data-item__event" class="data-item">
-                                <div class="data-item__content">
-                                    <div class="data-item__title">이벤트</div>
-                                    <div class="data-item__modify">2024-12-11</div>
-                                    <div class="data-item__num">0 개</div>
-                                </div>
-                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <!-- 이벤트 관리 -->
+                <section id="events" class="tab-content">
+                    <h2>이벤트</h2>
+                    <nav>
+                        <ul class="sub-tabs">
+                            {% for AreaCode in AreaCodes %}
+                            <li data-subtab="event-AreaCode-{{ AreaCode.area_code }}" onclick="get_event_data('{{ AreaCode.area_code }}')">{{ AreaCode.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    <div class="sub-tab-contents">
+                        {% for AreaCode in AreaCodes %}
+                        <div id="event-AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
+                            <h3>{{ AreaCode.name }}의 이벤트</h3>
+                            <table>
+                                <colgroup>
+                                    <col style='width: 10%;'>
+                                    <col style='width: 30%;'>
+                                    <col style='width: 30%;'>
+                                    <col style='width: 20%;'>
+                                    <col >
+                                </colgroup>
+                                <thead>
+                                    <th>고유번호</th>
+                                    <th>타이틀</th>
+                                    <th>주소</th>
+                                    <th>일정</th>
+                                    <th>수정하기</th>
+                                </thead>
+                                <tbody id='place'>
+                                    <!-- 데이터 들어가는 부분 -->
+                                </tbody>
+                            </table>
                         </div>
+                        {% endfor %}  
+                    </div>
+                </section>
+                
+                <!-- 모달창 관광지, 이벤트 -->
+                <div id="place-modal" class="place-modal">
+                    <div class="place-modal-content">
+                    <span class="place-close">&times;</span>
+                    <h2 id='modi_No'>번호</h2>
+                    <p>수정할 내용을 작성하세요.</p>
+                
+                    <!-- Title -->
+                    <label for="title">제목 (Title):</label>
+                    <input type="text" id="title" placeholder="Enter title" required>
+                
+                    <!-- Address -->
+                    <label for="address">주소 (Address):</label>
+                    <input type="text" id="address" placeholder="Enter address">
+                
+                    <!-- Telephone -->
+                    <label for="tel">전화번호 (Tel):</label>
+                    <input type="text" id="tel" placeholder="Enter telephone">
+                
+                    <!-- Image URL -->
+                    <label for="image">이미지 URL (Image):</label>
+                    <input type="url" id="image" placeholder="Enter image URL">
+                
+                    <!-- Thumbnail Image URL -->
+                    <label for="thumb_img">썸네일 URL (Thumbnail Image):</label>
+                    <input type="url" id="thumb_img" placeholder="Enter thumbnail URL">
+                
+                    <!-- Homepage URL -->
+                    <label for="homepage_url">홈페이지 URL:</label>
+                    <input type="url" id="homepage_url" placeholder="Enter homepage URL">
+                
+                    <!-- Overview -->
+                    <label for="overview">개요 (Overview):</label>
+                    <textarea id="overview" rows="4" placeholder="Enter overview"></textarea>
+                
+                    <!-- Submit Button -->
+                    <button class='sumBut'>적용하기</button>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- 지역 관리 -->
-        <section id="AreaCodes" class="tab-content">
-            <h2>지역</h2>
-            <ul>
-                {% for AreaCode in AreaCodes %}
-                <li>{{ AreaCode.name }}</li>
-                {% endfor %}
-            </ul>
-        </section>
-
-        <!-- 관광지 관리 -->
-        <section id="touristspots" class="tab-content">
-          <h2>관광지</h2>
-          <nav>
-              <ul class="sub-tabs">
-                  {% for AreaCode in AreaCodes %}
-                  <li data-subtab="AreaCode-{{ AreaCode.area_code }}" onclick="get_place_data('{{ AreaCode.area_code }}')">{{ AreaCode.name }}</li>
-                  {% endfor %}
-              </ul>
-          </nav>
-          <div class="sub-tab-contents">
-              {% for AreaCode in AreaCodes %}
-              <div id="AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
-                <h3>{{ AreaCode.name }}의 관광지</h3>
-                <table>
-                  <thead>
-                    <th>고유번호</th>
-                    <th>타이틀</th>
-                    <th>썸네일</th>
-                    <th>이미지</th>
-                    <th>수정하기</th>
-                  </thead>
-                  <tbody id='place'>
-                    <!-- 데이터 들어가는 부분 -->
-                  </tbody>
-                </table>
-              </div>
-              {% endfor %}
-          </div>
-        </section>
-
-        <!-- 이벤트 관리 -->
-        <section id="events" class="tab-content">
-          <h2>이벤트</h2>
-          <nav>
-              <ul class="sub-tabs">
-                  {% for AreaCode in AreaCodes %}
-                  <li data-subtab="event-AreaCode-{{ AreaCode.area_code }}" onclick="get_event_data('{{ AreaCode.area_code }}')">{{ AreaCode.name }}</li>
-                  {% endfor %}
-              </ul>
-          </nav>
-          <div class="sub-tab-contents">
-              {% for AreaCode in AreaCodes %}
-              <div id="event-AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
-                <h3>{{ AreaCode.name }}의 이벤트</h3>
-                <table>
-                  <thead>
-                    <th>고유번호</th>
-                    <th>타이틀</th>
-                    <th>썸네일</th>
-                    <th>이미지</th>
-                    <th>수정하기</th>
-                  </thead>
-                  <tbody id='place'>
-                    <!-- 데이터 들어가는 부분 -->
-                  </tbody>
-                </table>
-              </div>
-            {% endfor %}  
-          </div>
-        </section>
-
-        <!-- 모달창 관광지, 이벤트 -->
-        <div id="place-modal" class="place-modal">
-          <div class="place-modal-content">
-            <span class="place-close">&times;</span>
-            <h2 id='modi_No'>번호</h2>
-            <p>수정할 내용을 작성하세요.</p>
         
-            <!-- Title -->
-            <label for="title">제목 (Title):</label>
-            <input type="text" id="title" placeholder="Enter title" required>
+                <!-- 모달 회원정보 수정 -->
+                <!-- 회원정보 수정 버튼 -->
         
-            <!-- Address -->
-            <label for="address">주소 (Address):</label>
-            <input type="text" id="address" placeholder="Enter address">
-        
-            <!-- Telephone -->
-            <label for="tel">전화번호 (Tel):</label>
-            <input type="text" id="tel" placeholder="Enter telephone">
-        
-            <!-- Image URL -->
-            <label for="image">이미지 URL (Image):</label>
-            <input type="url" id="image" placeholder="Enter image URL">
-        
-            <!-- Thumbnail Image URL -->
-            <label for="thumb_img">썸네일 URL (Thumbnail Image):</label>
-            <input type="url" id="thumb_img" placeholder="Enter thumbnail URL">
-        
-            <!-- Homepage URL -->
-            <label for="homepage_url">홈페이지 URL:</label>
-            <input type="url" id="homepage_url" placeholder="Enter homepage URL">
-        
-            <!-- Overview -->
-            <label for="overview">개요 (Overview):</label>
-            <textarea id="overview" rows="4" placeholder="Enter overview"></textarea>
-        
-            <!-- Submit Button -->
-            <button class='sumBut'>적용하기</button>
-          </div>
+                <!-- 작업중 -->
+                <div id="editProfileModal" class="user-modal-overlay">
+                    <div class="user-modal-container">
+                    <div class="user-modal-header">
+                        <h2>회원정보 수정</h2>
+                        <button id="closeModal" class="user-modal-close-btn">&times;</button>
+                    </div>
+                    <div class="user-modal-body">
+                        <label for="username">사용자 이름</label>
+                        <input type="text" id="username" name="username" class="form-input" required>
+                        <label for="email">이메일</label>
+                        <input type="email" id="email" name="email" class="form-input" required>
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" name="password" class="form-input">
+                        <button type="button" class="user-modibtn">수정 완료</button>
+                    </div>
+                    </div>
+                </div>
+            </main>
         </div>
-
-        <!-- 모달 회원정보 수정 -->
-         <!-- 회원정보 수정 버튼 -->
-
-        <!-- 작업중 -->
-        <div id="editProfileModal" class="user-modal-overlay">
-          <div class="user-modal-container">
-            <div class="user-modal-header">
-              <h2>회원정보 수정</h2>
-              <button id="closeModal" class="user-modal-close-btn">&times;</button>
-            </div>
-            <div class="user-modal-body">
-              <label for="username">사용자 이름</label>
-              <input type="text" id="username" name="username" class="form-input" required>
-              <label for="email">이메일</label>
-              <input type="email" id="email" name="email" class="form-input" required>
-              <label for="password">비밀번호</label>
-              <input type="password" id="password" name="password" class="form-input">
-              <button type="button" class="user-modibtn">수정 완료</button>
-            </div>
-          </div>
-        </div>
-
-    </main>
+    </div>
 </body>
 </html>

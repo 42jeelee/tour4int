@@ -50,8 +50,7 @@ function get_place_data(areaCode) {
             <tr id='${areaCode}_${i}'>
               <td>${data.areaCode[i].place_id}</td>
               <td>${data.areaCode[i].title}</td>
-              <td>${data.areaCode[i].thumb_img}</td>
-              <td>${data.areaCode[i].image}</td>
+              <td>${data.areaCode[i].address}</td>
               <td><button class="open-place-modal">수정하기</button></td>
             </tr>
             `
@@ -77,15 +76,14 @@ function get_event_data(areaCode) {
       type:'post', // get, post
       data:{'areaCode':areaCode}, // 서버쪽으로 보내는 변수데이터
       success:function(data){ // 서버에서 받은 데이터 : data
-          console.log('성공 여부 : ' + data.result)
           var li_data = ''
           for(let i = 0; i < data.event.length; i++){
             li_data += `
             <tr id='${areaCode}_${i}'>
               <td>${data.event[i].place_id}</td>
               <td>${data.event[i].title}</td>
-              <td>${data.event[i].thumb_img}</td>
-              <td>${data.event[i].image}</td>
+              <td>${data.event[i].address}</td>
+              <td>${data.event[i].start_time} - ${data.event[i].end_time}</td>
               <td><button class="open-place-modal">수정하기</button></td>
             </tr>
             `
