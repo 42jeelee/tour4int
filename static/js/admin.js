@@ -51,7 +51,7 @@ function get_place_data(areaCode) {
               <td>${data.areaCode[i].place_id}</td>
               <td>${data.areaCode[i].title}</td>
               <td>${data.areaCode[i].address}</td>
-              <td><button class='modBut'>수정하기</button></td>
+              <td><button class="open-place-modal">수정하기</button></td>
             </tr>
             `
           }
@@ -85,7 +85,7 @@ function get_event_data(areaCode) {
               <td>${data.event[i].title}</td>
               <td>${data.event[i].address}</td>
               <td>${data.event[i].start_time} - ${data.event[i].end_time}</td>
-              <td><button class='modBut'>수정하기</button></td>
+              <td><button class="open-place-modal">수정하기</button></td>
             </tr>
             `
           }
@@ -99,21 +99,121 @@ function get_event_data(areaCode) {
 
 }
 
-$(document).on('click', '.modBut', function(){
-  // 모든 modi가져와서 active 되있는거 꺼주기
-  var all_modi = document.querySelectorAll('.modi')
-  all_modi.forEach((c) => c.classList.add("no_display"))
+// 모달
+document.addEventListener('DOMContentLoaded', function() {
+  // place
+  var placemodal = document.getElementById("place-modal");
+  var placespan = document.getElementsByClassName("place-close")[0];
+  // user
+  var usermodal = document.getElementById("editProfileModal");
+  var userspan = document.getElementsByClassName("user-modal-close-btn")[0];
 
-  // 현제 누른 tr 다음거 활성화 하기
-  var test = $(this).closest('tr').attr('id')
-  $(this).closest('tr').next().removeClass('no_display')
-})
+  var no; // place 수정 번호
+  var modi_content; // place 수정 정보 데이터
+  let csrfToken = $('meta[name=csrf_token]').attr('content')
 
-$(document).on('click', '.sumBut', function(){
-  // 수정 데이터 확인
-  var modi_id = $(this).closest('tr').attr('id')
-  var modi_title = $('#' + modi_id + '_title').val()
-  var modi_thumb_img = $('#' + modi_id + '_thumb_img')
-  var modi_image = $('#' + modi_id + '_image')
-  console.log(modi_id + ' : ' + modi_title)
-})
+  // place 열기
+  $(document).on('click', '.open-place-modal', function(){
+    placemodal.style.display = "block";
+    var modi_no = $(this).closest('tr').attr('id')
+    $('#modi_No').html(modi_no+' 번 수정')
+
+    // ajax 요청
+    modi_content = $(this).closest('tr').children()
+    no = modi_content.eq(0).text()
+
+    $.ajax({
+      headers:{'X-CSRFToken':csrfToken}, // scrf_token
+      url:'/touradmin/get_view/', // 보내는 주소
+      type:'post', // get, post // 서버쪽으로 보내는 변수데이터
+      data:{'no':no},
+      success:function(data){ // 서버에서 받은 데이터 : data
+          console.log('성공 여부 : ' + data.result)
+          if(data.result != 'fail'){
+            let viewData = JSON.parse(data.view)
+            $('#title').val(viewData[0].fields.title)
+            $('#address').val(viewData[0].fields.address)
+            $('#tel').val(viewData[0].fields.tel)
+            $('#image').val(viewData[0].fields.image)
+            $('#thumb_img').val(viewData[0].fields.thumb_img)
+            $('#homepage_url').val(viewData[0].fields.homepage_url)
+            $('#overview').val(viewData[0].fields.overview)
+          }
+      },
+      error:function(){
+          alert('실패')
+      }
+    }) // ajax
+  })
+
+  // place 데이터 수정하기
+  $(document).on('click', '.sumBut', function(){
+    // 수정 데이터 확인
+    if(confirm('수정 하시겠습니까?')){
+      var target = no
+      var title = $('#title').val()
+      var address = $('#address').val()
+      var tel = $('#tel').val()
+      var image = $('#image').val()
+      var thumb_img = $('#thumb_img').val()
+      var homepage_url = $('#homepage_url').val()
+      var overview = $('#overview').val()
+  
+      // ajax
+      $.ajax({
+        headers:{'X-CSRFToken':csrfToken}, // scrf_token
+        url:'/touradmin/update/', // 보내는 주소
+        type:'post', // get, post // 서버쪽으로 보내는 변수데이터
+        data:{'target':target, 'title':title, 'address':address,
+          'tel':tel, 'image':image, 'thumb_img':thumb_img,
+          'homepage_url':homepage_url, 'overview':overview
+        },
+        success:function(data){ // 서버에서 받은 데이터 : data
+            console.log('성공 여부 : ' + data.result)
+            if(data.result == 'success'){
+              let viewData = JSON.parse(data.view)
+              modi_content.eq(1).text(viewData[0].fields.title)
+              modi_content.eq(2).text(viewData[0].fields.thumb_img)
+              modi_content.eq(3).text(viewData[0].fields.image)
+            }
+        },
+        error:function(){
+            alert('실패')
+        }
+      }) // ajax
+    }// confirm
+    placemodal.style.display = 'none';
+  })
+
+  // user 열기
+  $(document).on('click', '.user-btn', function(){
+    usermodal.style.display = "flex";
+
+    // ajax 요청
+    modi_content = $(this).closest('tr').children()
+  })
+
+  // user 데이터 수정
+  $(document).on('click', '.user-modibtn', function(){
+    // 수정 데이터 확인
+    usermodal.style.display = 'none';
+  })
+
+  // place 모달창 닫기
+  placespan.onclick = function() {
+    placemodal.style.display = "none";
+  }
+  // user 모달창 닫기
+  userspan.onclick = function() {
+    usermodal.style.display = "none";
+  }
+
+  // place
+  window.onclick = function(event) {
+    console.log('user')
+    if (event.target == usermodal || event.target == placemodal) {
+      usermodal.style.display = "none";
+      placemodal.style.display = "none";
+    }
+  }
+});
