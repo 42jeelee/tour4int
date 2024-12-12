@@ -80,11 +80,21 @@
           </nav>
           <div class="sub-tab-contents">
               {% for AreaCode in AreaCodes %}
-              <section id="AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
-                  <h3>{{ AreaCode.name }}의 관광지</h3>
-                  <ul id='place'>
-                  </ul>
-              </section>
+              <div id="AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
+                <h3>{{ AreaCode.name }}의 관광지</h3>
+                <table>
+                  <thead>
+                    <th>고유번호</th>
+                    <th>타이틀</th>
+                    <th>썸네일</th>
+                    <th>이미지</th>
+                    <th>수정하기</th>
+                  </thead>
+                  <tbody id='place'>
+                    <!-- 데이터 들어가는 부분 -->
+                  </tbody>
+                </table>
+              </div>
               {% endfor %}
           </div>
         </section>
@@ -101,12 +111,22 @@
           </nav>
           <div class="sub-tab-contents">
               {% for AreaCode in AreaCodes %}
-              <section id="event-AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
-                  <h3>{{ AreaCode.name }}의 이벤트</h3>
-                  <ul id='place'>
-                  </ul>
-              </section>
-              {% endfor %}
+              <div id="event-AreaCode-{{ AreaCode.area_code }}" class="sub-tab-content">
+                <h3>{{ AreaCode.name }}의 이벤트</h3>
+                <table>
+                  <thead>
+                    <th>고유번호</th>
+                    <th>타이틀</th>
+                    <th>썸네일</th>
+                    <th>이미지</th>
+                    <th>수정하기</th>
+                  </thead>
+                  <tbody id='place'>
+                    <!-- 데이터 들어가는 부분 -->
+                  </tbody>
+                </table>
+              </div>
+            {% endfor %}  
           </div>
         </section>
     </main>
