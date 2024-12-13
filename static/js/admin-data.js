@@ -146,8 +146,18 @@ $(function() {
       error: function(e) {
         api_status[dataName] = false;
         console.log("fail :", e);
+        error_item(item);
       }
     });
+  }
+
+  function error_item(itemBox) {
+    itemBox.removeClass("active-btn fetched load-item");
+    itemBox.addClass("shake-item");
+    
+    setTimeout(() => {
+      itemBox.removeClass("shake-item");
+    }, 500);
   }
 
   function setting_placebox() {

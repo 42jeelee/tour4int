@@ -95,6 +95,11 @@
   animation: load-data-shadow .8s ease-in-out infinite alternate;
 }
 
+#dataSetting .wrapper .data-item.shake-item > .data-item__content {
+  border: 1px solid #8b2e33;
+  animation: error-data-shake .2s ease-in-out infinite alternate;
+}
+
 #dataSetting .wrapper .data-item.active-btn.fetched > .data-item__content:hover {
   background-color: #bdffa9;
 }
@@ -161,4 +166,12 @@
 @keyframes load-data-shadow {
   0% { box-shadow: 0 0 3px 0 #eb7f27; }
   100% { box-shadow: 0 0 10px 3px #eb7f27; }
+}
+
+@keyframes error-data-shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
 }
