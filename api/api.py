@@ -4,6 +4,7 @@ from api.apilog import logType, get_modify_time
 from django.utils import timezone
 from datetime import timedelta
 
+
 API_KEY = settings.API_KEY
 API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1"
 
@@ -150,17 +151,25 @@ def get_event_info(datetime, pageNo=1, event=[]):
     event_data.append(e_info)
   return event_data
 
-def get_place_info(contentid):
+def get_place_common_info(contentid):
   path = "detailCommon1"
   params = {
-      'numOfRows': 1,
-      'pageNo': 1,
-      'defaultYN': 'Y',
-      'defaultYN': 'Y',
-      'overviewYN': 'Y',
-      'contentId': contentid
-    }
+    'defaultYN': 'Y',
+    'overviewYN': 'Y',
+    'contentId': contentid
+  }
   keys = ['response', 'body', 'items', 'item']
   data = get_api_list(path=path, params=params, keys=keys)
-  info = data[0]
-  return {'contentid':info['contentid'], 'homepage':info['homepage'], 'overview':info['overview']}
+
+  return data[0]
+
+def get_place_detail_info(contentid, content_typeid):
+  path = "detailIntro1"
+  params = {
+    'contentId': contentid,
+    'contentTypeId': content_typeid,
+  }
+  keys = ['response', 'body', 'items', 'item']
+  data = get_api_list(path=path, params=params, keys=keys)
+
+  return data[0]

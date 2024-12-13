@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from areacode.models import SigunguCode, AreaCode
-from category.models import Category
 from place.models import Place
 import logging
 from collections import defaultdict
@@ -11,7 +10,7 @@ import os
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
-from api import api
+from api import views
 
 # Create your views here.
 def local(request, areacode):
@@ -75,16 +74,15 @@ def view(request, areacode, content_id):
             context['result'] = "success"
             context['data'] = content_data[0]
         else:
-            overview = api.get_place_info(content_id)
-            content_data[0].overview = overview['overview']
-            content_data[0].homepage_url = overview['homepage']
-            content_data[0].is_detail = True
-            content_data[0].save()
-            context['result'] = 'info_success'
-            context['data'] = content_data[0]
-        if around_data:
-            context['around'] = around_data
-            context['len'] = len(around_data)
+            try:
+                context['result'] = 'info_success'
+                context['data'] = views.get_info(contentid=content_id)
+                if around_data:
+                    context['around'] = around_data
+                    context['len'] = len(around_data)
+            except Exception as e:
+                print(e)
+                return render(request, '404.html', status=404)
 
     response = render(request, 'view.html', context)
 
