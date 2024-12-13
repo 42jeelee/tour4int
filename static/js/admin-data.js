@@ -135,6 +135,8 @@ $(function() {
       success: function(data) {
         const { result, log_info: logInfo } = data;
         
+        api_status[dataName] = false;
+        loadingItem(item, dataName);
         if (result === "success") settingAllBox(logInfo);
         else {
           alert("서버에 문제가 발생하였습니다.");
@@ -142,13 +144,20 @@ $(function() {
         }
       },
       error: function(e) {
-        console.log("fail :", e);
-      },
-      complete: function() {
         api_status[dataName] = false;
-        loadingItem(item, dataName);
+        console.log("fail :", e);
+        error_item(item);
       }
     });
+  }
+
+  function error_item(itemBox) {
+    itemBox.removeClass("active-btn fetched load-item");
+    itemBox.addClass("shake-item");
+    
+    setTimeout(() => {
+      itemBox.removeClass("shake-item");
+    }, 500);
   }
 
   function setting_placebox() {
