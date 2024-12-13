@@ -4,14 +4,61 @@ header {
 }
 
 header > .header__container:first-child {
-  padding: 0 30px;
+  width: 100%;
+  height: 60px;
+}
+
+header > .header__container:first-child > .header__container--wrap {
   width: 100%;
   height: 60px;
   background-color: #1E47F1;
   color: white;
+  padding: 0 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+header > .header__container:first-child > .header__container--wrap .header__container--search-bar {
+  position: relative;
+  width: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: .3s ease-in-out;
+}
+
+header > .header__container:first-child > .header__container--wrap .header__container--search-bar input {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 30px;
+}
+
+header > .header__container:first-child > .header__container--wrap .header__container--search-bar input + button {
+  position: absolute;
+  right: 10px;
+  height: 28px;
+  width: 28px;
+  background-image: url(/static/images/header-icons.png);
+  background-size: 365px;
+  background-color: #00000000;
+  opacity: .6;
+  border: none;
+}
+
+header > .header__container:first-child.fixed-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+}
+
+header > .header__container:first-child > .header__container--wrap.search-header .header__container--search-bar {
+  visibility: inherit;
+  opacity: 1;
 }
 
 header > .header__container:nth-child(2) {
@@ -22,12 +69,12 @@ header > .header__container:nth-child(2) {
   align-items: flex-end;
 }
 
-header > .header__container > .header__logo {
+header > .header__container > .header__container--wrap > .header__logo {
   font-size: 24px;
   font-weight: 600;
 }
 
-header > .header__container > nav > a.header__btn {
+header > .header__container > .header__container--wrap > nav > a.header__btn {
   padding: 8px 15px;
   border-radius: 5px;
   font-size: 14px;
