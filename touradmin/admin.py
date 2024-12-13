@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import BannerImage
 
-# Register your models here.
+@admin.register(BannerImage)
+class BannerImageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'image', 'is_active')
