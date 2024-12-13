@@ -174,6 +174,8 @@ def get_info(contentid):
     info_data.update(api.get_place_detail_info(place.place_id, place.category.content_type))
 
     place_info = {
+    'homepage_url': info_data.get('homepage', ''),
+    'overview': info_data.get('overview', ''),
     'accomcount': info_data.get('accomcount', ''),
     'chkbabycarriage': info_data.get('chkbabycarriage', ''),
     'chkcreditcard': info_data.get('chkcreditcard', ''),
