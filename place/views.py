@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from areacode.models import SigunguCode
+from areacode.models import SigunguCode, AreaCode
 from category.models import Category
 from place.models import Place
 import logging
@@ -15,22 +15,35 @@ from api import api
 
 # Create your views here.
 def local(request, areacode):
+  # 해당 지역의 관광지 목록을 가져옴 (최신 4개)
   tour_list = Place.objects.all().filter(sigungu_code__area_code=areacode, category__content_type=12).order_by('-thumb_img', '-updated_at')[:4]
+  
+  # 해당 지역의 축제 목록을 가져옴 (최신 3개)
   event_list = Place.objects.all().filter(sigungu_code__area_code=areacode, category__content_type=15).order_by('-thumb_img', '-start_time')[:3]
   
-  # 실제 존재하는 배너 이미지만 리스트에 추가
+  # 배너 이미지 목록을 생성
+  # - local_[지역코드]_[1~3].jpg 형식의 이미지를 찾아서 목록에 추가
+  # - 실제로 존재하는 이미지만 목록에 포함됨
   banner_images = []
   for i in range(1, 4):
       image_path = f'images/banners/local_{areacode}_{i}.jpg'
       if os.path.exists(os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), image_path)):
           banner_images.append(image_path)
   
+  # 지역 코드에 해당하는 지역 이름을 데이터베이스에서 가져옴
+  # (예: 1 → "서울", 4 → "대구")
+  area_name = AreaCode.objects.get(area_code=areacode).name
+  
+  # 템플릿에 전달할 데이터를 context에 담음
   context = {
-    'areacode': areacode,
-    'tour_list': tour_list,
-    'event_list': event_list,
-    'banner_images': banner_images
+    'areacode': areacode,  # 지역 코드
+    'area_name': area_name,  # 지역 이름 (예: "서울", "대구")
+    'tour_list': tour_list,  # 관광지 목록
+    'event_list': event_list,  # 축제 목록
+    'banner_images': banner_images  # 배너 이미지 목록
   }
+  
+  # local.html 템플릿을 렌더링하여 응답
   return render(request, 'local.html', context)
 
 view_counts = defaultdict(int)
@@ -84,8 +97,21 @@ def view(request, areacode, content_id):
 
 def local_list(request, areacode):
   try:
-      # 해당 지역의 시군구 코드 가져오기
+      # 해당 지역의 시군구 코드 목록을 가져옴
       sigungu_list = SigunguCode.objects.filter(area_code=areacode)
+      
+      # 지역 코드에 해당하는 지역 이름을 가져옴
+      # (예: 1 → "서울", 4 → "대구")
+      area_name = AreaCode.objects.get(area_code=areacode).name
+      
+      # 배너 이미지 목록을 생성
+      # - local_[지역코드]_[1~3].jpg 형식의 이미지를 찾아서 목록에 추가
+      # - 실제로 존재하는 이미지만 목록에 포함됨
+      banner_images = []
+      for i in range(1, 4):
+          image_path = f'images/banners/local_{areacode}_{i}.jpg'
+          if os.path.exists(os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), image_path)):
+              banner_images.append(image_path)
       
       # AJAX 요청 여부 확인 (무한 스크롤을 위한 데이터 요청인지 확인)
       is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -155,6 +181,7 @@ def local_list(request, areacode):
                       'address': str(address),
                       'start_time': start_time,
                       'end_time': end_time,
+                      'place_id': place.place_id,  # place_id 추가
                   }
                   place_list.append(place_data)
               except Exception as e:
@@ -171,18 +198,12 @@ def local_list(request, areacode):
           return JsonResponse(response_data)
       
       # 일반 요청일 경우 템플릿 렌더링
-      # 실제 존재하는 배너 이미지만 리스트에 추가
-      banner_images = []
-      for i in range(1, 4):
-          image_path = f'images/banners/local_{areacode}_{i}.jpg'
-          if os.path.exists(os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), image_path)):
-              banner_images.append(image_path)
-      
       context = {
-          'areacode': areacode,
-          'banner_images': banner_images,
-          'places': page_obj,
-          'sigungu_list': sigungu_list,
+          'areacode': areacode,  # 지역 코드
+          'area_name': area_name,  # 지역 이름 (예: "서울", "대구")
+          'banner_images': banner_images,  # 배너 이미지 목록
+          'places': page_obj,  # 페이지네이션된 장소 목록
+          'sigungu_list': sigungu_list,  # 시군구 목록
       }
       return render(request, 'local_list.html', context)
       

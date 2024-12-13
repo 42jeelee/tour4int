@@ -1,33 +1,81 @@
 {% extends "base.html" %}
 {% load static %}
+
+{# 배너에 어두운 오버레이를 적용하기 위한 클래스 추가 #}
+{% block body_class %}local-page{% endblock %}
+
+{% block header_content %}
+{# 헤더 영역 #}
+<div class="header__container">
+    {# 헤더 배너 영역 #}
+    <div class="header__banner">
+        <div class="header__banner--wrap">
+            {# 배너 이미지가 2개 이상일 경우 이전 버튼 표시 #}
+            {% if banner_images|length > 1 %}
+            <button class="header__banner--btn prev-btn"></button>
+            {% endif %}
+            
+            {# 배너 슬라이드 컨테이너 #}
+            <div class="banner-slides">
+                {# 각 배너 이미지에 대한 슬라이드 생성 #}
+                {% for image in banner_images %}
+                <div class="banner-slide {% if forloop.first %}active{% endif %}" style="background-image: url('{% static image %}')">
+                    {# 지역 이름 표시 (예: "서울", "대구") #}
+                    {% if area_name %}
+                    <div class="area-name">{{ area_name }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            {# 배너 이미지가 2개 이상일 경우 다음 버튼 표시 #}
+            {% if banner_images|length > 1 %}
+            <button class="header__banner--btn next-btn"></button>
+            {% endif %}
+        </div>
+    </div>
+    
+    {# 검색바 영역 #}
+    <div class="header__search-bar">
+        <input id="header__search-input" type="text" placeholder="검색어를 입력해주세요." />
+        <button id="header__search-btn"></button>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
+{# 콘텐츠 영역 #}
 <div class="container">
-  <!-- 스티키 헤더 필터 -->
+  {# 스티키 헤더 필터 #}
   <div class="filter-header">
     <div class="filter-options">
+      {# 축제/행사 버튼 #}
       <button class="filter-btn active" data-filter="events">축제/행사</button>
+      {# 관광지 버튼 #}
       <button class="filter-btn" data-filter="places">관광지</button>
     </div>
   </div>
 
-  <!-- 축제/행사 섹션 -->
+  {# 축제/행사 섹션 #}
   <section class="events-section active" id="events" data-content-type="15">
     <div class="grid-container">
       {% for place in places %}
       {% if place.category.content_type == 15 %}
       <div class="card event-card">
-        <div class="card-image">
-          <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
-        </div>
-        <div class="card-content">
-          <span class="event-location">{{ place.address }}</span>
-          <h3 class="card-title">{{ place.title }}</h3>
-          {% if place.start_time and place.end_time %}
-          <div class="event-period">
-            {{ place.start_time|date:"Y.m.d" }} - {{ place.end_time|date:"Y.m.d" }}
+        <a href="{% url 'place:view' areacode=areacode content_id=place.place_id %}" class="card-link">
+          <div class="card-image">
+            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
           </div>
-          {% endif %}
-        </div>
+          <div class="card-content">
+            <span class="event-location">{{ place.address }}</span>
+            <h3 class="card-title">{{ place.title }}</h3>
+            {% if place.start_time and place.end_time %}
+            <div class="event-period">
+              {{ place.start_time|date:"Y.m.d" }} - {{ place.end_time|date:"Y.m.d" }}
+            </div>
+            {% endif %}
+          </div>
+        </a>
       </div>
       {% endif %}
       {% endfor %}
@@ -37,18 +85,20 @@
     </div>
   </section>
 
-  <!-- 관광지 섹션 -->
+  {# 관광지 섹션 #}
   <section class="places-section" id="places" data-content-type="other" style="display: none;">
     <div class="grid-container">
       {% for place in places %}
       {% if place.category.content_type == 12 or place.category.content_type == 14 or place.category.content_type == 25 %}
       <div class="card place-card">
-        <div class="card-image">
-          <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">{{ place.title }}</h3>
-        </div>
+        <a href="{% url 'place:view' areacode=areacode content_id=place.place_id %}" class="card-link">
+          <div class="card-image">
+            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">{{ place.title }}</h3>
+          </div>
+        </a>
       </div>
       {% endif %}
       {% endfor %}
@@ -59,7 +109,7 @@
   </section>
 </div>
 
-<!-- 스타일 세션-->
+{# 스타일 섹션 #}
 <style>
 .container {
   max-width: 1200px;
@@ -232,8 +282,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+}
 </style>
 
+{# 스크립트 섹션 #}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // DOM 요소 참조
@@ -361,14 +417,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 카드 내용 구성
         card.innerHTML = `
-          <div class="card-image">
-            <img src="${place.thumb_img}" alt="${place.title}">
-          </div>
-          <div class="card-content">
-            ${locationHtml}
-            <h3 class="card-title">${place.title}</h3>
-            ${periodHtml}
-          </div>
+          <a href="/place/local/${areacode}/view/${place.place_id}" class="card-link">
+            <div class="card-image">
+              <img src="${place.thumb_img}" alt="${place.title}">
+            </div>
+            <div class="card-content">
+              ${locationHtml}
+              <h3 class="card-title">${place.title}</h3>
+              ${periodHtml}
+            </div>
+          </a>
         `;
         
         container.appendChild(card);
