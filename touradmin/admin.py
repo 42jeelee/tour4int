@@ -3,4 +3,4 @@ from .models import BannerImage
 
 @admin.register(BannerImage)
 class BannerImageAdmin(admin.ModelAdmin):
-    list_display = ('title', 'image', 'is_active')
+    list_display = ('title', 'path', 'is_active')

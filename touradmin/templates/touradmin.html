@@ -80,7 +80,7 @@
                                 <td>{{ banner.name }}</td>
                                 <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
                                 <td>{{ banner.path }}</td>
-                                <td><button>활성화</button></td>
+                                <td><button id='active_banner'>활성화</button></td>
                                 <td><button class="delete-btn" data-id="{{ forloop.counter }}">삭제</button></td>
                             </tr>
                             {% endfor %}
@@ -99,14 +99,14 @@
                                 <th>저장</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id='act_list'>
                             {% for banner in banners_active %}
-                            <tr>
-                                <td>{{ banner.name }}</td>
+                            <tr id='act_{{banner.id}}'>
+                                <td>{{ banner.title }}</td>
                                 <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
                                 <td>{{ banner.path }}</td>
-                                <td><input type='checkbox'></td>
-                                <td><button>비활성화</button></td>
+                                <td><input type='checkbox' {% if banner.is_active == True %} checked {% endif %}></td>
+                                <td><button id='deactive_banner'>비활성화</button></td>
                             </tr>
                             {% endfor %}
                         </tbody>

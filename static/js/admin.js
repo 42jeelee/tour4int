@@ -102,7 +102,7 @@ function get_event_data(areaCode) {
             li_data += `
             <tr id='${areaCode}_${i}'>
               <td>${data.event[i].place_id}</td>
-              <td><a href='/place/local/${areaCode}/view/${data.areaCode[i].place_id}' target="_blank">${data.event[i].title}</a></td>
+              <td><a href='/place/local/${areaCode}/view/${data.event[i].place_id}' target="_blank">${data.event[i].title}</a></td>
               <td>${data.event[i].address}</td>
               <td>${data.event[i].start_time} - ${data.event[i].end_time}</td>
               <td><button class="open-place-modal">수정하기</button></td>
@@ -327,3 +327,69 @@ $('.delete-btn').click(function() {
       });
   }
 });
+
+// 이미지 활성화
+$(document).on('click', '#active_banner', function(){
+  if(confirm('활성화 됩니다.')){
+    var image_title = $(this).closest('tr').children().eq(0).text()
+    var image_path = $(this).closest('tr').children().eq(2).text()
+    var bannerId = $(this).closest('tr').attr('id');
+    
+    let csrfToken = $('meta[name=csrf_token]').attr('content')
+    $.ajax({
+      headers:{'X-CSRFToken':csrfToken},
+      url: '/touradmin/active_banner/',  // 삭제할 이미지의 ID를 URL에 추가
+      data: {'title':image_title, 'path':image_path},
+      type: 'POST',
+      success: function(response) {
+          if (response.success) {
+              // 삭제가 성공하면 해당 배너 항목을 테이블에서 제거
+              $('#' + bannerId).remove();
+              $('#act_list').append(
+                '<tr>' +
+                  '<td>' + image_title + '</td>' +
+                  '<td><img src="' + image_path + '" style="width: 30px; height: 30px;" alt="Banner Image"></td>' +
+                  '<td>' + image_path + '</td>' +
+                  '<td><button id="deactive_banner">비활성화</button></td>' +
+                '</tr>'
+              )
+              alert('활성화 되었습니다.');
+          } else {
+              alert('활성화 실패 했습니다..');
+          }
+      },
+      error: function() {
+          alert('서버 오류로 배너 이미지를 활성화할 수 없습니다.');
+      }
+  });
+
+  }
+})
+
+$(document).on('click', '#deactive_banner', function(){
+  if(confirm('비활성화 됩니다.')){
+    var image_no = $(this).closest('tr').attr('id')
+    var datapath = $(this).closest('tr').children()
+
+    let csrfToken = $('meta[name=csrf_token]').attr('content')
+    $.ajax({
+      headers:{'X-CSRFToken':csrfToken},
+      url: '/touradmin/deactive_banner/',  // 삭제할 이미지의 ID를 URL에 추가
+      data: {'id':image_no},
+      type: 'POST',
+      success: function(response) {
+          if (response.success) {
+              // 삭제가 성공하면 해당 배너 항목을 테이블에서 제거
+              datapath.eq(3).prop('checked', false);
+              alert('비활성화 되었습니다.');
+          } else {
+              alert('비활성화 실패 했습니다..');
+          }
+      },
+      error: function() {
+          alert('서버 오류로 배너 이미지를 비활성화할 수 없습니다.');
+      }
+   });
+
+  }
+})

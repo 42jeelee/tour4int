@@ -50,7 +50,6 @@ def delete_image(request):
     
     try:
         # 파일 삭제
-        print(os.path.exists(image_path))
         if os.path.exists(image_path):
             print(image_path)
             os.remove(image_path)
@@ -61,6 +60,34 @@ def delete_image(request):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+# 배너 활성화
+def active_banner(request):
+  content= {}
+  content['success'] = False
+  title = request.POST.get('title')
+  path = request.POST.get('path')
+  data = BannerImage.objects.filter(title=title, path=path, is_active=False)
+  if data:
+    data[0].is_active = True
+    content['data'] = serializers.serialize('json', [data[0]])
+    content['success'] = True
+  else:
+    data = BannerImage.objects.create(title=title, path=path, is_active=True)
+    content['data'] = serializers.serialize('json', [data])
+    content['success'] = True
+  return JsonResponse(content)
+
+# 배너 비 활성화
+def deactive_banner(request):
+  content = {}
+  content['success'] = False
+  bno = request.POST.get('id')
+  bno = bno[4:]
+  print(bno)
+  return JsonResponse(content)
+
+
 
 # Create your views here.
 def touradmin(request):
@@ -79,7 +106,7 @@ def touradmin(request):
     'AreaCodes': AreaCode.objects.filter(),
     'events': Place.objects.filter(category__content_type = 15),
     'banners': image_files,
-    'banners_active' : BannerImage.objects.all()
+    'banners_active' : BannerImage.objects.all().order_by('-id')
   }
   return render(request, 'touradmin.html', context)
 
