@@ -22,9 +22,15 @@ a{
   height: 65px;
   background-color: #007bff;
   color: white;
-  font-size: 15px;
+  font-size: 13px;
   text-align: center;
 }
+
+.header > .banner h2{
+  line-height: 65px;
+  margin: 0;
+}
+
 
 .container{
   display: flex;
@@ -80,6 +86,7 @@ nav ul li:hover, .tabs li.active, div.banner > nav > ul > a{
   margin: 0;
   padding: 0;
   width: 100%;
+  font-weight: 600;
 }
 .sub-tabs li{
   padding: 20px;
@@ -95,6 +102,7 @@ nav ul li:hover, .tabs li.active, div.banner > nav > ul > a{
 .sub-tab-contents{
   display: flex;
   justify-content: center;
+  margin-top: 50px;
 }
 
 .no_display {
@@ -142,6 +150,7 @@ table button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-family: "Pretendard Variable"
 }
 
 table button:hover {
@@ -169,7 +178,6 @@ table button:hover {
   width: 50%;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  font-family: Arial, sans-serif;
 }
 
 .place-modal-content h2 {
@@ -183,15 +191,15 @@ table button:hover {
   color: #666;
 }
 
-.place-modal-content label {
+.place-modal-content label, .user-modal-body label {
   display: block;
-  margin: 10px 0 5px;
+  margin: 10px 0;
   font-weight: bold;
   color: #555;
 }
 
 .place-modal-content input,
-.place-modal-content textarea {
+.place-modal-content textarea, .form-input {
   width: calc(100% - 20px);
   padding: 10px;
   margin-bottom: 15px;
@@ -199,14 +207,16 @@ table button:hover {
   border-radius: 5px;
   font-size: 16px;
   box-sizing: border-box;
+  font-family: "Pretendard Variable";
 }
 
-.place-modal-content button {
+.place-modal-content button, .user-modibtn {
   background-color: #4CAF50;
   color: white;
   border: none;
   padding: 10px 20px;
   font-size: 16px;
+  font-family: "Pretendard Variable";
   border-radius: 5px;
   cursor: pointer;
 }
@@ -260,8 +270,10 @@ table button:hover {
   background: transparent;
   border: none;
   font-size: 1.5rem;
+  font-family: "Pretendard Variable";
   cursor: pointer;
 }
+
 
 .form-input {
   width: calc(100% - 10px);
@@ -280,6 +292,7 @@ table button:hover {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-family: "Pretendard Variable";
 }
 
 .btn:hover {
