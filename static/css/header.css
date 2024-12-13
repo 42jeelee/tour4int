@@ -44,12 +44,22 @@ a.header__btn.my-btn {
   color: white;
 }
 
+a.header__btn.admin-btn {
+  background-color: #f36363;
+  color: white;
+}
+
 a.header__btn:hover {
   color: #3264FF;
 }
 
 a.header__btn.my-btn:hover {
   background-color: white;
+}
+
+a.header__btn.admin-btn:hover {
+  background-color: white;
+  color: #ec3636;
 }
 
 header .header__banner {
