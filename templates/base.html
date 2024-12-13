@@ -30,7 +30,9 @@
             {# 네비게이션 메뉴 #}
             <nav>
                 {% if user.is_authenticated %}
-                    {# 로그인 후 마이페이지와 로그아웃 버튼 표시 #}
+                    {% if user.is_superuser %}
+                        <a class="header__btn admin-btn" href="{% url 'touradmin:index' %}">관리자페이지</a>
+                    {% endif %}
                     <a class="header__btn my-btn" href="{% url 'accounts:mypage' %}">마이페이지</a>
                     <a class="header__btn login-btn" href="{% url 'accounts:logout' %}">로그아웃</a>
                 {% else %}
