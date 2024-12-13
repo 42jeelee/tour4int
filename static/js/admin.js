@@ -271,3 +271,72 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 });
+
+$('#upload-btn').click(function() {
+  let csrfToken = $('meta[name=csrf_token]').attr('content')
+  var formData = new FormData();
+  var fileInput = $('#image-upload')[0].files[0];
+  if (fileInput) {
+      formData.append('image', fileInput);
+
+      $.ajax({
+          headers:{'X-CSRFToken':csrfToken},
+          url: "/touradmin/upload-image/",
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(response) {
+              if (response.success) {
+                  // 새로운 배너 이미지 테이블에 추가
+                  var banner = response.image;
+                  $('#banner-list').append(
+                      '<tr>' +
+                          '<td>' + banner.name + '</td>' +
+                          '<td><img src="' + banner.path + '" style="width: 30px; height: 30px;" alt="Banner Image"></td>' +
+                          '<td>' + banner.path + '</td>' +
+                          '<td><button>활성화</button></td>' +
+                      '</tr>'
+                  );
+                  // 파일 업로드 후 입력 필드 초기화
+                  $('#image-upload').val('');
+              } else {
+                  alert('파일 업로드 실패');
+              }
+          },
+          error: function() {
+              alert('파일 업로드 중 오류가 발생했습니다.');
+          }
+      });
+  } else {
+      alert('파일을 선택해주세요.');
+  }
+});
+
+// 이미지 삭제
+$('.delete-btn').click(function() {
+  let csrfToken = $('meta[name=csrf_token]').attr('content')
+  var bannerId = $(this).closest('tr').attr('id');  // 삭제할 배너 ID를 가져옵니다
+  var bannerpath = $(this).closest('tr').children().eq(2).text();  // 패스
+  // 사용자에게 확인을 요청
+  if (confirm('정말로 이 배너 이미지를 삭제하시겠습니까?')) {
+      $.ajax({
+          headers:{'X-CSRFToken':csrfToken},
+          url: '/touradmin/delete-image/',  // 삭제할 이미지의 ID를 URL에 추가
+          data: {'bannerId':bannerpath},
+          type: 'POST',
+          success: function(response) {
+              if (response.success) {
+                  // 삭제가 성공하면 해당 배너 항목을 테이블에서 제거
+                  $('#' + bannerId).remove();
+                  alert('배너 이미지가 삭제되었습니다.');
+              } else {
+                  alert('배너 이미지 삭제에 실패했습니다.');
+              }
+          },
+          error: function() {
+              alert('서버 오류로 배너 이미지를 삭제할 수 없습니다.');
+          }
+      });
+  }
+});

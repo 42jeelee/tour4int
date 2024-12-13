@@ -69,63 +69,54 @@
                 <!-- 배너 관리 -->
                 <section id="banners" class="tab-content">
                     <h2>배너 이미지 관리</h2>
-                    <div class="sub-tab-contents">
-                        <input type='file'>
-                        <table>
-                            <colgroup>
-                                <col style='width: 15%;'>
-                                <col style='width: 15%;'>
-                                <col>
-                                <col style='width: 10%;'>
-                                <col style='width: 10%;'>
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th>파일이름</th>
-                                    <th>미리보기</th>
-                                    <th>파일경로</th>
-                                    <th>활성화 여부</th>
-                                    <th>저장</th>
-                                    <th>삭제</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for banner in banners %}
-                                <tr>
-                                    <td>{{ banner.name }}</td>
-                                    <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
-                                    <td>{{ banner.path }}</td>
-                                    <td><input type='checkbox'></td>
-                                    <td><button>추가</button></td>
-                                    <td><button>삭제</button></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>파일이름</th>
+                                <th>미리보기</th>
+                                <th>파일경로</th>
+                                <th>활성화 여부</th>
+                                <th>저장</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id='banner-list'>
+                            {% for banner in banners %}
+                            <tr id="banner-{{ forloop.counter }}">
+                                <td>{{ banner.name }}</td>
+                                <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
+                                <td>{{ banner.path }}</td>
+                                <td><button>활성화</button></td>
+                                <td><button class="delete-btn" data-id="{{ forloop.counter }}">삭제</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <input type="file" id="image-upload" name="image">
+                        <button id="upload-btn">이미지 업로드</button>
+                    </table>
                     <h2>적용중인 배너</h2>
-                    <div class="sub-tab-contents">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>파일이름</th>
-                                    <th>미리보기</th>
-                                    <th>파일경로</th>
-                                    <th>저장</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for banner in banners_active %}
-                                <tr>
-                                    <td>{{ banner.name }}</td>
-                                    <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
-                                    <td>{{ banner.path }}</td>
-                                    <td><button>제거</button></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>파일이름</th>
+                                <th>미리보기</th>
+                                <th>파일경로</th>
+                                <th>활성화 여부</th>
+                                <th>저장</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for banner in banners_active %}
+                            <tr>
+                                <td>{{ banner.name }}</td>
+                                <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
+                                <td>{{ banner.path }}</td>
+                                <td><input type='checkbox'></td>
+                                <td><button>비활성화</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </section>
 
                 <!-- dataSetting -->
