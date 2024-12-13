@@ -5,19 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tour4Int</title>
+    
+    {# 공통으로 사용되는 CSS 파일들 #}
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- 사용자 정의 CSS -->
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
     
+    {# jQuery 라이브러리 로드 #}
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
-<body>
+
+<!-- body 태그에 페이지별 클래스 추가 
+   - local-page 클래스가 있으면 배너에 어두운 오버레이가 적용됨
+   - 메인 페이지에는 local-page 클래스가 없어서 오버레이가 적용되지 않음 -->
+<body class="{% block body_class %}{% endblock %}">
     <!-- 헤더 영역 -->
     <header class="header">
+        {# 헤더 컨테이너 #}
         <div class="header__container">
+            {# 로고 #}
             <a class="header__logo" href="{% url 'index' %}">Tour4Int</a>
+            {# 네비게이션 메뉴 #}
             <nav>
                 {% if user.is_authenticated %}
                     {% if user.is_superuser %}
@@ -26,35 +36,42 @@
                     <a class="header__btn my-btn" href="{% url 'accounts:mypage' %}">마이페이지</a>
                     <a class="header__btn login-btn" href="{% url 'accounts:logout' %}">로그아웃</a>
                 {% else %}
+                    {# 로그인 전 로그인과 회원가입 버튼 표시 #}
                     <a class="header__btn login-btn" href="{% url 'accounts:login' %}">로그인</a>
                     <a class="header__btn login-btn" href="{% url 'accounts:signup' %}">회원가입</a>
                 {% endif %}
             </nav>
         </div>
-        <!-- 로그인, 회원가입, 마이페이지에서 헤더 배너와 검색바를 숨기기 위한 블럭 처리-->
+        {# 로그인, 회원가입, 마이페이지에서 헤더 배너와 검색바를 숨기기 위한 블럭 처리 #}
         {% block header_content %}
         <div class="header__container">
+            {# 헤더 배너 #}
             <div class="header__banner">
                 <div class="header__banner--wrap">
                     {# 배너 이미지가 2개 이상일 경우 이전 버튼 표시 #}
                     {% if banner_images|length > 1 %}
-                    <button class="header__banner--btn prev-btn" onclick="prevSlide()"></button>
+                    <button class="header__banner--btn prev-btn"></button>
                     {% endif %}
                     
                     {# 배너 슬라이드 컨테이너 #}
                     <div class="banner-slides">
                         {# 각 배너 이미지에 대한 슬라이드 생성 #}
                         {% for image in banner_images %}
-                        <div class="banner-slide {% if forloop.first %}active{% endif %}" style="background-image: url('{% static image %}')"></div>
+                        <div class="banner-slide {% if forloop.first %}active{% endif %}" style="background-image: url('{% static image %}')">
+                            {% if area_name %}
+                            <div class="area-name">{{ area_name }}</div>
+                            {% endif %}
+                        </div>
                         {% endfor %}
                     </div>
                     
                     {# 배너 이미지가 2개 이상일 경우 다음 버튼 표시 #}
                     {% if banner_images|length > 1 %}
-                    <button class="header__banner--btn next-btn" onclick="nextSlide()"></button>
+                    <button class="header__banner--btn next-btn"></button>
                     {% endif %}
                 </div>
             </div>
+            {# 헤더 검색바 #}
             <div class="header__search-bar">
                 <input id="header__search-input" type="text" placeholder="검색어를 입력해주세요." />
                 <button id="header__search-btn"></button>
@@ -63,7 +80,7 @@
         {% endblock %}
     </header>
 
-    <!-- 메시지 영역 -->
+    {# 메시지 영역 #}
     <div class="container">
         {% if messages %}
             {% for message in messages %}
@@ -74,12 +91,12 @@
         {% endif %}
     </div>
 
-    <!-- 콘텐츠 영역 -->
+    {# 콘텐츠 영역 #}
     <main>
         {% block content %}{% endblock %}
     </main>
 
-    <!-- 푸터 영역 -->
+    {# 푸터 영역 #}
     <footer>
         <div class='footerCopyright'>
           <p>
@@ -96,7 +113,7 @@
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
+    {# Bootstrap JS #}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/script.js' %}"></script>
     <script>
@@ -105,9 +122,8 @@
             const slides = document.querySelectorAll('.banner-slide');  // 모든 슬라이드 요소 선택
             let slideInterval;  // 자동 슬라이드를 위한 interval 변수
 
-            function showSlide(index) {
-                if (slides.length <= 1) return;  // 슬라이드가 1개 이하면 동작하지 않음
-                
+            // 전역 스코프에 함수 할당
+            window.showSlide = function(index) {
                 // 슬라이드 인덱스 순환 처리
                 if (index >= slides.length) {
                     currentSlide = 0;
@@ -122,11 +138,11 @@
                 slides[currentSlide].classList.add('active');
             }
 
-            function nextSlide() {
+            window.nextSlide = function() {
                 showSlide(currentSlide + 1);  // 다음 슬라이드 표시
             }
 
-            function prevSlide() {
+            window.prevSlide = function() {
                 showSlide(currentSlide - 1);  // 이전 슬라이드 표시
             }
 
