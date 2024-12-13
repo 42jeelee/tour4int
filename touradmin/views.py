@@ -54,9 +54,6 @@ def get_view(request):
       content['view'] = serializers.serialize('json', [content_data])
     else:
       overview = api.get_place_info(content_id)
-      print(overview)
-      print(overview['overview'])
-      print(overview['homepage'])
       content_data.overview = overview['overview']
       content_data.homepage_url = overview['homepage']
       content_data.is_detail = True
@@ -88,7 +85,6 @@ def update(request):
     data.homepage_url = homepage_url
     data.overview = overview
     data.save()
-    print(data)
     content['result'] = 'success'
     content['view'] = serializers.serialize('json', [data])
   else:

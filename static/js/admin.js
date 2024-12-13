@@ -48,7 +48,11 @@ document.addEventListener("DOMContentLoaded", () => {
 // 지역
 function get_place_data(areaCode) {
   let csrfToken = $('meta[name=csrf_token]').attr('content')
+  if (Object.values(api_status).some(value => value === true)) {
+    return false;
+  }
   if($('#AreaCode-'+areaCode).find('#place').children().length == 0){
+    api_status['place'] = true
     $.ajax({
       headers:{'X-CSRFToken':csrfToken}, // scrf_token
       url:'/touradmin/get_place/', // 보내는 주소
@@ -70,6 +74,9 @@ function get_place_data(areaCode) {
       },
       error:function(){
           alert('실패')
+      },
+      complete: function() {
+        api_status['place'] = false;
       }
     }) // ajax
   }
@@ -79,8 +86,11 @@ function get_place_data(areaCode) {
 // 이벤트
 function get_event_data(areaCode) {
   let csrfToken = $('meta[name=csrf_token]').attr('content')
-  
+  if (Object.values(api_status).some(value => value === true)) {
+    return false;
+  }
   if($('#event-AreaCode-'+areaCode).find('#place').children().length == 0){
+    api_status['event'] = true
     $.ajax({
       headers:{'X-CSRFToken':csrfToken}, // scrf_token
       url:'/touradmin/get_event/', // 보내는 주소
@@ -103,6 +113,9 @@ function get_event_data(areaCode) {
       },
       error:function(){
           alert('실패')
+      },
+      complete: function() {
+        api_status['event'] = false;
       }
     }) // ajax
   }
