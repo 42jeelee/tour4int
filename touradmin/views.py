@@ -11,7 +11,56 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers # json타입 db에서 get으로 받을때
+from django.core.files.storage import FileSystemStorage # 이미지 파일 관리
+from django.shortcuts import get_object_or_404
 
+# 이미지 경로지정 클레스
+class StaticFileSystemStorage(FileSystemStorage):
+    def __init__(self, *args, **kwargs):
+        kwargs['location'] = os.path.join(settings.BASE_DIR, 'static', 'images', 'main-banners')
+        kwargs['base_url'] = '/static/images/main-banners/'
+        super().__init__(*args, **kwargs)
+
+# 이미지 파일 업로드
+def image_upload(request):
+    if request.method == 'POST' and request.FILES['image']:
+        uploaded_file = request.FILES['image']
+        fs = StaticFileSystemStorage()
+        file_name = fs.save(uploaded_file.name, uploaded_file)
+        file_url = fs.url(file_name)
+
+        # 이미지 경로를 딕셔너리 형태로 반환
+        image_info = {
+            "name": uploaded_file.name,
+            "path": file_url
+        }
+
+        return JsonResponse({"success": True, "image": image_info})
+
+    return JsonResponse({"success": False, "error": "파일 업로드 실패"})
+
+# 이미지 삭제
+def delete_image(request):
+    banner_id = request.POST.get('bannerId')
+    # 해당 배너 이미지 객체를 가져옵니다
+    # banner = get_object_or_404(BannerImage, id=banner_id)
+
+    # 이미지 파일 경로를 가져와 삭제합니다
+    image_path = os.path.join(settings.BASE_DIR, 'static', banner_id)
+    
+    try:
+        # 파일 삭제
+        print(os.path.exists(image_path))
+        if os.path.exists(image_path):
+            print(image_path)
+            os.remove(image_path)
+        
+        # 데이터베이스에서 배너 이미지 삭제
+        # banner_id.delete()
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 # Create your views here.
 def touradmin(request):
