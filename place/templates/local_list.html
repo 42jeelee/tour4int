@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{# 배너에 어두운 오버레이를 적용하기 위한 클래스 추가 #}
+<!-- 배너에 어두운 오버레이를 적용하기 위한 클래스 추가 -->
 {% block body_class %}local-page{% endblock %}
 
 {% block header_content %}
@@ -49,15 +49,15 @@
   {# 스티키 헤더 필터 #}
   <div class="filter-header">
     <div class="filter-options">
-      {# 축제/행사 버튼 #}
-      <button class="filter-btn active" data-filter="events">축제/행사</button>
       {# 관광지 버튼 #}
       <button class="filter-btn" data-filter="places">관광지</button>
+      {# 축제/행사 버튼 #}
+      <button class="filter-btn" data-filter="events">축제/행사</button>
     </div>
   </div>
 
   {# 축제/행사 섹션 #}
-  <section class="events-section active" id="events" data-content-type="15">
+  <section class="events-section" id="events" data-content-type="15">
     <div class="grid-container">
       {% for place in places %}
       {% if place.category.content_type == 15 %}
@@ -86,7 +86,7 @@
   </section>
 
   {# 관광지 섹션 #}
-  <section class="places-section" id="places" data-content-type="other" style="display: none;">
+  <section class="places-section" id="places" data-content-type="12">
     <div class="grid-container">
       {% for place in places %}
       {% if place.category.content_type == 12 or place.category.content_type == 14 or place.category.content_type == 25 %}
@@ -287,187 +287,263 @@
   text-decoration: none;
   color: inherit;
 }
+
+.header__banner {
+  position: relative;
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+.header__banner--wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header__banner--btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 1rem;
+  cursor: pointer;
+  font-size: 2rem;
+  color: #fff;
+}
+
+.prev-btn {
+  left: 2rem;
+}
+
+.next-btn {
+  right: 2rem;
+}
+
+.banner-slides {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: none;
+}
+
+.banner-slide.active {
+  display: block;
+}
+
+.area-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
 </style>
 
 {# 스크립트 섹션 #}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // DOM 요소 참조
-  const filterBtns = document.querySelectorAll('.filter-btn');  // 필터 버튼들
-  const placesSection = document.getElementById('places');      // 관광지/문화시설/여행코스 섹션
-  const eventsSection = document.getElementById('events');      // 축제/행사 섹션
-
-  // 상태 변수들
-  let currentPage = 1;      // 현재 페이지 번호
-  let isLoading = false;    // 데이터 로딩 중 여부
-  let hasMoreData = true;   // 더 불러올 데이터가 있는지 여부
-  let activeSection = eventsSection;  // 현재 활성화된 섹션 (기본값: 축제/행사)
-  
-  // Django 템플릿 변수
-  const areacode = {{ areacode|safe }};  // 지역 코드
-
-  /**
-   * 데이터 초기화 함수
-   * - 페이지 번호 초기화
-   * - 상태 변수 초기화
-   * - 그리드 컨테이너 비우기
-   * - 끝 메시지 제거
-   */
-  function resetData() {
-    currentPage = 1;
-    hasMoreData = true;
-    isLoading = false;
-    activeSection.querySelector('.grid-container').innerHTML = '';
+    // 배너 슬라이드 기능
+    const slides = document.querySelectorAll('.banner-slide');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    let currentSlide = 0;
     
-    // 기존 end-message가 있다면 제거
-    const endMessage = activeSection.querySelector('.end-message');
-    if (endMessage) {
-      endMessage.remove();
+    function showSlide(n) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        currentSlide = (n + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
     }
-  }
-
-  /**
-   * 필터 버튼 클릭 이벤트 처리
-   * - 버튼 활성화 상태 변경
-   * - 해당하는 섹션 표시/숨김
-   * - 데이터 초기화 후 새로 로드
-   */
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // 버튼 활성화 상태 변경
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      // 필터에 따른 섹션 전환
-      const filter = btn.dataset.filter;
-      if (filter === 'events') {  // 축제/행사
-        eventsSection.style.display = 'block';
-        placesSection.style.display = 'none';
-        activeSection = eventsSection;
-      } else if (filter === 'places') {  // 관광지/문화시설/여행코스
-        eventsSection.style.display = 'none';
-        placesSection.style.display = 'block';
-        activeSection = placesSection;
-      }
-
-      // 데이터 초기화 후 새로 로드
-      resetData();
-      loadMorePlaces();
-    });
-  });
-
-  /**
-   * 추가 데이터 로드 함수
-   * - 로딩 중이거나 더 이상 데이터가 없으면 중단
-   * - AJAX로 데이터 요청
-   * - 받은 데이터로 카드 생성 및 추가
-   */
-  function loadMorePlaces() {
-    // 로딩 중이거나 더 이상 데이터가 없으면 중단
-    if (isLoading || !hasMoreData) return;
     
-    // 로딩 스피너 표시
-    const spinner = activeSection.querySelector('.loading-spinner');
-    isLoading = true;
-    spinner.style.display = 'block';
-
-    // AJAX 요청
-    fetch(`/place/local/${areacode}/list/?page=${currentPage}&content_type=${activeSection.dataset.contentType}`, {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      const container = activeSection.querySelector('.grid-container');
-      
-      // 데이터가 없는 경우
-      if (data.places.length === 0) {
-        hasMoreData = false;
-        spinner.style.display = 'none';
+    if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
         
-        // 첫 페이지가 아닐 때만 끝 메시지 표시
-        if (currentPage > 1) {
-          const endMessage = document.createElement('div');
-          endMessage.className = 'end-message';
-          endMessage.textContent = '더 이상 표시할 항목이 없습니다';
-          container.parentNode.appendChild(endMessage);
-        }
-        return;
-      }
-      
-      // 받은 데이터로 카드 생성 및 추가
-      data.places.forEach(place => {
-        // 카드 요소 생성
-        const card = document.createElement('div');
-        card.className = activeSection.id === 'events' ? 'card event-card' : 'card place-card';
-        
-        // 기간 정보 HTML (축제/행사인 경우)
-        let periodHtml = '';
-        if (place.start_time && place.end_time) {
-          periodHtml = `
-            <div class="event-period">
-              ${place.start_time} - ${place.end_time}
-            </div>
-          `;
-        }
-
-        // 위치 정보 HTML (축제/행사인 경우)
-        let locationHtml = activeSection.id === 'events' ? `<span class="event-location">${place.address}</span>` : '';
-
-        // 카드 내용 구성
-        card.innerHTML = `
-          <a href="/place/local/${areacode}/view/${place.place_id}" class="card-link">
-            <div class="card-image">
-              <img src="${place.thumb_img}" alt="${place.title}">
-            </div>
-            <div class="card-content">
-              ${locationHtml}
-              <h3 class="card-title">${place.title}</h3>
-              ${periodHtml}
-            </div>
-          </a>
-        `;
-        
-        container.appendChild(card);
-      });
-
-      // 다음 페이지 처리
-      if (data.has_next) {
-        currentPage = data.next_page;
-      } else {
-        hasMoreData = false;
-      }
-
-      // 로딩 상태 해제
-      isLoading = false;
-      spinner.style.display = 'none';
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      isLoading = false;
-      hasMoreData = false;
-      spinner.style.display = 'none';
-    });
-  }
-
-  /**
-   * 스크롤 이벤트 처리
-   * - 페이지 하단에 도달하면 추가 데이터 로드
-   */
-  window.addEventListener('scroll', () => {
-    if (!hasMoreData) return;  // 더 이상 데이터가 없으면 스크롤 이벤트 무시
-    
-    // 스크롤이 페이지 하단에 도달했는지 확인
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    if (scrollTop + clientHeight >= scrollHeight - 100) {  // 하단 100px 전에 로드 시작
-      loadMorePlaces();
+        // 자동 슬라이드
+        setInterval(() => showSlide(currentSlide + 1), 5000);
     }
-  });
-
-  // 초기 데이터 로드
-  resetData();
-  loadMorePlaces();
+    
+    // DOM 요소 참조
+    const eventsSection = document.getElementById('events');
+    const placesSection = document.getElementById('places');
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    // 상태 변수
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMoreData = true;
+    let activeSection;
+    
+    // 초기 상태 설정
+    const initialTab = '{{ initial_tab }}';
+    function setInitialState() {
+        if (initialTab === 'tour') {
+            // 관광지 탭 활성화
+            buttons[0].classList.add('active');
+            eventsSection.style.display = 'none';
+            placesSection.style.display = 'block';
+            activeSection = placesSection;
+        } else {
+            // 축제/행사 탭 활성화
+            buttons[1].classList.add('active');
+            eventsSection.style.display = 'block';
+            placesSection.style.display = 'none';
+            activeSection = eventsSection;
+        }
+        // 초기 데이터 로드
+        resetData();
+        loadMorePlaces();
+    }
+    
+    // 데이터 초기화 함수
+    function resetData() {
+        currentPage = 1;
+        hasMoreData = true;
+        isLoading = false;
+        activeSection.querySelector('.grid-container').innerHTML = '';
+        
+        const endMessage = activeSection.querySelector('.end-message');
+        if (endMessage) {
+            endMessage.remove();
+        }
+    }
+    
+    // 필터 버튼 클릭 이벤트
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // 이미 활성화된 버튼이면 무시
+            if (btn.classList.contains('active')) return;
+            
+            // 버튼 활성화 상태 변경
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // 섹션 전환
+            const filter = btn.dataset.filter;
+            if (filter === 'places') {
+                eventsSection.style.display = 'none';
+                placesSection.style.display = 'block';
+                activeSection = placesSection;
+            } else {
+                eventsSection.style.display = 'block';
+                placesSection.style.display = 'none';
+                activeSection = eventsSection;
+            }
+            
+            // 데이터 초기화 후 로드
+            resetData();
+            loadMorePlaces();
+        });
+    });
+    
+    // 데이터 로드 함수
+    function loadMorePlaces() {
+        if (isLoading || !hasMoreData) return;
+        
+        const spinner = activeSection.querySelector('.loading-spinner');
+        isLoading = true;
+        spinner.style.display = 'block';
+        
+        fetch(`/place/local/{{ areacode }}/list/?page=${currentPage}&content_type=${activeSection.dataset.contentType}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const container = activeSection.querySelector('.grid-container');
+            
+            if (data.places.length === 0) {
+                hasMoreData = false;
+                spinner.style.display = 'none';
+                
+                if (currentPage > 1) {
+                    const endMessage = document.createElement('div');
+                    endMessage.className = 'end-message';
+                    endMessage.textContent = '더 이상 표시할 항목이 없습니다';
+                    container.parentNode.appendChild(endMessage);
+                }
+                return;
+            }
+            
+            data.places.forEach(place => {
+                const card = document.createElement('div');
+                card.className = activeSection.id === 'events' ? 'card event-card' : 'card place-card';
+                
+                let periodHtml = '';
+                if (place.start_time && place.end_time) {
+                    periodHtml = `
+                        <div class="event-period">
+                            ${place.start_time} - ${place.end_time}
+                        </div>
+                    `;
+                }
+                
+                let locationHtml = activeSection.id === 'events' ? `<span class="event-location">${place.address}</span>` : '';
+                
+                card.innerHTML = `
+                    <a href="/place/local/{{ areacode }}/view/${place.place_id}" class="card-link">
+                        <div class="card-image">
+                            <img src="${place.thumb_img}" alt="${place.title}">
+                        </div>
+                        <div class="card-content">
+                            ${locationHtml}
+                            <h3 class="card-title">${place.title}</h3>
+                            ${periodHtml}
+                        </div>
+                    </a>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            if (data.has_next) {
+                currentPage = data.next_page;
+            } else {
+                hasMoreData = false;
+            }
+            
+            isLoading = false;
+            spinner.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            isLoading = false;
+            hasMoreData = false;
+            spinner.style.display = 'none';
+        });
+    }
+    
+    // 스크롤 이벤트
+    window.addEventListener('scroll', () => {
+        if (!hasMoreData) return;
+        
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        if (scrollTop + clientHeight >= scrollHeight - 100) {
+            loadMorePlaces();
+        }
+    });
+    
+    // 초기 상태 설정 실행
+    setInitialState();
 });
 </script>
 
