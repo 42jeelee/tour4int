@@ -7,11 +7,13 @@
 <div class='wrap'> 
    <!-- tourList -->
   <div class='tourList'>
-    <h2>관광지 추천 리스트</h2>
-    <a href='/place/local/{{areacode}}/list'>
-      <div class='all_list'>목록</div>
-    </a>
-
+    <div class='tourList_top'>
+      <h2>관광지 추천</h2>
+      <a href='/place/local/{{areacode}}/list?tab=tour' class="view-all-button">
+        <span class="button-text">전체보기</span>
+        <span class="button-icon">→</span>
+      </a>
+    </div>
     <ul class='list'>
       {% for tour in tour_list %}
       <li class='item'>
@@ -37,11 +39,13 @@
   
   <!-- festivalList -->
   <div class='festivalList'>
-    <h2>축제리스트</h2>
-    <a href='/place/local/{{areacode}}/list'>
-      <div class='all_list'>목록</div>
+    <div class='festivalList_top'>
+    <h2>축제/행사 추천</h2>
+    <a href='/place/local/{{areacode}}/list?tab=festival' class="view-all-button">
+      <span class="button-text">전체보기</span>
+      <span class="button-icon">→</span>
     </a>
-    
+    </div>
       <div class='slide'>
         {% for event in event_list %}
         <div class='slideItem'>
