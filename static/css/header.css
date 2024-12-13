@@ -134,21 +134,56 @@ header .header__banner > .header__banner--wrap > .header__banner--btn {
   overflow: hidden;
 }
 
-/* 개별 슬라이드 */
+/* 배너 슬라이드 스타일 */
 .banner-slide {
+  /* 배너 이미지를 화면에 꽉 차게 표시 */
+  position: relative;
   width: 100%;
   height: 100%;
+  background-size: cover;  /* 이미지가 영역에 맞게 자동으로 크기 조절됨 */
+  background-position: center;  /* 이미지를 중앙에 배치 */
+  opacity: 0;  /* 처음에는 투명하게 시작 */
+  position: absolute;
+  transition: opacity 0.5s ease-in-out;  /* 페이드 인/아웃 효과를 위한 부드러운 전환 */
+}
+
+/* 현재 보이는 배너 슬라이드 */
+.banner-slide.active {
+  opacity: 1;  /* 활성화된 슬라이드만 완전히 보이게 함 */
+}
+
+/* 배너 위에 표시되는 지역 이름 스타일 */
+.banner-slide .area-name {
+  /* 지역 이름을 배너 중앙에 배치 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  /* 정확한 중앙 정렬을 위한 위치 조정 */
+  z-index: 2;  /* 어두운 오버레이보다 위에 표시되도록 함 */
+  
+  /* 지역 이름 텍스트 스타일 */
+  color: white;  /* 흰색 텍스트 */
+  font-size: 64px;  /* 큰 글씨 크기 */
+  font-weight: 600;  /* 굵은 글씨체 */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);  /* 가독성을 위한 그림자 효과 */
+  text-align: center;
+  letter-spacing: -1px;
+}
+
+/* 배너 어두운 오버레이 (메인 페이지 제외) */
+.local-page .banner-slide::before {
+  /* 어두운 오버레이를 배너 전체에 적용 */
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
-
-.banner-slide.active {
-  opacity: 1;
+  width: 100%;
+  height: 100%;
+  /* 위에서 아래로 점점 어두워지는 그라데이션 효과 
+     - 첫 번째 색상: 10% 투명도의 검은색
+     - 두 번째 색상: 15% 투명도의 검은색 */
+  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15));
+  z-index: 1;  /* 이미지 위에 오버레이가 표시되도록 함 */
 }
 
 header .header__search-bar {
