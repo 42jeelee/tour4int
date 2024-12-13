@@ -22,8 +22,9 @@
         <div class='banner'>
             <nav>
                 <ul class="tabs">
-                    <li><a href='/'>Tour4Int</a></li>
+                    <li data-tab='/'><a href='/'>Tour4Int</a></li>
                     <li data-tab="users">회원 관리</li>
+                    <li data-tab="banners">배너 관리</li>
                     <li data-tab="dataSetting">데이터 관리</li>
                     <li data-tab="touristspots">관광지</li>
                     <li data-tab="events">이벤트</li>
@@ -58,6 +59,66 @@
                                     <td>{{ user.nickname }}</td>
                                     <td>{{ user.created_at }}</td>
                                     <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 배너 관리 -->
+                <section id="banners" class="tab-content">
+                    <h2>배너 이미지 관리</h2>
+                    <div class="sub-tab-contents">
+                        <input type='file'>
+                        <table>
+                            <colgroup>
+                                <col style='width: 15%;'>
+                                <col style='width: 15%;'>
+                                <col>
+                                <col style='width: 10%;'>
+                                <col style='width: 10%;'>
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>파일이름</th>
+                                    <th>미리보기</th>
+                                    <th>파일경로</th>
+                                    <th>활성화 여부</th>
+                                    <th>저장</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for banner in banners %}
+                                <tr>
+                                    <td>{{ banner.name }}</td>
+                                    <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
+                                    <td>{{ banner.path }}</td>
+                                    <td><input type='checkbox'></td>
+                                    <td><button>추가</button></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <h2>적용중인 배너</h2>
+                    <div class="sub-tab-contents">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>파일이름</th>
+                                    <th>미리보기</th>
+                                    <th>파일경로</th>
+                                    <th>저장</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for banner in banners_active %}
+                                <tr>
+                                    <td>{{ banner.name }}</td>
+                                    <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
+                                    <td>{{ banner.path }}</td>
+                                    <td><button>제거</button></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -252,8 +313,10 @@
                     <div class="user-modal-body">
                         <label for="username">사용자 이름</label>
                         <input type="text" id="username" name="username" class="form-input" required>
-                        <label for="email">이메일</label>
-                        <input type="email" id="email" name="email" class="form-input" required>
+                        <label for="nicname">닉네임</label>
+                        <input type="text" id="nicname" name="nicname" class="form-input" required>
+                        <label for="user_address">주소</label>
+                        <input type="text" id="user_address" name="user_address" class="form-input" required>
                         <label for="password">비밀번호</label>
                         <input type="password" id="password" name="password" class="form-input">
                         <button type="button" class="user-modibtn">수정 완료</button>

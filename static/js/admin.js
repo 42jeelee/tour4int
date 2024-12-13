@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
           contents.forEach((c) => c.classList.remove("active"));
 
           tab.classList.add("active");
+          if (tab.dataset.tab == '/') {
+            return;
+          }
           document.getElementById(tab.dataset.tab).classList.add("active");
       });
   });
@@ -45,44 +48,54 @@ document.addEventListener("DOMContentLoaded", () => {
 // 지역
 function get_place_data(areaCode) {
   let csrfToken = $('meta[name=csrf_token]').attr('content')
+  if (Object.values(api_status).some(value => value === true)) {
+    return false;
+  }
   if($('#AreaCode-'+areaCode).find('#place').children().length == 0){
+    api_status['place'] = true
     $.ajax({
       headers:{'X-CSRFToken':csrfToken}, // scrf_token
       url:'/touradmin/get_place/', // 보내는 주소
       type:'post', // get, post
       data:{'areaCode':areaCode}, // 서버쪽으로 보내는 변수데이터
-      success:function(data){ 
-        var li_data = ''
-        for(let i = 0; i < data.areaCode.length; i++){
-          let thumbContent = data.areaCode[i].thumb_img 
-            ? `<img src="${data.areaCode[i].thumb_img}" alt="썸네일 이미지" style="width:100px; height:auto;">`
-            : 'X';
-          
-          li_data += `
-          <tr id='${areaCode}_${i}'>
-            <td>${data.areaCode[i].place_id}</td>
-            <td>${data.areaCode[i].title}</td>
-            <td>${data.areaCode[i].address}</td>
-            <td>${thumbContent}</td>
-            <td><button class="open-place-modal">수정하기</button></td>
-          </tr>
-          `
-        }
-        $('#AreaCode-'+areaCode).find('#place').html(li_data)
+      success:function(data){ // 서버에서 받은 데이터 : data
+          var li_data = ''
+          for(let i = 0; i < data.areaCode.length; i++){
+            let thumbContent = data.areaCode[i].thumb_img 
+              ? `<img src="${data.areaCode[i].thumb_img}" alt="썸네일 이미지" style="width:100px; height:auto;">`
+              : 'X';
+            
+            li_data += `
+            <tr id='${areaCode}_${i}'>
+              <td>${data.areaCode[i].place_id}</td>
+              <td><a href='/place/local/${areaCode}/view/${data.areaCode[i].place_id}' target="_blank">${data.areaCode[i].title}</a></td>
+              <td>${data.areaCode[i].address}</td>
+              <td>${thumbContent}</td>
+              <td><button class="open-place-modal">수정하기</button></td>
+            </tr>
+            `
+          }
+          $('#AreaCode-'+areaCode).find('#place').html(li_data)
       },
       error:function(){
           alert('실패')
+      },
+      complete: function() {
+        api_status['place'] = false;
       }
     }) // ajax
   }
-
 }
+
 
 // 이벤트
 function get_event_data(areaCode) {
   let csrfToken = $('meta[name=csrf_token]').attr('content')
-  
+  if (Object.values(api_status).some(value => value === true)) {
+    return false;
+  }
   if($('#event-AreaCode-'+areaCode).find('#place').children().length == 0){
+    api_status['event'] = true
     $.ajax({
       headers:{'X-CSRFToken':csrfToken},
       url:'/touradmin/get_event/',
@@ -100,7 +113,7 @@ function get_event_data(areaCode) {
             li_data += `
             <tr id='${areaCode}_${i}'>
               <td>${data.event[i].place_id}</td>
-              <td>${data.event[i].title}</td>
+              <td><a href='/place/local/${areaCode}/view/${data.event[i].place_id}' target="_blank">${data.event[i].title}</a></td>
               <td>${data.event[i].address}</td>
               <td>${dateRange}</td>
               <td>${thumbContent}</td>
@@ -112,10 +125,14 @@ function get_event_data(areaCode) {
       },
       error:function(){
           alert('실패')
+      },
+      complete: function() {
+        api_status['event'] = false;
       }
     })
   }
 }
+
 
 
 // 모달
@@ -126,6 +143,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // user
   var usermodal = document.getElementById("editProfileModal");
   var userspan = document.getElementsByClassName("user-modal-close-btn")[0];
+
+  var email;
+  var user_modi_content; // place 수정 정보 데이터
 
   var no; // place 수정 번호
   var modi_content; // place 수정 정보 데이터
@@ -205,9 +225,27 @@ document.addEventListener('DOMContentLoaded', function() {
   // user 열기
   $(document).on('click', '.user-btn', function(){
     usermodal.style.display = "flex";
-
+    
+    user_modi_content = $(this).closest('tr').children()
+    email = user_modi_content.eq(0).text()
     // ajax 요청
-    modi_content = $(this).closest('tr').children()
+    $.ajax({
+      headers:{'X-CSRFToken':csrfToken}, // scrf_token
+      url:'/touradmin/get_user_view/', // 보내는 주소
+      type:'post', // get, post // 서버쪽으로 보내는 변수데이터
+      data:{'email':email},
+      success:function(data){ // 서버에서 받은 데이터 : data
+          if(data.result == 'success'){
+            let viewData = JSON.parse(data.view)
+            $('#username').val(viewData[0].fields.name)
+            $('#nicname').val(viewData[0].fields.nickname)
+            $('#user_address').val(viewData[0].fields.address)
+          }
+      },
+      error:function(){
+          alert('실패')
+      }
+    }) // ajax
   })
 
   // user 데이터 수정

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from areacode.models import AreaCode
 from place.models import Place
 from django.utils import timezone
+from touradmin.models import BannerImage
 import os
 from django.conf import settings
 
@@ -14,7 +15,7 @@ def index(request):
   # 실제 존재하는 배너 이미지만 리스트에 추가
   banner_images = []
   for i in range(1, 4):
-      image_path = f'images/banners/main_{i}.jpg'
+      image_path = f'images/main-banners/main_{i}.jpg'
       if os.path.exists(os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), image_path)):
           banner_images.append(image_path)
 
