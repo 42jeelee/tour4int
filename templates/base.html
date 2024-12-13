@@ -20,6 +20,9 @@
             <a class="header__logo" href="{% url 'index' %}">Tour4Int</a>
             <nav>
                 {% if user.is_authenticated %}
+                    {% if user.is_superuser %}
+                        <a class="header__btn admin-btn" href="{% url 'touradmin:index' %}">관리자페이지</a>
+                    {% endif %}
                     <a class="header__btn my-btn" href="{% url 'accounts:mypage' %}">마이페이지</a>
                     <a class="header__btn login-btn" href="{% url 'accounts:logout' %}">로그아웃</a>
                 {% else %}
