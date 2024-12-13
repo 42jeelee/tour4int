@@ -44,10 +44,12 @@ a{
 }
 
 .content {
-  width: 90%;
+  width: 95%;
   padding: 0 50px 20px;
   box-sizing: border-box;
   flex-grow: 1;
+  display: flex;
+  justify-content: center;
 }
 
 body > div > div.banner > nav > ul {
@@ -74,8 +76,11 @@ nav ul li:hover, .tabs li.active, div.banner > nav > ul > a{
 }
 
 .tab-content.active, .sub-tab-content.active {
-  display: block;
+  display: inline-flex;
   padding: 0 0 20px;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: center;
 }
 
 .sub-tabs{
@@ -101,7 +106,7 @@ nav ul li:hover, .tabs li.active, div.banner > nav > ul > a{
 /* 관광지, 이벤트 테이블 */
 .sub-tab-contents{
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   margin-top: 50px;
 }
 
@@ -285,7 +290,7 @@ table button:hover {
   box-sizing: border-box;
 }
 
-.btn {
+.btn{
   background: #007BFF;
   color: white;
   padding: 10px 20px;
@@ -297,4 +302,33 @@ table button:hover {
 
 .btn:hover {
   background: #0056b3;
+}
+
+/* 배너 관리 */
+
+#image-upload, #upload-btn{
+  font-family: "Pretendard Variable";
+  align-items: center;
+}
+#image-upload::file-selector-button, #upload-btn {
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "Pretendard Variable";
+  padding: 10px 20px;
+}
+#image-upload::file-selector-button:hover, #upload-btn:hover {
+  background: #0056b3;
+}
+
+.upload-btns{
+  display: flex;
+  justify-content: flex-end;
+  width: 1200px;
+}
+
+#upload-btn{
+  margin-left: 20px;
 }

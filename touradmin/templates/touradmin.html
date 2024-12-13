@@ -35,84 +35,95 @@
             <main>
                 <!-- 회원 관리 -->
                 <section id="users" class="tab-content active">
-                    <h2>회원 관리</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>아이디</th>
-                                <th>이름</th>
-                                <th>닉네임</th>
-                                <th>가입 날짜</th>
-                                <th>액션</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for user in users %}
-                            <tr>
-                                <td>{{ user.email }}</td>
-                                <td>{{ user.name }}</td>
-                                <td>{{ user.nickname }}</td>
-                                <td>{{ user.created_at }}</td>
-                                <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="sub-tab-contents">
+                        <h2>회원 관리</h2>
+                        <table>
+                            <colgroup>
+                                <col style='width: 15%;'>
+                                <col style='width: 15%;'>
+                                <col style='width: 40%;'>
+                                <col >
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>이름</th>
+                                    <th>닉네임</th>
+                                    <th>가입 날짜</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.nickname }}</td>
+                                    <td>{{ user.created_at }}</td>
+                                    <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
 
                 <!-- 배너 관리 -->
                 <section id="banners" class="tab-content">
                     <h2>배너 이미지 관리</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>파일이름</th>
-                                <th>미리보기</th>
-                                <th>파일경로</th>
-                                <th>활성화 여부</th>
-                                <th>저장</th>
-                                <th>삭제</th>
-                            </tr>
-                        </thead>
-                        <tbody id='banner-list'>
-                            {% for banner in banners %}
-                            <tr id="banner-{{ forloop.counter }}">
-                                <td>{{ banner.name }}</td>
-                                <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
-                                <td>{{ banner.path }}</td>
-                                <td><button>활성화</button></td>
-                                <td><button class="delete-btn" data-id="{{ forloop.counter }}">삭제</button></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
+                    <div class="sub-tab-contents">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>파일이름</th>
+                                    <th>미리보기</th>
+                                    <th>파일경로</th>
+                                    <th>활성화 여부</th>
+                                    <th>삭제</th>
+                                </tr>
+                            </thead>
+                            <tbody id='banner-list'>
+                                {% for banner in banners %}
+                                <tr id="banner-{{ forloop.counter }}">
+                                    <td>{{ banner.name }}</td>
+                                    <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
+                                    <td>{{ banner.path }}</td>
+                                    <td><button>활성화</button></td>
+                                    <td><button class="delete-btn" data-id="{{ forloop.counter }}">삭제</button></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class='upload-btns'>
                         <input type="file" id="image-upload" name="image">
                         <button id="upload-btn">이미지 업로드</button>
-                    </table>
+                    </div>
                     <h2>적용중인 배너</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>파일이름</th>
-                                <th>미리보기</th>
-                                <th>파일경로</th>
-                                <th>활성화 여부</th>
-                                <th>저장</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for banner in banners_active %}
-                            <tr>
-                                <td>{{ banner.name }}</td>
-                                <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
-                                <td>{{ banner.path }}</td>
-                                <td><input type='checkbox'></td>
-                                <td><button>비활성화</button></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="sub-tab-contents">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>파일이름</th>
+                                    <th>미리보기</th>
+                                    <th>파일경로</th>
+                                    <th>활성화 여부</th>
+                                    <th>저장</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for banner in banners_active %}
+                                <tr>
+                                    <td>{{ banner.name }}</td>
+                                    <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
+                                    <td>{{ banner.path }}</td>
+                                    <td><button type='checkbox'></button></td>
+                                    <td><button>저장</button></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
-
+                
                 <!-- dataSetting -->
                 <section id="dataSetting" class="tab-content">
                     <div class="wrapper">
@@ -187,13 +198,15 @@
                                 <colgroup>
                                     <col style='width: 10%;'>
                                     <col style='width: 30%;'>
-                                    <col style='width: 50%;'>
+                                    <col style='width: 30%;'>
+                                    <col style='width: 20%;'>
                                     <col >
                                 </colgroup>
                             <thead>
                                 <th>고유번호</th>
                                 <th>타이틀</th>
                                 <th>주소</th>
+                                <th>썸네일</th>
                                 <th>수정하기</th>
                             </thead>
                             <tbody id='place'>
@@ -222,8 +235,9 @@
                             <table>
                                 <colgroup>
                                     <col style='width: 10%;'>
+                                    <col style='width: 20%;'>
                                     <col style='width: 30%;'>
-                                    <col style='width: 30%;'>
+                                    <col style='width: 10%;'>
                                     <col style='width: 20%;'>
                                     <col >
                                 </colgroup>
@@ -232,6 +246,7 @@
                                     <th>타이틀</th>
                                     <th>주소</th>
                                     <th>일정</th>
+                                    <th>썸네일</th>
                                     <th>수정하기</th>
                                 </thead>
                                 <tbody id='place'>
