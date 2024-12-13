@@ -12,6 +12,6 @@ urlpatterns = [
     path('get_user_view/', views.get_user_view, name='get_user_view'),
     path('upload-image/', views.image_upload, name='upload_image'),
     path('delete-image/', views.delete_image, name='delete_image'),
-    path('active_banner/', views.active_banner, name='active_banner'),
-    path('deactive_banner/', views.deactive_banner, name='deactive_banner'),
+    path('add_banner/', views.add_banner, name='add_banner'),
+    path('modi_banner/', views.modi_banner, name='modi_banner'),
 ]

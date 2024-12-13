@@ -32,7 +32,8 @@ def image_upload(request):
         # 이미지 경로를 딕셔너리 형태로 반환
         image_info = {
             "name": uploaded_file.name,
-            "path": file_url
+            "path": file_url,
+            "path2": file_url[file_url.find('/', 1)+1:]
         }
 
         return JsonResponse({"success": True, "image": image_info})
@@ -61,8 +62,8 @@ def delete_image(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-# 배너 활성화
-def active_banner(request):
+# 배너 db추가
+def add_banner(request):
   content= {}
   content['success'] = False
   title = request.POST.get('title')
@@ -79,12 +80,26 @@ def active_banner(request):
   return JsonResponse(content)
 
 # 배너 비 활성화
-def deactive_banner(request):
+def modi_banner(request):
   content = {}
   content['success'] = False
   bno = request.POST.get('id')
   bno = bno[4:]
-  print(bno)
+  check = request.POST.get('check')
+  print(bno, type(check))
+  if check == 'true':
+    data = BannerImage.objects.get(id=bno)
+    data.is_active = True
+    content['success'] = True
+    content['check'] = True
+    data.save()
+  else:
+    data = BannerImage.objects.get(id=bno)
+    data.is_active = False
+    content['success'] = True
+    content['check'] = False
+    data.save()
+
   return JsonResponse(content)
 
 
