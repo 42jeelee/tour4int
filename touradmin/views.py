@@ -2,8 +2,11 @@ from django.shortcuts import render
 from place.models import Place
 from accounts.models import User
 from areacode.models import AreaCode, SigunguCode
+from touradmin.models import BannerImage
 from category.models import Category
 from api import api
+import os
+from django.conf import settings
 # Ajax
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
@@ -12,10 +15,22 @@ from django.core import serializers # json타입 db에서 get으로 받을때
 
 # Create your views here.
 def touradmin(request):
+  image_dir = os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), 'images/main-banners')
+  image_files = []
+
+  if os.path.exists(image_dir):
+    image_files = [
+        {"name": file_name, "path": f'images/main-banners/{file_name}'}
+        for file_name in os.listdir(image_dir)
+        if file_name.lower().endswith(('.jpg', '.jpeg', '.png', '.gif'))
+    ]
+
   context = {
     'users': User.objects.all(),
     'AreaCodes': AreaCode.objects.filter(),
     'events': Place.objects.filter(category__content_type = 15),
+    'banners': image_files,
+    'banners_active' : BannerImage.objects.all()
   }
   return render(request, 'touradmin.html', context)
 
@@ -99,3 +114,8 @@ def get_user_view(request):
     content['result'] = 'success'
     content['view'] = serializers.serialize('json', [user[0]])
   return JsonResponse(content)
+
+
+
+
+

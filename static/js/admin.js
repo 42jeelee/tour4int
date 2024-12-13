@@ -64,7 +64,7 @@ function get_place_data(areaCode) {
             li_data += `
             <tr id='${areaCode}_${i}'>
               <td>${data.areaCode[i].place_id}</td>
-              <td>${data.areaCode[i].title}</td>
+              <td><a href='/place/local/${areaCode}/view/${data.areaCode[i].place_id}' target="_blank">${data.areaCode[i].title}</a></td>
               <td>${data.areaCode[i].address}</td>
               <td><button class="open-place-modal">수정하기</button></td>
             </tr>
@@ -102,7 +102,7 @@ function get_event_data(areaCode) {
             li_data += `
             <tr id='${areaCode}_${i}'>
               <td>${data.event[i].place_id}</td>
-              <td>${data.event[i].title}</td>
+              <td><a href='/place/local/${areaCode}/view/${data.areaCode[i].place_id}' target="_blank">${data.event[i].title}</a></td>
               <td>${data.event[i].address}</td>
               <td>${data.event[i].start_time} - ${data.event[i].end_time}</td>
               <td><button class="open-place-modal">수정하기</button></td>
