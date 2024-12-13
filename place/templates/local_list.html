@@ -219,7 +219,15 @@
   margin: 0;
   color: #000;
   line-height: 1.4;
+  
+  /* 추가된 속성들 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
+
 
 /* Event Card Specific Styles */
 .event-card .event-location {
@@ -227,6 +235,13 @@
   font-size: 0.85rem;
   color: #666;
   margin-bottom: 0.5rem;
+
+  /* 추가된 속성들 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
 }
 
 .event-card .event-period {

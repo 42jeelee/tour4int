@@ -58,6 +58,7 @@ ol, ul, ul li {
   margin-top: 60px;
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 
@@ -69,8 +70,6 @@ ol, ul, ul li {
   flex: 1 0 277px;
   max-width: 277px;
   height: 380px;
-  margin-left: 30px;
-  padding-bottom: 20px;
   border-radius: 20px;
   background-color: #fff;
   box-shadow: 8.192px 5.736px 32px 0 #11111126;
@@ -85,10 +84,6 @@ ol, ul, ul li {
   text-decoration: none;
 }
 
-.tourList .item:first-child{
-  margin-left: 0;
-}
-
 .item .photo img{
   width:277px;
   height:200px;
@@ -96,9 +91,18 @@ ol, ul, ul li {
 }
 
 
-.item .subject{
-  margin: 25px 20px;
+div.subject{
+  margin: 33px 20px 25px;
+  font-size: 20px;
   font-weight: 600;
+}
+
+div.subject > span{
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #009C75;
+  margin-bottom: 15px;
 }
 
 .item .subject .subjectTitle{
@@ -226,12 +230,11 @@ ol, ul, ul li {
   font-size: 18px;
   font-weight: 600;
   color: #009C75;
-  height: 20px;
-  margin-bottom: 16px;
+  height: 40px;
 }
 
 .slideItem .slideContent .slideContent_title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
   max-height: 59px;
