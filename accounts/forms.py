@@ -2,12 +2,13 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.core.exceptions import ValidationError
 from .models import User
+from django.contrib.auth import authenticate
 
 class SignUpForm(UserCreationForm):
     """
     회원가입을 처리하는 폼
     - 이메일, 비밀번호, 이름, 닉네임, 주소 정보를 입력받음
-    - 이메일 중복 검사를 수행
+    - 이메일과 닉네임 중복 검사를 수행
     - 비밀번호 확인 기능 포함
     """
     email = forms.EmailField(
@@ -29,7 +30,6 @@ class SignUpForm(UserCreationForm):
 
     class Meta:
         model = User
-        # 회원가입 시 입력받을 필드들을 지정
         fields = ('email', 'password1', 'password2', 'name', 'nickname', 'address')
 
     def __init__(self, *args, **kwargs):
@@ -56,6 +56,17 @@ class SignUpForm(UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise ValidationError('이미 사용 중인 이메일 주소입니다.')
         return email
+
+    def clean_nickname(self):
+        """
+        닉네임 중복 검사를 수행하는 메서드
+        - 입력된 닉네임이 이미 사용 중인지 확인
+        - 중복된 경우 에러 메시지 표시
+        """
+        nickname = self.cleaned_data.get('nickname')
+        if User.objects.filter(nickname=nickname).exists():
+            raise ValidationError('이미 사용 중인 닉네임입니다.')
+        return nickname
 
     def save(self, commit=True):
         """
@@ -94,7 +105,7 @@ class LoginForm(forms.Form):
     - 이메일과 비밀번호를 입력받아 인증 처리
     - Bootstrap 스타일 적용을 위한 form-control 클래스 사용
     """
-    email = forms.CharField(
+    email = forms.EmailField(
         label='이메일',
         widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
@@ -103,33 +114,47 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+        
+        if email:
+            # 먼저 이메일 존재 여부 확인
+            if not User.objects.filter(email=email).exists():
+                raise ValidationError('등록되지 않은 이메일입니다.')
+            
+            # 이메일이 존재하면 비밀번호 확인
+            user = authenticate(username=email, password=password)
+            if not user and password:
+                raise ValidationError('비밀번호가 올바르지 않습니다.')
+            
+        return self.cleaned_data
+
 class UserUpdateForm(forms.ModelForm):
     """
     사용자 정보 수정을 처리하는 폼
     - 이름, 닉네임, 주소 정보 수정 가능
-    - Bootstrap 스타일 적용을 위한 form-control 클래스 사용
+    - 닉네임 중복 검사 수행
+    - Bootstrap 스타일 적용
     """
     def __init__(self, *args, **kwargs):
-        """
-        폼 초기화 시 실행되는 메서드
-        - 모든 필드의 도움말 텍스트를 제거하여 깔끔한 UI 제공
-        """
         super().__init__(*args, **kwargs)
-        # 모든 필드의 help_text 제거
-        for field in self.fields.values():
-            field.help_text = None
+        self.fields['nickname'].help_text = '다른 사용자와 중복되지 않는 별명을 입력해주세요 (최대 10자)'
+
+    def clean_nickname(self):
+        nickname = self.cleaned_data.get('nickname')
+        if User.objects.exclude(pk=self.instance.pk).filter(nickname=nickname).exists():
+            raise ValidationError('이미 사용 중인 닉네임입니다.')
+        return nickname
 
     class Meta:
         model = User
-        # 수정 가능한 필드 지정
         fields = ['name', 'nickname', 'address']
-        # 필드 레이블을 한글로 설정
         labels = {
             'name': '이름',
             'nickname': '닉네임',
             'address': '주소',
         }
-        # Bootstrap 스타일을 적용하기 위한 위젯 설정
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'nickname': forms.TextInput(attrs={'class': 'form-control'}),

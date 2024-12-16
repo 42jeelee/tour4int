@@ -86,6 +86,35 @@
         font-size: 14px;
         margin-bottom: 20px;
     }
+    .messages {
+        margin-bottom: 20px;
+    }
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    .alert-success {
+        background-color: #dff0d8;
+        border: 1px solid #d6e9c6;
+        color: #3c763d;
+    }
+    .alert-info {
+        background-color: #d9edf7;
+        border: 1px solid #bce8f1;
+        color: #31708f;
+    }
+    .alert-warning {
+        background-color: #fcf8e3;
+        border: 1px solid #fbeed5;
+        color: #8a6d3b;
+    }
+    .alert-danger {
+        background-color: #fff2f2;
+        border: 1px solid #ff3b30;
+        color: #ff3b30;
+    }
 </style>
 
 {# GSAP 애니메이션 라이브러리 로드 #}
@@ -100,6 +129,16 @@
     <div class="login-box">
         <h2 class="login-title">로그인</h2>
         
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {# 로그인 폼 #}
         {# - 이메일과 비밀번호 입력 필드 #}
         {# - 부트스트랩 스타일의 입력 필드와 버튼 #}
@@ -118,15 +157,13 @@
             <div class="mb-4">
                 <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                 {% if field.name == 'email' %}
-                    <input type="text" 
-                           name="{{ field.name }}" 
-                           id="{{ field.id_for_label }}" 
-                           class="form-control"
-                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    <input type="email" 
+                           name="email" 
+                           id="email" 
+                           class="form-control" 
                            required
                            oninvalid="this.setCustomValidity(this.validity.valueMissing ? '이메일을 입력해주세요' : '올바른 이메일 형식이 아닙니다')"
-                           oninput="setCustomValidity(''); checkEmail(this)"
-                           {% if field.value %}value="{{ field.value }}"{% endif %}>
+                           oninput="this.setCustomValidity('')">
                 {% elif field.name == 'password' %}
                     <input type="password" 
                            name="{{ field.name }}" 

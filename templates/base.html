@@ -86,17 +86,6 @@
         {% endblock %}
     </header>
 
-    {# 메시지 영역 #}
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
-
     {# 콘텐츠 영역 #}
     <main>
         {% block content %}{% endblock %}

@@ -140,12 +140,58 @@
         color: #86868b;
         margin-top: 4px;
     }
+    .messages {
+        margin-bottom: 20px;
+    }
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    .alert-success {
+        background-color: #dff0d8;
+        border: 1px solid #d6e9c6;
+        color: #3c763d;
+    }
+    .alert-error {
+        background-color: #f2dede;
+        border: 1px solid #ebccd1;
+        color: #a94442;
+    }
+    .address-wrapper {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    .address-wrapper input[readonly] {
+        background-color: #f5f5f7;
+    }
+    .btn-address {
+        height: 50px;
+        min-width: 120px;
+        background: #0071e3;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    .btn-address:hover {
+        background: #0077ed;
+    }
 </style>
 
 {# GSAP 애니메이션 라이브러리 로드 #}
 {# - 부드러운 페이지 전환과 요소 등장 효과를 위해 사용 #}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+{# 다음 주소 API 스크립트 #}
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
 {# 회원가입 폼 컨테이너 #}
 {# - 중앙 정렬된 깔끔한 흰색 박스 디자인 #}
@@ -154,6 +200,16 @@
     <div class="signup-box">
         <h2 class="signup-title">회원가입</h2>
         
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {# 회원가입 폼 #}
         {# - 이메일, 비밀번호, 이름, 닉네임, 주소 입력 필드 #}
         {# - 각 필드별 유효성 검사와 에러 메시지 표시 #}
@@ -163,11 +219,10 @@
                 <label class="form-label">이메일</label>
                 <div class="email-group">
                     <div class="email-input">
-                        <input type="text" 
+                        <input type="email" 
                                name="email" 
                                id="email" 
                                class="form-control"
-                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                                required
                                oninvalid="this.setCustomValidity(this.validity.valueMissing ? '이메일을 입력해주세요' : '올바른 이메일 형식이 아닙니다')"
                                oninput="setCustomValidity(''); checkEmail(this)">
@@ -203,13 +258,23 @@
                                oninvalid="this.setCustomValidity('비밀번호를 입력해주세요')"
                                oninput="this.setCustomValidity('')">
                     {% else %}
-                        <input type="text" 
-                               name="{{ field.name }}" 
-                               id="{{ field.id_for_label }}" 
-                               class="form-control"
-                               required
-                               oninvalid="this.setCustomValidity('{{ field.label }}을(를) 입력해주세요')"
-                               oninput="this.setCustomValidity('')">
+                        {% if field.name == 'address' %}
+                            <div class="address-wrapper">
+                                <input type="text" id="postcode" class="form-control" placeholder="우편번호" readonly>
+                                <button type="button" class="btn-address" onclick="execDaumPostcode()">주소 찾기</button>
+                            </div>
+                            <input type="text" id="address" class="form-control" placeholder="기본주소" readonly>
+                            <input type="text" id="detailAddress" class="form-control" placeholder="상세주소">
+                            <input type="hidden" id="fullAddress" name="address">
+                        {% else %}
+                            <input type="text" 
+                                   name="{{ field.name }}" 
+                                   id="{{ field.id_for_label }}" 
+                                   class="form-control"
+                                   required
+                                   oninvalid="this.setCustomValidity('{{ field.label }}을(를) 입력해주세요')"
+                                   oninput="this.setCustomValidity('')">
+                        {% endif %}
                     {% endif %}
                     {% if field.errors %}
                         <div class="alert alert-danger">
@@ -356,5 +421,30 @@
             input.setCustomValidity('');
         }
     }
+
+    // 다음 주소 API 함수
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                document.getElementById('postcode').value = data.zonecode;
+                document.getElementById('address').value = data.address;
+                document.getElementById('detailAddress').focus();
+                
+                // 전체 주소를 hidden input에 저장
+                updateFullAddress();
+            }
+        }).open();
+    }
+    
+    // 전체 주소 업데이트
+    function updateFullAddress() {
+        const address = document.getElementById('address').value;
+        const detailAddress = document.getElementById('detailAddress').value;
+        const fullAddress = address + ' ' + detailAddress;
+        document.getElementById('fullAddress').value = fullAddress.trim();
+    }
+    
+    // 상세주소 입력 시 전체 주소 업데이트
+    document.getElementById('detailAddress').addEventListener('input', updateFullAddress);
 </script>
 {% endblock %}

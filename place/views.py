@@ -2,12 +2,13 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from areacode.models import SigunguCode, AreaCode
-from place.models import Place
+from place.models import Place, Like
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 import os
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 logger = logging.getLogger(__name__)
 from api import views
@@ -47,23 +48,31 @@ def local(request, areacode):
 
 view_counts = defaultdict(int)
 
+from django.shortcuts import render
+
 def view(request, areacode, content_id):
-    global view_counts
     context = {'around': '', 'len': 0}
     range_offset = 0.004
     content_data = Place.objects.filter(place_id=content_id)
 
+    banner_images = []
+    for i in range(1, 4):
+        image_path = f'images/banners/local_{areacode}_{i}.jpg'
+        if os.path.exists(os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), image_path)):
+            banner_images.append(image_path)
+
+    area_name = AreaCode.objects.get(area_code=areacode).name
+    context['area_name'] = area_name
+    context['banner_images'] = banner_images
+
     if len(content_data):
         # 조회수 관련 로직 추가
         cookie_name = f'place_view_{content_id}'
-        
         # 쿠키가 없으면 조회수 증가
         if cookie_name not in request.COOKIES:
             view_counts[content_id] += 1
-
         # 현재 조회수를 컨텍스트에 추가
         context['view_count'] = view_counts[content_id]
-
         around_data = Place.objects.filter(sigungu_code__area_code=areacode,
             map_x__gte=float(content_data[0].map_x) - range_offset,
             map_x__lte=float(content_data[0].map_x) + range_offset,
@@ -83,15 +92,92 @@ def view(request, areacode, content_id):
             except Exception as e:
                 print(e)
                 return render(request, '404.html', status=404)
+    # 좋아요 추가
+    user = request.user
+    if user.is_authenticated:
+        like = Like.objects.filter(user=user, place=content_data[0])
+        print(like)
+        if like:
+            context['like'] = True
+        else:
+            context['like'] = False
+    else:
+        context['like'] = False
 
-    response = render(request, 'view.html', context)
+    # 표시할 필드와 레이블을 정의합니다
+    fields_to_display = [
+        ('chkbabycarriage', '유모차대여정보'),
+        ('chkcreditcard', '신용카드가능정보'),
+        ('chkpet', '애완동물동반가능정보'),
+        ('expagerange', '체험가능연령'),
+        ('expguide', '체험안내'),
+        ('infocenter', '문의 및 안내'),
+        ('opendate', '개장일'),
+        ('parking', '주차시설'),
+        ('restdate', '휴무일'),
+        ('useseason', '이용시기'),
+        ('usetime', '이용시간'),
+        ('accomcountculture', '수용인원'),
+        ('chkbabycarriageculture', '유모차대여정보'),
+        ('chkcreditcardculture', '신용카드가능정보'),
+        ('chkpetculture', '애완동물동반가능정보'),
+        ('discountinfo', '할인정보'),
+        ('infocenterculture', '문의 및 안내'),
+        ('parkingculture', '주차시설'),
+        ('parkingfee', '주차요금'),
+        ('restdateculture', '휴무일'),
+        ('usefee', '이용요금'),
+        ('usetimeculture', '이용시간'),
+        ('scale', '규모'),
+        ('spendtime', '관람소요시간'),
+        ('agelimit', '관람가능연령'),
+        ('bookingplace', '예매처'),
+        ('discountinfofestival', '할인정보'),
+        ('eventstartdate', '행사시작일'),
+        ('eventenddate', '행사종료일'),
+        ('eventplace', '행사장소'),
+        ('eventhomepage', '행사홈페이지'),
+        ('festivalgrade', '축제등급'),
+        ('placeinfo', '행사장 위치안내'),
+        ('playtime', '공연시간'),
+        ('program', '행사 프로그램'),
+        ('spendtimefestival', '관람 소요시간'),
+        ('sponsor1', '주최자 정보'),
+        ('sponsor1tel', '주최자 연락처'),
+        ('sponsor2', '주관사 정보'),
+        ('sponsor2tel', '주관사 연락처'),
+        ('subevent', '부대행사'),
+        ('usetimefestival', '이용요금'),
+        ('distance', '코스 총 거리'),
+        ('infocentertourcourse', '문의 및 안내'),
+        ('schedule', '코스 일정'),
+        ('taketime', '코스 총 소요시간'),
+        ('theme', '코스테마'),
+    ]
 
-    # 쿠키가 없었을 경우에만 새 쿠키 설정
-    if cookie_name not in request.COOKIES:
-        expires = datetime.now() + timedelta(hours=24)
-        response.set_cookie(cookie_name, 'viewed', expires=expires)
+    display_fields = []
+    for field, label in fields_to_display:
+        value = getattr(context['data'], field, '') or getattr(context['data'], f"{field}culture", '')
+        if value:
+            # <br> 태그 제거
+            value = value.replace('<br>', ' ')
+            display_fields.append((label, value))
 
-    return response
+    context['display_fields'] = display_fields
+
+    return render(request, 'view.html', context)
+
+def like_content(request, content_id):
+    place = get_object_or_404(Place, place_id=content_id)
+    user = request.user
+    if user.is_authenticated:
+        like, created = Like.objects.get_or_create(place=place, user=user)
+        if not created:
+            # 이미 좋아요를 눌렀다면 취소
+            like.delete()
+            return JsonResponse({'liked': False, 'like_count': place.like_count})
+
+    return JsonResponse({'liked': True, 'like_count': place.like_count})
 
 def local_list(request, areacode):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'

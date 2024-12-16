@@ -2,6 +2,47 @@
 {% load static %}
 {% block content %}
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b53d3e95e27811083b5ac0f850526bb3"></script>
+<meta name='csrf_token' content='{{csrf_token}}'>
+<script>
+  document.querySelectorAll('.like-button').forEach(button => {
+    button.addEventListener('click', function () {
+        const postId = this.getAttribute('data-post-id');
+        const isLiked = this.getAttribute('data-liked') === 'true';
+
+        // 버튼 클릭 시 비활성화 (중복 클릭 방지)
+        this.disabled = true;
+
+        fetch(`/place/like/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken = $('meta[name=csrf_token]').attr('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ liked: !isLiked })
+        })
+        .then(response => response.json())
+        .then(data => {
+            this.textContent = data.liked ? '좋아요 취소' : '좋아요';
+            this.setAttribute('data-liked', data.liked);
+            document.querySelector(`#like-count`).textContent = `${data.like_count}명이 좋아요를 눌렀습니다.`;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('좋아요 처리 중 오류가 발생했습니다.');
+        })
+        .finally(() => {
+            // 버튼 클릭 후 비활성화 해제
+            this.disabled = false;
+        });
+    });
+  });
+  $('.not_login').click(function(){
+    alert('좋아요는 로그인을 하셔야 합니다.')
+  })
+</script>
+
+{% block body_class %}{% endblock %}
+
 <article class='wrap'>
 
   <div class='view_wrap'>
@@ -23,7 +64,16 @@
     </div>
 
     <div class='info'>
-      <button>좋아요</button>
+      {% if user.is_authenticated %}
+        {% if like %}
+        <button class="like-button" data-liked="true" data-post-id="{{ data.place_id }}">좋아요 취소</button>
+        {% else %}
+        <button class="like-button" data-liked="false" data-post-id="{{ data.place_id }}">좋아요</button>
+        {% endif %}
+      {% else %}
+        <button class='not_login'>좋아요</button>
+      {% endif %}
+      <span id='like-count'>{{ data.like_count }}명이 좋아요를 눌렀습니다.</span>
       <span>조회 {{view_count}}</span>
       <span>등록일 | {{data.created_at}}</span>
       <span>수정일 | {{data.updated_at}}</span>
@@ -58,79 +108,20 @@
     <div id='guide' class='section'>
       <h3>이용정보</h3>
       <table class='table'>
-        <caption>
-          "이용정보로  홈페이지주소, 전화번호, 주요 시설 및 전시관 안내, 이용시간, 휴뮤일, 입장료/이용료, 체험프로그램, 화장실유무, 주차유무, 외국어안내서비스, 특이사항 정보안내"
-        </caption>
         <colgroup>
           <col style='width: 230px;'>
           <col>
         </colgroup>
         <tbody>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class='section'>
-      <h3>무장애 관광정보</h3>
-      <table class='table'>
-        <colgroup>
-          <col style='width: 230px;'>
-          <col>
-        </colgroup>
-        <tbody>
-          <tr>
-            <th scope='row'>출입통로</th>
-            <td>주출입구 휠체어 통과 가능 (수동문)</td>
-          </tr>
-          <tr>
-            <th scope='row'>엘리베이터</th>
-            <td>있음(휠체어 2대 탑승 가능)</td>
-          </tr>
-          <tr>
-            <th scope='row'>화장실</th>
-            <td>있음(박물관 내부, 남녀분리)</td>
-          </tr>
-          <tr>
-            <th scope='row'>보조견동반</th>
-            <td>가능</td>
-          </tr>
-          <tr>
-            <th scope='row'>오디오가이드</th>
-            <td>오디오가이드 있음(QR코드로 홈페이지 접속 시 동영상 제공)</td>
-          </tr>
-          <tr>
-            <th scope='row'>점자홍보물 및 점자표지판</th>
-            <td>있음(로비, 점자 리플렛 있음)</td>
-          </tr>
-        </tbody>
+          {% for label, value in display_fields %}
+            <tr>
+                <th scope='row'>{{ label }}</th>
+                <td>{{ value }}</td>
+            </tr>
+          {% empty %}
+              <tr><td colspan="2">데이터가 없습니다.</td></tr>
+          {% endfor %}
+      </tbody>
       </table>
     </div>
 
@@ -216,12 +207,6 @@
           <div class='near_tap'>
             <a href='#tap1' class='near_btn active' name='btn_tap'>
               <span>주변 관광지</span>
-            </a>
-            <a href='#tap2' class='near_btn' name='btn_tap'>
-              <span>주변 음식점</span>
-            </a>
-            <a href='#tap3' class='near_btn' name='btn_tap'>
-              <span>주변 숙박업소</span>
             </a>
           </div>
           <div id='tap1' class="tap_body active">

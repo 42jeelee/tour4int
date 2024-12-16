@@ -145,19 +145,6 @@
   line-height: 1.2;
 }
 
-caption {
-  position: relative;
-  width: 1px;
-  height: 1px;
-  margin: 0;
-  padding: 0;
-  background: 0 0;
-  font-size: 0;
-  color: transparent;
-  line-height: 0;
-  text-indent: 100%;
-}
-
 .table{
   position: relative;
   width: 100%;
@@ -183,20 +170,20 @@ caption {
 .table th {
   text-align: left;
   font-weight: 500;
+  width: 250px;
 }
 
 .table tr:nth-child(even) td, .table tr:nth-child(even) th {
   background: #f9f9f9;
 }
 
-/* 무장애관광 정보 */
 .view_wrap .section {
   position: relative;
   margin-top: 70px;
 }
 
 
-/* 주변관광지 */
+/* 지도 */
 .view_wrap .map_wrap {
   display: flex;
 }
