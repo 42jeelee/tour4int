@@ -108,79 +108,20 @@
     <div id='guide' class='section'>
       <h3>이용정보</h3>
       <table class='table'>
-        <caption>
-          "이용정보로  홈페이지주소, 전화번호, 주요 시설 및 전시관 안내, 이용시간, 휴뮤일, 입장료/이용료, 체험프로그램, 화장실유무, 주차유무, 외국어안내서비스, 특이사항 정보안내"
-        </caption>
         <colgroup>
           <col style='width: 230px;'>
           <col>
         </colgroup>
         <tbody>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-          <tr>
-            <th scope='row'>이용안내</th>
-            <td>내용 테스트</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class='section'>
-      <h3>무장애 관광정보</h3>
-      <table class='table'>
-        <colgroup>
-          <col style='width: 230px;'>
-          <col>
-        </colgroup>
-        <tbody>
-          <tr>
-            <th scope='row'>출입통로</th>
-            <td>주출입구 휠체어 통과 가능 (수동문)</td>
-          </tr>
-          <tr>
-            <th scope='row'>엘리베이터</th>
-            <td>있음(휠체어 2대 탑승 가능)</td>
-          </tr>
-          <tr>
-            <th scope='row'>화장실</th>
-            <td>있음(박물관 내부, 남녀분리)</td>
-          </tr>
-          <tr>
-            <th scope='row'>보조견동반</th>
-            <td>가능</td>
-          </tr>
-          <tr>
-            <th scope='row'>오디오가이드</th>
-            <td>오디오가이드 있음(QR코드로 홈페이지 접속 시 동영상 제공)</td>
-          </tr>
-          <tr>
-            <th scope='row'>점자홍보물 및 점자표지판</th>
-            <td>있음(로비, 점자 리플렛 있음)</td>
-          </tr>
-        </tbody>
+          {% for label, value in display_fields %}
+            <tr>
+                <th scope='row'>{{ label }}</th>
+                <td>{{ value }}</td>
+            </tr>
+          {% empty %}
+              <tr><td colspan="2">데이터가 없습니다.</td></tr>
+          {% endfor %}
+      </tbody>
       </table>
     </div>
 
