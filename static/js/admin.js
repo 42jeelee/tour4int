@@ -171,7 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
             let viewData = JSON.parse(data.view)
             $('#title').val(viewData[0].fields.title)
             $('#address').val(viewData[0].fields.address)
-            $('#tel').val(viewData[0].fields.tel)
             $('#image').val(viewData[0].fields.image)
             $('#thumb_img').val(viewData[0].fields.thumb_img)
             $('#homepage_url').val(viewData[0].fields.homepage_url)
@@ -191,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function() {
       var target = no
       var title = $('#title').val()
       var address = $('#address').val()
-      var tel = $('#tel').val()
       var image = $('#image').val()
       var thumb_img = $('#thumb_img').val()
       var homepage_url = $('#homepage_url').val()
@@ -203,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
         url:'/touradmin/update/', // 보내는 주소
         type:'post', // get, post // 서버쪽으로 보내는 변수데이터
         data:{'target':target, 'title':title, 'address':address,
-          'tel':tel, 'image':image, 'thumb_img':thumb_img,
+          'image':image, 'thumb_img':thumb_img,
           'homepage_url':homepage_url, 'overview':overview
         },
         success:function(data){ // 서버에서 받은 데이터 : data
@@ -222,37 +220,70 @@ document.addEventListener('DOMContentLoaded', function() {
     placemodal.style.display = 'none';
   })
 
-  // user 열기
-  $(document).on('click', '.user-btn', function(){
+  // 회원정보 수정 모달 열기
+  $(document).on('click', '.user-btn', function() {
+    var email = $(this).closest('tr').find('td:first').text();
     usermodal.style.display = "flex";
     
-    user_modi_content = $(this).closest('tr').children()
-    email = user_modi_content.eq(0).text()
-    // ajax 요청
+    // 사용자 정보 가져오기
     $.ajax({
-      headers:{'X-CSRFToken':csrfToken}, // scrf_token
-      url:'/touradmin/get_user_view/', // 보내는 주소
-      type:'post', // get, post // 서버쪽으로 보내는 변수데이터
-      data:{'email':email},
-      success:function(data){ // 서버에서 받은 데이터 : data
-          if(data.result == 'success'){
-            let viewData = JSON.parse(data.view)
-            $('#username').val(viewData[0].fields.name)
-            $('#nicname').val(viewData[0].fields.nickname)
-            $('#user_address').val(viewData[0].fields.address)
-          }
+      headers: {'X-CSRFToken': csrfToken},
+      url: '/touradmin/get_user_view/',
+      type: 'post',
+      data: {'email': email},
+      success: function(data) {
+        if(data.result === 'success') {
+          let userData = JSON.parse(data.view)[0].fields;
+          $('#user_email').val(email);
+          $('#user_name').val(userData.name);
+          $('#user_nickname').val(userData.nickname);
+          $('#user_address').val(userData.address);
+        }
       },
-      error:function(){
-          alert('실패')
+      error: function() {
+        alert('사용자 정보를 불러오는데 실패했습니다.');
+        usermodal.style.display = 'none';
       }
-    }) // ajax
-  })
+    });
+  });
 
   // user 데이터 수정
   $(document).on('click', '.user-modibtn', function(){
-    // 수정 데이터 확인
+    var email = $('#user_email').val();
+    var name = $('#user_name').val();
+    var nickname = $('#user_nickname').val();
+    var address = $('#user_address').val();
+
+    // 이메일이 없으면 수정하지 않음
+    if (!email) {
+      alert('사용자 정보가 올바르지 않습니다.');
+      return;
+    }
+
+    $.ajax({
+      headers: {'X-CSRFToken': csrfToken},
+      url: '/touradmin/update_user/',
+      type: 'post',
+      data: {
+        'email': email,
+        'name': name,
+        'nickname': nickname,
+        'address': address
+      },
+      success: function(data) {
+        if(data.result === 'success') {
+          alert('회원정보가 수정되었습니다.');
+          location.reload();
+        } else {
+          alert('회원정보 수정에 실패했습니다: ' + data.message);
+        }
+      },
+      error: function(xhr, status, error) {
+        alert('서버 오류가 발생했습니다: ' + xhr.responseText);
+      }
+    });
     usermodal.style.display = 'none';
-  })
+  });
 
   // place 모달창 닫기
   placespan.onclick = function() {
