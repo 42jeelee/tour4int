@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from areacode.models import SigunguCode, AreaCode
-from place.models import Place, Like
+from place.models import Place, Like, Views
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -67,12 +67,17 @@ def view(request, areacode, content_id):
 
     if len(content_data):
         # 조회수 관련 로직 추가
-        cookie_name = f'place_view_{content_id}'
-        # 쿠키가 없으면 조회수 증가
-        if cookie_name not in request.COOKIES:
-            view_counts[content_id] += 1
+        content_place = content_data.first()  # QuerySet에서 첫 번째 객체 가져오기
+        views_record, created = Views.objects.get_or_create(place=content_place)  # 조회수 기록 가져오기 또는 생성하기
+
+        # 조회수 증가
+        views_record.count += 1  # 조회수 증가
+        views_record.save()  # 데이터베이스에 저장
+
         # 현재 조회수를 컨텍스트에 추가
-        context['view_count'] = view_counts[content_id]
+        context['view_count'] = views_record.count
+
+        # 주변데이터 조회
         around_data = Place.objects.filter(sigungu_code__area_code=areacode,
             map_x__gte=float(content_data[0].map_x) - range_offset,
             map_x__lte=float(content_data[0].map_x) + range_offset,
