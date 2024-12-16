@@ -97,11 +97,12 @@ def view(request, areacode, content_id):
             except Exception as e:
                 print(e)
                 return render(request, '404.html', status=404)
-    # 좋아요 추가
+    # 좋아요 추가 / 히스토리 추가
     user = request.user
     if user.is_authenticated:
+        user.add_place_history(content_id)
         like = Like.objects.filter(user=user, place=content_data[0])
-        print(like)
+
         if like:
             context['like'] = True
         else:

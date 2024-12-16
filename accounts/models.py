@@ -2,26 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from place.models import Place
 from .managers import UserManager
 import random
 import string
-
-
-def validate_place_ids(value):
-
-    if value is None or len(value) == 0: return
-
-    place_ids = value.split(',')
-
-    if len(place_ids) > 10:
-        raise ValidationError("place_ids cannot exceed 10.")
-
-    db_places = Place.objects.filter(id__in=place_ids).values_list('id', flat=True)
-    diff = set(place_ids) - db_places
-
-    if len(diff) > 0:
-        raise ValidationError(f"place_id({', '.join(diff)}) is not exist.")
 
 
 class User(AbstractBaseUser):
@@ -47,7 +30,6 @@ class User(AbstractBaseUser):
     place_history = models.CharField(
         '방문기록',
         max_length=120,
-        validators=[validate_place_ids],
         help_text= '","로 구분하는 place_id (최대 10개)',
         null=True,
         blank=True,
@@ -70,6 +52,7 @@ class User(AbstractBaseUser):
         else:
             self.place_history = place_id
 
+        print(self.place_history)
         self.save()
 
     def save(self, *args, **kwargs):
