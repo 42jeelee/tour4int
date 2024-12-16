@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.db import transaction
+from django.forms.models import model_to_dict
 from areacode.models import AreaCode, SigunguCode
 from category.models import Category
 from place.models import Place
@@ -164,6 +165,90 @@ def get_place(request):
     context = insert_place(data)
 
   return JsonResponse(context)
+
+def get_info(contentid):
+  try:
+    place = Place.objects.get(place_id=contentid)
+
+    info_data = api.get_place_common_info(place.place_id)
+    info_data.update(api.get_place_detail_info(place.place_id, place.category.content_type))
+
+    place_info = {
+    'homepage_url': info_data.get('homepage', ''),
+    'overview': info_data.get('overview', ''),
+    'accomcount': info_data.get('accomcount', ''),
+    'chkbabycarriage': info_data.get('chkbabycarriage', ''),
+    'chkcreditcard': info_data.get('chkcreditcard', ''),
+    'chkpet': info_data.get('chkpet', ''),
+    'expagerange': info_data.get('expagerange', ''),
+    'expguide': info_data.get('expguide', ''),
+    'heritage1': info_data.get('heritage1', ''),
+    'heritage2': info_data.get('heritage2', ''),
+    'heritage3': info_data.get('heritage3', ''),
+    'infocenter': info_data.get('infocenter', ''),
+    'opendate': info_data.get('opendate', ''),
+    'parking': info_data.get('parking', ''),
+    'restdate': info_data.get('restdate', ''),
+    'useseason': info_data.get('useseason', ''),
+    'usetime': info_data.get('usetime', ''),
+    'accomcountculture': info_data.get('accomcountculture', ''),
+    'chkbabycarriageculture': info_data.get('chkbabycarriageculture', ''),
+    'chkcreditcardculture': info_data.get('chkcreditcardculture', ''),
+    'chkpetculture': info_data.get('chkpetculture', ''),
+    'discountinfo': info_data.get('discountinfo', ''),
+    'infocenterculture': info_data.get('infocenterculture', ''),
+    'parkingculture': info_data.get('parkingculture', ''),
+    'parkingfee': info_data.get('parkingfee', ''),
+    'restdateculture': info_data.get('restdateculture', ''),
+    'usefee': info_data.get('usefee', ''),
+    'usetimeculture': info_data.get('usetimeculture', ''),
+    'scale': info_data.get('scale', ''),
+    'spendtime': info_data.get('spendtime', ''),
+    'agelimit': info_data.get('agelimit', ''),
+    'bookingplace': info_data.get('bookingplace', ''),
+    'discountinfofestival': info_data.get('discountinfofestival', ''),
+    'eventenddate': info_data.get('eventenddate', ''),
+    'eventhomepage': info_data.get('eventhomepage', ''),
+    'eventplace': info_data.get('eventplace', ''),
+    'eventstartdate': info_data.get('eventstartdate', ''),
+    'festivalgrade': info_data.get('festivalgrade', ''),
+    'placeinfo': info_data.get('placeinfo', ''),
+    'playtime': info_data.get('playtime', ''),
+    'program': info_data.get('program', ''),
+    'spendtimefestival': info_data.get('spendtimefestival', ''),
+    'sponsor1': info_data.get('sponsor1', ''),
+    'sponsor1tel': info_data.get('sponsor1tel', ''),
+    'sponsor2': info_data.get('sponsor2', ''),
+    'sponsor2tel': info_data.get('sponsor2tel', ''),
+    'subevent': info_data.get('subevent', ''),
+    'usetimefestival': info_data.get('usetimefestival', ''),
+    'distance': info_data.get('distance', ''),
+    'infocentertourcourse': info_data.get('infocentertourcourse', ''),
+    'schedule': info_data.get('schedule', ''),
+    'taketime': info_data.get('taketime', ''),
+    'theme': info_data.get('theme', ''),
+    }
+
+    for f, v in place_info.items():
+      setattr(place, f, v)
+
+    place.is_detail = True
+    place.save()
+    return model_to_dict(place)
+  except Exception as e:
+    raise e
+
+def get_place_info(request, contentid):
+  try:
+    place = get_info(contentid)
+    context = {
+      'result': 'success',
+      'data': model_to_dict(place),
+    }
+    return JsonResponse(context)
+  except Exception as e:
+    return JsonResponse({"result": "fail", "error": e})
+
 
 def insert_place(data, isEvent=False):
   context = {}
