@@ -8,6 +8,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 import os
 from django.conf import settings
+from api import views
 
 logger = logging.getLogger(__name__)
 from api import views
@@ -47,51 +48,98 @@ def local(request, areacode):
 
 view_counts = defaultdict(int)
 
+from django.shortcuts import render
+
 def view(request, areacode, content_id):
-    global view_counts
     context = {'around': '', 'len': 0}
     range_offset = 0.004
-    content_data = Place.objects.filter(place_id=content_id)
+    content_data = Place.objects.filter(place_id=content_id).first()
 
-    if len(content_data):
-        # 조회수 관련 로직 추가
-        cookie_name = f'place_view_{content_id}'
-        
-        # 쿠키가 없으면 조회수 증가
-        if cookie_name not in request.COOKIES:
-            view_counts[content_id] += 1
-
-        # 현재 조회수를 컨텍스트에 추가
-        context['view_count'] = view_counts[content_id]
-
-        around_data = Place.objects.filter(sigungu_code__area_code=areacode,
-            map_x__gte=float(content_data[0].map_x) - range_offset,
-            map_x__lte=float(content_data[0].map_x) + range_offset,
-            map_y__gte=float(content_data[0].map_y) - range_offset,
-            map_y__lte=float(content_data[0].map_y) + range_offset
+    if content_data:
+        # 주변 데이터 조회
+        around_data = Place.objects.filter(
+            sigungu_code__area_code=areacode,
+            map_x__range=(float(content_data.map_x) - range_offset, float(content_data.map_x) + range_offset),
+            map_y__range=(float(content_data.map_y) - range_offset, float(content_data.map_y) + range_offset)
         )
-        if content_data[0].is_detail:
+
+        if content_data.is_detail:
             context['result'] = "success"
-            context['data'] = content_data[0]
+            context['data'] = content_data
         else:
             try:
                 context['result'] = 'info_success'
                 context['data'] = views.get_info(contentid=content_id)
-                if around_data:
+                if around_data.exists():
                     context['around'] = around_data
-                    context['len'] = len(around_data)
+                    context['len'] = around_data.count()
             except Exception as e:
                 print(e)
                 return render(request, '404.html', status=404)
+        
+        # 표시할 필드와 레이블을 정의합니다
+        fields_to_display = [
+            ('chkbabycarriage', '유모차대여정보'),
+            ('chkcreditcard', '신용카드가능정보'),
+            ('chkpet', '애완동물동반가능정보'),
+            ('expagerange', '체험가능연령'),
+            ('expguide', '체험안내'),
+            ('infocenter', '문의 및 안내'),
+            ('opendate', '개장일'),
+            ('parking', '주차시설'),
+            ('restdate', '휴무일'),
+            ('useseason', '이용시기'),
+            ('usetime', '이용시간'),
+            ('accomcountculture', '수용인원'),
+            ('chkbabycarriageculture', '유모차대여정보'),
+            ('chkcreditcardculture', '신용카드가능정보'),
+            ('chkpetculture', '애완동물동반가능정보'),
+            ('discountinfo', '할인정보'),
+            ('infocenterculture', '문의 및 안내'),
+            ('parkingculture', '주차시설'),
+            ('parkingfee', '주차요금'),
+            ('restdateculture', '휴무일'),
+            ('usefee', '이용요금'),
+            ('usetimeculture', '이용시간'),
+            ('scale', '규모'),
+            ('spendtime', '관람소요시간'),
+            ('agelimit', '관람가능연령'),
+            ('bookingplace', '예매처'),
+            ('discountinfofestival', '할인정보'),
+            ('eventstartdate', '행사시작일'),
+            ('eventenddate', '행사종료일'),
+            ('eventplace', '행사장소'),
+            ('eventhomepage', '행사홈페이지'),
+            ('festivalgrade', '축제등급'),
+            ('placeinfo', '행사장 위치안내'),
+            ('playtime', '공연시간'),
+            ('program', '행사 프로그램'),
+            ('spendtimefestival', '관람 소요시간'),
+            ('sponsor1', '주최자 정보'),
+            ('sponsor1tel', '주최자 연락처'),
+            ('sponsor2', '주관사 정보'),
+            ('sponsor2tel', '주관사 연락처'),
+            ('subevent', '부대행사'),
+            ('usetimefestival', '이용요금'),
+            ('distance', '코스 총 거리'),
+            ('infocentertourcourse', '문의 및 안내'),
+            ('schedule', '코스 일정'),
+            ('taketime', '코스 총 소요시간'),
+            ('theme', '코스테마'),
+        ]
 
-    response = render(request, 'view.html', context)
+        display_fields = []
+        for field, label in fields_to_display:
+            value = getattr(context['data'], field, '') or getattr(context['data'], f"{field}culture", '')
+            if value:
+                # <br> 태그 제거
+                value = value.replace('<br>', ' ')
+                display_fields.append((label, value))
 
-    # 쿠키가 없었을 경우에만 새 쿠키 설정
-    if cookie_name not in request.COOKIES:
-        expires = datetime.now() + timedelta(hours=24)
-        response.set_cookie(cookie_name, 'viewed', expires=expires)
+        context['display_fields'] = display_fields
 
-    return response
+    return render(request, 'view.html', context)
+
 
 def local_list(request, areacode):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
