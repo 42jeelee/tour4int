@@ -400,12 +400,11 @@ $(document).on('click', '#modibanner', function(){
       success: function(response) {
           if (response.success) {
             console.log(response.check)
-            if (response.check == 'True'){
+            console.log( typeof response.check)
+            if (response.check){
               alert('활성화 되었습니다.')
-              check.prop('checked', True)
             }else{
               alert('비활성화 되었습니다.');
-              check.prop('checked', False)
             }
           } else {
               alert('비활성화 실패 했습니다..');

@@ -43,8 +43,6 @@ def image_upload(request):
 # 이미지 삭제
 def delete_image(request):
     banner_id = request.POST.get('bannerId')
-    # 해당 배너 이미지 객체를 가져옵니다
-    # banner = get_object_or_404(BannerImage, id=banner_id)
 
     # 이미지 파일 경로를 가져와 삭제합니다
     image_path = os.path.join(settings.BASE_DIR, 'static', banner_id)
@@ -54,9 +52,6 @@ def delete_image(request):
         if os.path.exists(image_path):
             print(image_path)
             os.remove(image_path)
-        
-        # 데이터베이스에서 배너 이미지 삭제
-        # banner_id.delete()
         
         return JsonResponse({'success': True})
     except Exception as e:
@@ -79,7 +74,7 @@ def add_banner(request):
     content['success'] = True
   return JsonResponse(content)
 
-# 배너 비 활성화
+# 배너 활성화
 def modi_banner(request):
   content = {}
   content['success'] = False

@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import User
 from areacode.models import SigunguCode
 from category.models import Category
 
@@ -30,3 +31,19 @@ class Place(models.Model):
 
   def __str__(self):
     return f"{self.title} ({self.address})"
+  
+  @property
+  def like_count(self):
+      """좋아요 수 반환"""
+      return self.likes.count()
+  
+class Like(models.Model):
+    post = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='likes')  # 어떤 게시물에 대한 좋아요인지
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 어떤 사용자가 좋아요를 눌렀는지
+    created_at = models.DateTimeField(auto_now_add=True)  # 좋아요를 누른 시간
+
+    class Meta:
+        unique_together = ('post', 'user')  # 한 사용자가 같은 게시물에 좋아요를 중복으로 누르지 못하도록 설정
+
+    def __str__(self):
+        return f"{self.user.username} likes {self.post.title}"
