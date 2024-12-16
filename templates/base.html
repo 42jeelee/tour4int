@@ -82,13 +82,15 @@
                 <input id="header__search-input" type="text" placeholder="검색어를 입력해주세요." />
                 <button id="header__search-btn"></button>
             </div>
-        </div>
+        </div> 
         {% endblock %}
     </header>
 
     {# 콘텐츠 영역 #}
     <main>
-        {% block content %}{% endblock %}
+        <div class='wrap'>
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     {# 푸터 영역 #}
