@@ -175,7 +175,6 @@ def update(request):
     content_id = request.POST.get('target')
     title = request.POST.get('title')
     address = request.POST.get('address')
-    tel = request.POST.get('tel')
     image = request.POST.get('image')
     thumb_img = request.POST.get('thumb_img')
     homepage_url = request.POST.get('homepage_url')
@@ -183,7 +182,6 @@ def update(request):
     data = Place.objects.get(place_id=content_id)
     data.title = title
     data.address = address
-    data.tel = tel
     data.image = image
     data.thumb_img = thumb_img
     data.homepage_url = homepage_url
@@ -207,7 +205,31 @@ def get_user_view(request):
       content['result'] = 'fail'
   return JsonResponse(content)
 
+def update_user(request):
+    content = {}
+    if request.method == "POST":
+        email = request.POST.get('email')
+        name = request.POST.get('name')
+        nickname = request.POST.get('nickname')
+        address = request.POST.get('address')
 
+        try:
+            user = User.objects.get(email=email)
+            user.name = name
+            user.nickname = nickname
+            user.address = address
+            user.save()
 
-
-
+            content['result'] = 'success'
+            content['message'] = '회원정보가 성공적으로 수정되었습니다.'
+            content['user'] = serializers.serialize('json', [user])
+        except User.DoesNotExist:
+            content['result'] = 'fail'
+            content['message'] = '사용자를 찾을 수 없습니다.'
+        except Exception as e:
+            content['result'] = 'fail'
+            content['message'] = str(e)
+    else:
+        content['result'] = 'fail'
+        content['message'] = '잘못된 요청입니다.'
+    return JsonResponse(content)

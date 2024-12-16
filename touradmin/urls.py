@@ -10,6 +10,7 @@ urlpatterns = [
     path('get_view/', views.get_view, name='get_view'),
     path('update/', views.update, name='update'),
     path('get_user_view/', views.get_user_view, name='get_user_view'),
+    path('update_user/', views.update_user, name='update_user'),
     path('upload-image/', views.image_upload, name='upload_image'),
     path('delete-image/', views.delete_image, name='delete_image'),
     path('add_banner/', views.add_banner, name='add_banner'),
