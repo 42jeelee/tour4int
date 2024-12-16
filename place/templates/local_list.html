@@ -35,11 +35,8 @@
         </div>
     </div>
     
-    {# 헤더 검색바 #}
-    <div class="header__search-bar">
-        <input id="header__search-input" type="text" placeholder="검색어를 입력해주세요." />
-        <button id="header__search-btn"></button>
-    </div>
+    {# 검색바 #}
+    {% include 'search/search_bar.html' %}
 </div>
 {% endblock %}
 

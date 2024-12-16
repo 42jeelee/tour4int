@@ -29,8 +29,10 @@
                 {# 로고 #}
                 <a class="header__logo" href="{% url 'index' %}">Tour4Int</a>
                 <div class="header__container--search-bar">
-                    <input type="text" placeholder="검색어를 입력해주세요." />
-                    <button id="header__search-btn"></button>
+                    <form action="{% url 'search:search' %}" method="GET" style="width: 100%; position: relative;">
+                        <input type="text" name="q" placeholder="검색어를 입력해주세요." />
+                        <button type="submit" id="header__search-btn"></button>
+                    </form>
                 </div>
                 {# 네비게이션 메뉴 #}
                 <nav>
@@ -78,10 +80,7 @@
                 </div>
             </div>
             {# 헤더 검색바 #}
-            <div class="header__search-bar">
-                <input id="header__search-input" type="text" placeholder="검색어를 입력해주세요." />
-                <button id="header__search-btn"></button>
-            </div>
+            {% include 'search/search_bar.html' %}
         </div>
         {% endblock %}
     </header>

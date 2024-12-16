@@ -1,0 +1,9 @@
+{% comment %}
+검색창 컴포넌트
+사용법: {% include 'search/search_bar.html' %}
+{% endcomment %}
+
+<form action="{% url 'search:search' %}" method="GET" class="header__search-bar">
+    <input id="header__search-input" type="text" name="q" placeholder="검색어를 입력해주세요." value="{{ query|default:'' }}" />
+    <button type="submit" id="header__search-btn"></button>
+</form>

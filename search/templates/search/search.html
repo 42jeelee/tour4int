@@ -4,105 +4,311 @@
 {% block content %}
 <div class="container mt-4">
     <!-- 검색 필터 -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <form method="GET" action="{% url 'search:search' %}" class="search-form">
-                <!-- 검색어 입력 -->
-                <div class="input-group mb-3">
-                    <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="검색어를 입력하세요">
-                    <button class="btn btn-primary" type="submit">검색</button>
-                </div>
-                
-                <!-- 필터 옵션들 -->
-                <div class="row g-3">
-                    <!-- 카테고리 필터 -->
-                    <div class="col-md-4">
-                        <label class="form-label">카테고리</label>
-                        <select name="type" class="form-select" multiple>
-                            {% for category in categories %}
-                            <option value="{{ category.content_type }}" 
-                                {% if category.content_type in selected_types %}selected{% endif %}>
+    <div class="search-container mb-4">
+        <form method="GET" action="{% url 'search:search' %}" class="search-form" id="searchForm">
+            <input type="hidden" name="q" value="{{ query }}">
+            
+            <!-- 필터 태그들 -->
+            <div class="filter-container">
+                <!-- 카테고리 필터 -->
+                <div class="filter-section mb-3">
+                    <h5>카테고리</h5>
+                    <div class="category-options">
+                        {% for category in categories %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="type" value="{{ category.content_type }}" 
+                                   id="category{{ category.content_type }}" 
+                                   {% if category.content_type|stringformat:"s" in selected_types %}checked{% endif %}>
+                            <label class="form-check-label {% if category.content_type|stringformat:"s" in selected_types %}selected{% endif %}" 
+                                   for="category{{ category.content_type }}">
                                 {{ category.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <!-- 지역 필터 -->
-                    <div class="col-md-4">
-                        <label class="form-label">지역</label>
-                        <select name="area" class="form-select">
-                            <option value="">전체</option>
-                            {% for area_item in areas %}
-                            <option value="{{ area_item.code }}"
-                                {% if area_item.code == selected_area %}selected{% endif %}>
-                                {{ area_item.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <!-- 정렬 옵션 -->
-                    <div class="col-md-4">
-                        <label class="form-label">정렬</label>
-                        <select name="sort" class="form-select">
-                            <option value="latest" {% if sort == 'latest' %}selected{% endif %}>최신순</option>
-                            <option value="popular" {% if sort == 'popular' %}selected{% endif %}>인기순</option>
-                        </select>
+                            </label>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-            </form>
-        </div>
+
+                <!-- 지역 필터 -->
+                <div class="filter-section mb-3">
+                    <h5>지역</h5>
+                    <div class="area-options">
+                        {% for area in areas %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="area" value="{{ area.area_code }}" 
+                                   id="area{{ area.area_code }}"
+                                   {% if area.area_code|stringformat:"s" in selected_areas %}checked{% endif %}>
+                            <label class="form-check-label {% if area.area_code|stringformat:"s" in selected_areas %}selected{% endif %}" 
+                                   for="area{{ area.area_code }}">
+                                {{ area.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 정렬 필터 -->
+                <div class="filter-section mb-3">
+                    <h6 class="filter-title">정렬</h6>
+                    <div class="tag-container">
+                        <label class="tag-item {% if sort == 'latest' %}active{% endif %}">
+                            <input type="radio" name="sort" value="latest" 
+                                   {% if sort == 'latest' %}checked{% endif %} 
+                                   class="tag-checkbox">
+                            <span class="tag-text">최신순</span>
+                        </label>
+                        <label class="tag-item {% if sort == 'popular' %}active{% endif %}">
+                            <input type="radio" name="sort" value="popular" 
+                                   {% if sort == 'popular' %}checked{% endif %} 
+                                   class="tag-checkbox">
+                            <span class="tag-text">인기순</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 
     <!-- 검색 결과 -->
-    <div class="row">
+    <div class="grid-container">
         {% if places %}
             {% for place in places %}
-            <div class="col-md-3 mb-4">
-                <div class="card h-100">
-                    <img src="{{ place.thumb_img|default:place.image|default:'/static/images/no-image.jpg' }}" 
-                         class="card-img-top" alt="{{ place.title }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ place.title }}</h5>
-                        <p class="card-text">{{ place.overview|truncatechars:100 }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">{{ place.category.name }}</small>
-                            <small class="text-muted">{{ place.sigungu_code.area_code.name }}</small>
+                {% if place.category.content_type == 15 %}
+                <div class="card event-card">
+                    <a href="{% url 'place:view' place.sigungu_code.area_code.area_code place.place_id %}" class="card-link">
+                        <div class="card-image">
+                            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.image %}{{ place.image }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
                         </div>
-                    </div>
+                        <div class="card-content">
+                            <span class="event-location">{{ place.address }}</span>
+                            <h3 class="card-title">{{ place.title }}</h3>
+                            {% if place.start_time and place.end_time %}
+                            <div class="event-period">
+                                {{ place.start_time|date:"Y.m.d" }} - {{ place.end_time|date:"Y.m.d" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </a>
                 </div>
-            </div>
+                {% else %}
+                <div class="card place-card">
+                    <a href="{% url 'place:view' place.sigungu_code.area_code.area_code place.place_id %}" class="card-link">
+                        <div class="card-image">
+                            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.image %}{{ place.image }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">{{ place.title }}</h3>
+                        </div>
+                    </a>
+                </div>
+                {% endif %}
             {% endfor %}
         {% else %}
-            <div class="col-12 text-center">
-                <p>검색 결과가 없습니다.</p>
-            </div>
+            <p class="text-center mt-5">검색 결과가 없습니다.</p>
         {% endif %}
     </div>
+
+    <!-- 페이지네이션 -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&type={{ selected_types|join:',' }}&area={{ selected_areas|join:',' }}&sort={{ sort }}&page={{ page_obj.previous_page_number }}">&laquo;</a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&type={{ selected_types|join:',' }}&area={{ selected_areas|join:',' }}&sort={{ sort }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&type={{ selected_types|join:',' }}&area={{ selected_areas|join:',' }}&sort={{ sort }}&page={{ page_obj.next_page_number }}">&raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 
 <!-- 검색 페이지 전용 스타일 -->
 <style>
-.search-form {
-    background: #f8f9fa;
-    padding: 20px;
+.search-container {
+    background: white;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 24px;
+}
+
+.filter-container {
+    margin-top: 20px;
+}
+
+.filter-section {
+    margin-bottom: 20px;
+}
+
+.filter-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #f5f5f5;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0;
+    border: 1px solid transparent;
+}
+
+.tag-item:hover {
+    background: #e9ecef;
+}
+
+.tag-item.active {
+    background: #007AFF;
+    color: white;
+}
+
+.tag-checkbox {
+    display: none;
+}
+
+.tag-text {
+    font-size: 14px;
 }
 
 .card {
-    transition: transform 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    cursor: pointer;
 }
 
 .card:hover {
     transform: translateY(-5px);
 }
 
-.card-img-top {
-    height: 200px;
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.card-image {
+    height: 150px;
+    overflow: hidden;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
+
+.card-content {
+    padding: 16px;
+    border-radius: 0 0 10px 10px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.event-location {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.event-period {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.form-check-label.selected {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.form-check {
+    margin-bottom: 8px;
+}
+
+.form-check-input:checked + .form-check-label {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.category-options, .area-options {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.category-options::-webkit-scrollbar, .area-options::-webkit-scrollbar {
+    width: 5px;
+}
+
+.category-options::-webkit-scrollbar-thumb, .area-options::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 5px;
+}
+
+.category-options::-webkit-scrollbar-track, .area-options::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 5px;
+}
 </style>
+
+<!-- 검색 페이지 전용 스크립트 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('searchForm');
+    const tagItems = document.querySelectorAll('.tag-item');
+    
+    // 태그 클릭 이벤트
+    tagItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const checkbox = this.querySelector('input[type="checkbox"], input[type="radio"]');
+            if (checkbox.type === 'checkbox') {
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('active');
+            } else {
+                checkbox.checked = true;
+                // 라디오 버튼의 경우 다른 버튼들의 active 클래스 제거
+                document.querySelectorAll(`input[name="${checkbox.name}"]`).forEach(radio => {
+                    radio.closest('.tag-item').classList.remove('active');
+                });
+                this.classList.add('active');
+            }
+            form.submit();
+        });
+    });
+});
+</script>
 {% endblock %}
