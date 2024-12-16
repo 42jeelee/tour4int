@@ -1,71 +1,80 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block body_class %}local-page{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <!-- 검색 필터 -->
     <div class="search-container mb-4">
-        <form method="GET" action="{% url 'search:search' %}" class="search-form" id="searchForm">
-            <input type="hidden" name="q" value="{{ query }}">
-            
-            <!-- 필터 태그들 -->
-            <div class="filter-container">
-                <!-- 카테고리 필터 -->
-                <div class="filter-section mb-3">
-                    <h5>카테고리</h5>
-                    <div class="category-options">
-                        {% for category in categories %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="type" value="{{ category.content_type }}" 
-                                   id="category{{ category.content_type }}" 
-                                   {% if category.content_type|stringformat:"s" in selected_types %}checked{% endif %}>
-                            <label class="form-check-label {% if category.content_type|stringformat:"s" in selected_types %}selected{% endif %}" 
-                                   for="category{{ category.content_type }}">
-                                {{ category.name }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+        <div class="header__container">
+            <div class="header__container--wrap">
+                <div class="header__container--search-bar">
+                    <form id="searchForm" action="{% url 'search:search' %}" method="GET">
+                        <input type="hidden" name="q" value="{{ query }}">
+                        <input type="hidden" name="sort" value="{{ sort }}">
+                        
+                        <div class="row">
+                            <div class="col-md">
+                                <div class="filter-container">
+                                    <!-- 카테고리 필터 -->
+                                    <div class="filter-section mb-3">
+                                        <div class="filter-title">카테고리</div>
+                                        <div class="tag-container">
+                                            <label class="tag-item {% if 'tour' in selected_types %}active{% endif %}">
+                                                <input type="checkbox" class="tag-checkbox" name="type" value="tour" onclick="this.form.submit()" {% if 'tour' in selected_types %}checked{% endif %}>
+                                                <span class="tag-text">관광지</span>
+                                            </label>
+                                            <label class="tag-item {% if 'event' in selected_types %}active{% endif %}">
+                                                <input type="checkbox" class="tag-checkbox" name="type" value="event" onclick="this.form.submit()" {% if 'event' in selected_types %}checked{% endif %}>
+                                                <span class="tag-text">축제/행사</span>
+                                            </label>
+                                        </div>
+                                    </div>
 
-                <!-- 지역 필터 -->
-                <div class="filter-section mb-3">
-                    <h5>지역</h5>
-                    <div class="area-options">
-                        {% for area in areas %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="area" value="{{ area.area_code }}" 
-                                   id="area{{ area.area_code }}"
-                                   {% if area.area_code|stringformat:"s" in selected_areas %}checked{% endif %}>
-                            <label class="form-check-label {% if area.area_code|stringformat:"s" in selected_areas %}selected{% endif %}" 
-                                   for="area{{ area.area_code }}">
-                                {{ area.name }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+                                    <!-- 지역 필터 -->
+                                    <div class="filter-section mb-3">
+                                        <h6 class="filter-title">지역</h6>
+                                        <div class="tag-container">
+                                            {% for area in areas %}
+                                            <label class="tag-item {% if area.area_code|stringformat:"s" in selected_areas %}active{% endif %}">
+                                                <input type="checkbox" name="area" value="{{ area.area_code }}" 
+                                                       {% if area.area_code|stringformat:"s" in selected_areas %}checked{% endif %} 
+                                                       class="tag-checkbox"
+                                                       onchange="this.form.submit()">
+                                                <span class="tag-text">{{ area.name }}</span>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
 
-                <!-- 정렬 필터 -->
-                <div class="filter-section mb-3">
-                    <h6 class="filter-title">정렬</h6>
-                    <div class="tag-container">
-                        <label class="tag-item {% if sort == 'latest' %}active{% endif %}">
-                            <input type="radio" name="sort" value="latest" 
-                                   {% if sort == 'latest' %}checked{% endif %} 
-                                   class="tag-checkbox">
-                            <span class="tag-text">최신순</span>
-                        </label>
-                        <label class="tag-item {% if sort == 'popular' %}active{% endif %}">
-                            <input type="radio" name="sort" value="popular" 
-                                   {% if sort == 'popular' %}checked{% endif %} 
-                                   class="tag-checkbox">
-                            <span class="tag-text">인기순</span>
-                        </label>
-                    </div>
+                                    <!-- 정렬 필터 -->
+                                    <div class="filter-section mb-3">
+                                        <h6 class="filter-title">정렬</h6>
+                                        <div class="tag-container">
+                                            <label class="tag-item {% if sort == 'latest' %}active{% endif %}">
+                                                <input type="radio" name="sort" value="latest" 
+                                                       {% if sort == 'latest' %}checked{% endif %} 
+                                                       class="tag-checkbox"
+                                                       onclick="document.getElementById('searchForm').submit();">
+                                                <span class="tag-text">최신순</span>
+                                            </label>
+                                            <label class="tag-item {% if sort == 'popular' %}active{% endif %}">
+                                                <input type="radio" name="sort" value="popular" 
+                                                       {% if sort == 'popular' %}checked{% endif %} 
+                                                       class="tag-checkbox"
+                                                       onclick="document.getElementById('searchForm').submit();">
+                                                <span class="tag-text">인기순</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 
     <!-- 검색 결과 -->
@@ -109,7 +118,7 @@
 
     <!-- 페이지네이션 -->
     {% if page_obj.paginator.num_pages > 1 %}
-    <nav aria-label="Page navigation" class="mt-4">
+    <nav aria-label="Page navigation" class="pagination-nav mb-5">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
@@ -156,11 +165,45 @@
     margin-bottom: 20px;
 }
 
+.tag-item {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 4px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: white;
+}
+
+.tag-item:hover {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.tag-item.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.tag-item input[type="checkbox"],
+.tag-item input[type="radio"] {
+    display: none;
+}
+
+.tag-item.active .tag-text {
+    color: white;
+}
+
+.tag-checkbox:checked + .tag-text {
+    color: white;
+}
+
 .filter-title {
     font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .tag-container {
@@ -169,48 +212,19 @@
     gap: 8px;
 }
 
-.tag-item {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
-    background: #f5f5f5;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin: 0;
-    border: 1px solid transparent;
-}
-
-.tag-item:hover {
-    background: #e9ecef;
-}
-
-.tag-item.active {
-    background: #007AFF;
-    color: white;
-}
-
-.tag-checkbox {
-    display: none;
-}
-
-.tag-text {
-    font-size: 14px;
-}
-
 .card {
-    transition: transform 0.2s ease;
-    cursor: pointer;
+    border: none;
+    transition: transform 0.2s;
+    background: none;
 }
 
 .card:hover {
     transform: translateY(-5px);
 }
 
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+.card-link {
+    text-decoration: none;
+    color: inherit;
 }
 
 .card-image {
@@ -236,6 +250,7 @@
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 8px;
+    color: #333;
 }
 
 .event-location {
@@ -248,6 +263,13 @@
     font-size: 14px;
     color: #666;
     margin-bottom: 8px;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
 }
 
 .form-check-label.selected {

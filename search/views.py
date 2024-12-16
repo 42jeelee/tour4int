@@ -23,12 +23,27 @@ def search_view(request):
         )
     
     # 카테고리 필터링
-    if category_types:
-        places = places.filter(category__content_type__in=category_types)
+    selected_types = request.GET.getlist('type')
+    if selected_types:
+        category_conditions = Q()
+        for type_value in selected_types:
+            if type_value == 'tour':
+                category_conditions |= Q(category__content_type__in=[12, 14, 25])
+            elif type_value == 'event':
+                category_conditions |= Q(category__content_type=15)
+        if category_conditions:
+            places = places.filter(category_conditions)
     
     # 지역 필터링
     if area_codes:
-        places = places.filter(sigungu_code__area_code__code__in=area_codes)
+        # 쉼표로 구분된 문자열이 있을 경우 분리
+        area_list = []
+        for area_code in area_codes:
+            if ',' in area_code:
+                area_list.extend(area_code.split(','))
+            else:
+                area_list.append(area_code)
+        places = places.filter(sigungu_code__area_code__area_code__in=area_list)
     
     # 썸네일 있는 글과 없는 글 구분
     places = places.annotate(
@@ -42,21 +57,26 @@ def search_view(request):
     
     # 정렬
     if sort == 'popular':
-        places = places.annotate(likes_count=Count('likes')).order_by('-has_thumbnail', '-likes_count', '-created_at')
+        places = places.annotate(likes_count=Count('likes')).order_by('-has_thumbnail', '-likes_count', '-place_id')
     else:  # 기본값: latest
-        places = places.order_by('-has_thumbnail', '-created_at')
+        places = places.order_by('-has_thumbnail', '-place_id')
     
     # 페이지네이션
     paginator = Paginator(places, 15)  # 페이지당 15개씩 표시
     page_obj = paginator.get_page(page)
     
     # 필터 옵션 데이터
-    categories = Category.objects.all()
+    categories = [
+        {'content_type': 'tour', 'name': '관광지'},
+        {'content_type': 'event', 'name': '축제/행사'}
+    ]
     areas = AreaCode.objects.all()
     
     # 선택된 필터 값들
-    selected_types = request.GET.getlist('type')
     selected_areas = request.GET.getlist('area')
+    
+    # 배너 이미지 추가
+    banner_images = ['images/banners/main_1.jpg', 'images/banners/main_2.jpg', 'images/banners/main_3.jpg']
     
     context = {
         'places': page_obj,
@@ -67,6 +87,7 @@ def search_view(request):
         'query': query,
         'sort': sort,
         'page_obj': page_obj,
+        'banner_images': banner_images,  # 배너 이미지 추가
     }
     
     return render(request, 'search/search.html', context)
