@@ -2,12 +2,13 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from areacode.models import SigunguCode, AreaCode
-from place.models import Place
+from place.models import Place, Like
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 import os
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 logger = logging.getLogger(__name__)
 from api import views
@@ -53,6 +54,16 @@ def view(request, areacode, content_id):
     range_offset = 0.004
     content_data = Place.objects.filter(place_id=content_id)
 
+    banner_images = []
+    for i in range(1, 4):
+        image_path = f'images/banners/local_{areacode}_{i}.jpg'
+        if os.path.exists(os.path.join(settings.STATIC_ROOT or os.path.join(settings.BASE_DIR, 'static'), image_path)):
+            banner_images.append(image_path)
+
+    area_name = AreaCode.objects.get(area_code=areacode).name
+    context['area_name'] = area_name
+    context['banner_images'] = banner_images
+
     if len(content_data):
         # 조회수 관련 로직 추가
         cookie_name = f'place_view_{content_id}'
@@ -84,6 +95,18 @@ def view(request, areacode, content_id):
                 print(e)
                 return render(request, '404.html', status=404)
 
+    # 좋아요 추가
+    user = request.user
+    if user.is_authenticated:
+        like = Like.objects.filter(user=user, place=content_data[0])
+        print(like)
+        if like:
+            context['like'] = True
+        else:
+            context['like'] = False
+    else:
+        context['like'] = False
+
     response = render(request, 'view.html', context)
 
     # 쿠키가 없었을 경우에만 새 쿠키 설정
@@ -92,6 +115,18 @@ def view(request, areacode, content_id):
         response.set_cookie(cookie_name, 'viewed', expires=expires)
 
     return response
+
+def like_content(request, content_id):
+    place = get_object_or_404(Place, place_id=content_id)
+    user = request.user
+    if user.is_authenticated:
+        like, created = Like.objects.get_or_create(place=place, user=user)
+        if not created:
+            # 이미 좋아요를 눌렀다면 취소
+            like.delete()
+            return JsonResponse({'liked': False, 'like_count': place.like_count})
+
+    return JsonResponse({'liked': True, 'like_count': place.like_count})
 
 def local_list(request, areacode):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'

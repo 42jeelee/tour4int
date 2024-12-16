@@ -76,7 +76,7 @@
                                     <th>파일이름</th>
                                     <th>미리보기</th>
                                     <th>파일경로</th>
-                                    <th>활성화 여부</th>
+                                    <th>배너 추가</th>
                                     <th>삭제</th>
                                 </tr>
                             </thead>
@@ -86,7 +86,7 @@
                                     <td>{{ banner.name }}</td>
                                     <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
                                     <td>{{ banner.path }}</td>
-                                    <td><button>활성화</button></td>
+                                    <td><button id='add_banner'>추가</button></td>
                                     <td><button class="delete-btn" data-id="{{ forloop.counter }}">삭제</button></td>
                                 </tr>
                                 {% endfor %}
@@ -106,17 +106,17 @@
                                     <th>미리보기</th>
                                     <th>파일경로</th>
                                     <th>활성화 여부</th>
-                                    <th>저장</th>
+                                    <th>수정</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id='act_list'>
                                 {% for banner in banners_active %}
-                                <tr>
-                                    <td>{{ banner.name }}</td>
+                                <tr id='act_{{banner.id}}'>
+                                    <td>{{ banner.title }}</td>
                                     <td><img src="/static/{{ banner.path }}" style="width: 30px; height: 30px;" alt="Banner Image"></td>
                                     <td>{{ banner.path }}</td>
-                                    <td><button type='checkbox'></button></td>
-                                    <td><button>저장</button></td>
+                                    <td><input type='checkbox' {% if banner.is_active %} checked {% endif %}></td>
+                                    <td><button id='modibanner'>수정</button></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

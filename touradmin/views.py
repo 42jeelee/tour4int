@@ -32,7 +32,8 @@ def image_upload(request):
         # 이미지 경로를 딕셔너리 형태로 반환
         image_info = {
             "name": uploaded_file.name,
-            "path": file_url
+            "path": file_url,
+            "path2": file_url[file_url.find('/', 1)+1:]
         }
 
         return JsonResponse({"success": True, "image": image_info})
@@ -42,25 +43,64 @@ def image_upload(request):
 # 이미지 삭제
 def delete_image(request):
     banner_id = request.POST.get('bannerId')
-    # 해당 배너 이미지 객체를 가져옵니다
-    # banner = get_object_or_404(BannerImage, id=banner_id)
+    title = request.POST.get('title')
 
     # 이미지 파일 경로를 가져와 삭제합니다
     image_path = os.path.join(settings.BASE_DIR, 'static', banner_id)
     
     try:
         # 파일 삭제
-        print(os.path.exists(image_path))
         if os.path.exists(image_path):
-            print(image_path)
-            os.remove(image_path)
-        
-        # 데이터베이스에서 배너 이미지 삭제
-        # banner_id.delete()
+          os.remove(image_path)
+          db = BannerImage.objects.filter(title=title)
+          if db:
+            db[0].delete()
         
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+# 배너 db추가
+def add_banner(request):
+  content= {}
+  content['success'] = False
+  title = request.POST.get('title')
+  path = request.POST.get('path')
+  data = BannerImage.objects.filter(title=title, path=path, is_active=False)
+  if data:
+    data[0].is_active = True
+    content['data'] = serializers.serialize('json', [data[0]])
+    content['success'] = True
+  else:
+    data = BannerImage.objects.create(title=title, path=path, is_active=True)
+    content['data'] = serializers.serialize('json', [data])
+    content['success'] = True
+  return JsonResponse(content)
+
+# 배너 활성화
+def modi_banner(request):
+  content = {}
+  content['success'] = False
+  bno = request.POST.get('id')
+  bno = bno[4:]
+  check = request.POST.get('check')
+  print(bno, type(check))
+  if check == 'true':
+    data = BannerImage.objects.get(id=bno)
+    data.is_active = True
+    content['success'] = True
+    content['check'] = True
+    data.save()
+  else:
+    data = BannerImage.objects.get(id=bno)
+    data.is_active = False
+    content['success'] = True
+    content['check'] = False
+    data.save()
+
+  return JsonResponse(content)
+
+
 
 # Create your views here.
 def touradmin(request):
@@ -117,7 +157,7 @@ def get_view(request):
       content['result'] = "success"
       content['view'] = serializers.serialize('json', [content_data])
     else:
-      overview = api.get_place_info(content_id)
+      overview = api.get_place_common_info(content_id)
       content_data.overview = overview['overview']
       content_data.homepage_url = overview['homepage']
       content_data.is_detail = True
@@ -158,8 +198,11 @@ def get_user_view(request):
   if request.method == "POST":
     email = request.POST.get('email')
     user = User.objects.filter(email=email)
-    content['result'] = 'success'
-    content['view'] = serializers.serialize('json', [user[0]])
+    if user:
+      content['result'] = 'success'
+      content['view'] = serializers.serialize('json', [user[0]])
+    else:
+      content['result'] = 'fail'
   return JsonResponse(content)
 
 def update_user(request):

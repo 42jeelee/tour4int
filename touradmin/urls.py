@@ -13,4 +13,6 @@ urlpatterns = [
     path('update_user/', views.update_user, name='update_user'),
     path('upload-image/', views.image_upload, name='upload_image'),
     path('delete-image/', views.delete_image, name='delete_image'),
+    path('add_banner/', views.add_banner, name='add_banner'),
+    path('modi_banner/', views.modi_banner, name='modi_banner'),
 ]
