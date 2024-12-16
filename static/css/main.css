@@ -2,3 +2,9 @@ main {
   width: 100%;
   min-width: 1340px;
 }
+
+main > div.wrap{
+  width: 1200px;
+  display: flex;
+  justify-content: center;
+}
