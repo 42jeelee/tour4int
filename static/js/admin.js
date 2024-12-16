@@ -322,12 +322,13 @@ $(document).on('click', '.delete-btn', function(){
   let csrfToken = $('meta[name=csrf_token]').attr('content')
   var bannerId = $(this).closest('tr').attr('id');  // 삭제할 배너 ID를 가져옵니다
   var bannerpath = $(this).closest('tr').children().eq(2).text();  // 패스
+  var bannertitle = $(this).closest('tr').children().eq(0).text();  // title
   // 사용자에게 확인을 요청
   if (confirm('정말로 이 배너 이미지를 삭제하시겠습니까?')) {
       $.ajax({
           headers:{'X-CSRFToken':csrfToken},
           url: '/touradmin/delete-image/',  // 삭제할 이미지의 ID를 URL에 추가
-          data: {'bannerId':bannerpath},
+          data: {'bannerId':bannerpath, 'title':bannertitle},
           type: 'POST',
           success: function(response) {
               if (response.success) {

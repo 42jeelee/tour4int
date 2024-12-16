@@ -43,6 +43,7 @@ def image_upload(request):
 # 이미지 삭제
 def delete_image(request):
     banner_id = request.POST.get('bannerId')
+    title = request.POST.get('title')
 
     # 이미지 파일 경로를 가져와 삭제합니다
     image_path = os.path.join(settings.BASE_DIR, 'static', banner_id)
@@ -50,8 +51,10 @@ def delete_image(request):
     try:
         # 파일 삭제
         if os.path.exists(image_path):
-            print(image_path)
-            os.remove(image_path)
+          os.remove(image_path)
+          db = BannerImage.objects.filter(title=title)
+          if db:
+            db[0].delete()
         
         return JsonResponse({'success': True})
     except Exception as e:
@@ -116,7 +119,7 @@ def touradmin(request):
     'AreaCodes': AreaCode.objects.filter(),
     'events': Place.objects.filter(category__content_type = 15),
     'banners': image_files,
-    'banners_active' : BannerImage.objects.all().order_by('-id')
+    'banners_active' : BannerImage.objects.all()
   }
   return render(request, 'touradmin.html', context)
 
@@ -197,8 +200,11 @@ def get_user_view(request):
   if request.method == "POST":
     email = request.POST.get('email')
     user = User.objects.filter(email=email)
-    content['result'] = 'success'
-    content['view'] = serializers.serialize('json', [user[0]])
+    if user:
+      content['result'] = 'success'
+      content['view'] = serializers.serialize('json', [user[0]])
+    else:
+      content['result'] = 'fail'
   return JsonResponse(content)
 
 
