@@ -201,15 +201,12 @@
 }
 
 div.near_tap {
-  display: flex;
+  display: block;
   border-bottom: 1px solid #858585;
-  height: 44px;
-}
-
-div.near_tap > a.near_btn{
-  flex: 1 0;
+  height: 30px;
   padding: 0 15px;
   text-align: center;
+  color: #267bca;
 }
 
 div.near_tap > a.near_btn.active > span:before {

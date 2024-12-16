@@ -43,7 +43,7 @@
 
 {% block body_class %}{% endblock %}
 
-<article class='wrap'>
+<article>
 
   <div class='view_wrap'>
 
@@ -203,74 +203,40 @@
 
           <script src="{% static 'js/view.js' %}"></script>
         <div class='near_map'>
-          
           <div class='near_tap'>
-            <a href='#tap1' class='near_btn active' name='btn_tap'>
-              <span>주변 관광지</span>
-            </a>
+            주변 관광지
           </div>
-          <div id='tap1' class="tap_body active">
-            <ul>
-              {% if len != 1 %}
-                {% for aro in around %}
-                  {% if data.title != aro.title %}
-                    <li class='item'>
-                      <div class='near_photo'>
-                        {% if aro.thumb_img != '' %}
-                        <img src="{{aro.thumb_img}}">
-                        {% else %}
-                        <img src="{% static "images/no-image.jpg" %}">
-                        {% endif %}
-                      </div>
-                      <div class='cont'>
-                        <div class='near_subject'>{{aro.title}}</div>
-                        <div class='near_tel'>{{aro.tel}}</div>
-                        <div class='near_address'>{{aro.address}}</div>
-                        <a href='/place/local/{{aro.sigungu_code.area_code.area_code}}/view/{{aro.place_id}}' class='near_more'>자세히 보기</a>
-                      </div>
-                    </li>
-                  {% endif %}
-                {% endfor %}
-              {% else %}
-              <li class='item'>
-                <div class='cont'>
-                인근 관광지가 없습니다.
-                </div>
-              </li>
-              {% endif %}
-            </ul>
-          </div>
-
-          <div id='tap2' class='tap_body'>
-            <ul>
-              <li class='item'>
-                <div class='near_photo'>
-                  <img src="{% static "images/test-image/near_photo.do" %}">
-                </div>
-                <div class='cont'>
-                  <div class='near_subject'>계양꽃마루222</div>
-                  <div class='near_tel'>032-450-5653(공원녹지과녹지조경팀)</div>
-                  <a href='#' class='near_more'>자세히 보기</a>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          <div id='tap3' class='tap_body'>
-            <ul>
-              <li class='item'>
-                <div class='near_photo'>
-                  <img src="{% static "images/test-image/near_photo.do" %}">
-                </div>
-                <div class='cont'>
-                  <div class='near_subject'>계양꽃마루333</div>
-                  <div class='near_tel'>032-450-5653(공원녹지과녹지조경팀)</div>
-                  <a href='#' class='near_more'>자세히 보기</a>
-                </div>
-              </li>
-            </ul>
-          </div>
-
+            <div id='tap1'>
+              <ul>
+                {% if len != 1 %}
+                  {% for aro in around %}
+                    {% if data.title != aro.title %}
+                      <li class='item'>
+                        <div class='near_photo'>
+                          {% if aro.thumb_img != '' %}
+                          <img src="{{aro.thumb_img}}">
+                          {% else %}
+                          <img src="{% static "images/no-image.jpg" %}">
+                          {% endif %}
+                        </div>
+                        <div class='cont'>
+                          <div class='near_subject'>{{aro.title}}</div>
+                          <div class='near_tel'>{{aro.tel}}</div>
+                          <div class='near_address'>{{aro.address}}</div>
+                          <a href='/place/local/{{aro.sigungu_code.area_code.area_code}}/view/{{aro.place_id}}' class='near_more'>자세히 보기</a>
+                        </div>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <li class='item'>
+                    <div class='cont'>
+                    인근 관광지가 없습니다.
+                    </div>
+                  </li>
+                {% endif %}
+              </ul>
+            </div>
         </div>  <!-- //near_map -->
       </div>
     </div>
