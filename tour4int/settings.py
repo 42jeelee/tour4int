@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'accounts.apps.AccountsConfig',
     'touradmin.apps.TouradminConfig',
+    'search.apps.SearchConfig',
 ]
 
 MIDDLEWARE = [
