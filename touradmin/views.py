@@ -157,7 +157,7 @@ def get_view(request):
       content['result'] = "success"
       content['view'] = serializers.serialize('json', [content_data])
     else:
-      overview = api.get_place_info(content_id)
+      overview = api.get_place_common_info(content_id)
       content_data.overview = overview['overview']
       content_data.homepage_url = overview['homepage']
       content_data.is_detail = True
