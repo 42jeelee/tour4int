@@ -99,3 +99,10 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} likes {self.place.title}"
+    
+class Views(models.Model):
+    place = models.ForeignKey('Place', on_delete=models.CASCADE)  # Place 모델과의 관계 설정
+    count = models.PositiveIntegerField(default=0)  # 조회수를 저장할 필드
+
+    def __str__(self):
+        return f"{self.place.name} - {self.count}"
