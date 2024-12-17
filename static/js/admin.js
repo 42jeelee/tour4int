@@ -401,6 +401,7 @@ $(document).on('click', '#add_banner', function(){
                   '<td>' + image_title + '</td>' +
                   '<td><img src="' + image_path + '" style="width: 30px; height: 30px;" alt="Banner Image"></td>' +
                   '<td>' + image_path + '</td>' +
+                  '<td><input type="checkbox" checked ></td>' +
                   '<td><button id="deactive_banner">비활성화</button></td>' +
                 '</tr>'
               )

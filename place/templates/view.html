@@ -3,6 +3,8 @@
 {% block content %}
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b53d3e95e27811083b5ac0f850526bb3"></script>
 <meta name='csrf_token' content='{{csrf_token}}'>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 {% block body_class %}{% endblock %}
 
 <article>
@@ -65,7 +67,6 @@
         <p>{{data.overview}}</p>
       </div>
     </div>
-
     <div id='guide' class='section'>
       <h3>이용정보</h3>
       <table class='table'>
@@ -75,17 +76,388 @@
         </colgroup>
         <tbody>
           {% for label, value in display_fields %}
-            <tr>
-                <th scope='row'>{{ label }}</th>
-                <td>{{ value }}</td>
+          <tr>
+            <th scope='row'>{{ label }}</th>
+            <td>{{ value }}</td>
             </tr>
-          {% empty %}
-              <tr><td colspan="2">데이터가 없습니다.</td></tr>
-          {% endfor %}
-      </tbody>
-      </table>
+            {% empty %}
+            <tr><td colspan="2">데이터가 없습니다.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+    <!-- 댓글 -->
+    <div id='comment' class='section'>
+      <h3>댓글정보</h3>
+      <!-- 표 -->
+      {% if stats %}
+      <canvas id="commentsChart" 
+        data-stats='{
+            "stroller_rental": {{ stats.stroller_rental|floatformat:2 }},
+            "credit_card": {{ stats.credit_card|floatformat:2 }},
+            "pet_friendly": {{ stats.pet_friendly|floatformat:2 }},
+            "parking": {{ stats.parking|floatformat:2 }},
+            "restroom": {{ stats.restroom|floatformat:2 }},
+            "elevator": {{ stats.elevator|floatformat:2 }},
+            "wheelchair_path": {{ stats.wheelchair_path|floatformat:2 }},
+            "wheelchair_rental": {{ stats.wheelchair_rental|floatformat:2 }}
+        }'>
+      </canvas>
+      {% else %}
+      <p>데이터가 없습니다.</p>
+      {% endif %}
+      <hr>
+      <div id="comment-list-container">
+        <ul id="comment-list"></ul>
+        <div id="pagination-controls" class="pagination">
+          <span class='step-links'>  
+            <button id="prev-page" class='pagination-link' disabled>이전</button>
+            <span id="current-page" class="page-number">1</span>
+            <button id="next-page" class="pagination-link" disabled>다음</button>
+            <button id="open-comment-modal">글쓰기</button>
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- 글 작성 모달 -->
+    <div id="comment-modal" class="modal">
+      <div class="modal-content">
+        <span id="close-comment-modal" class="close">&times;</span>
+        <h3 id='comment-main-title'>댓글 작성</h3>
+        <h3 id='modi-main-title'>댓글 수정</h3>
+        <div id="commentForm" method="POST">
+          <div class="form-group">
+            <label id='modal-subtitle' for="content">내용</label>
+            <textarea id="content" name="content" rows="4" placeholder="댓글 내용을 입력하세요..." required></textarea>
+          </div>
+    
+          <!-- 체크박스 그룹 -->
+          <div class="form-group">
+            <label id='checkbox_label'>시설 정보</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" name="stroller_rental" id='stroller_rental'> 유모차 대여</label>
+              <label><input type="checkbox" name="credit_card" id='credit_card'> 신용카드 사용 가능</label>
+              <label><input type="checkbox" name="pet_friendly" id='pet_friendly'> 애완동물 동반 가능</label>
+              <label><input type="checkbox" name="parking" id='parking'> 주차 시설</label>
+              <label><input type="checkbox" name="restroom" id='restroom'> 화장실</label>
+              <label><input type="checkbox" name="elevator" id='elevator'> 엘리베이터</label>
+              <label><input type="checkbox" name="wheelchair_path" id='wheelchair_path'> 휠체어 통로</label>
+              <label><input type="checkbox" name="wheelchair_rental" id='wheelchair_rental'> 휠체어 대여</label>
+            </div>
+          </div>
+    
+          <button class="btn-submit" id='comment-submit'>댓글 작성</button>
+          <button class="btn-submit" id='modi-submit'>댓글 수정</button>
+        </div>
+      </div>
     </div>
 
+    <script>
+      // 댓글 불러오기
+      document.addEventListener('DOMContentLoaded', function () {
+        const placeId = {{data.place_id}};
+        const isAdmin = {{ user.is_superuser|yesno:"true,false" }}; // 관리자 여부
+        const currentUserId = '{{ user.email }}'; // 현재 사용자 ID
+        let currentPage = 1;
+        var modi_commentId;
+    
+        function fetchComments(page) {
+            fetch(`/place/comments/${placeId}/?page=${page}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch comments');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderComments(data.comments);
+                    updatePaginationControls(data.has_previous, data.has_next, data.page_number, data.total_pages);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    
+        function renderComments(comments) {
+            const commentList = document.getElementById('comment-list');
+            commentList.innerHTML = ''; // 기존 댓글 제거
+            comments.forEach(comment => {
+                const li = document.createElement('li');
+                li.className = 'comment-item';
+    
+                // 기본 댓글 내용
+                li.innerHTML = `
+                    -- <strong class="comment-user">${comment.user}</strong> --
+                    <br>
+                    <span class="comment-content">${comment.content}</span>
+                    <br>
+                    <small class="comment-time">${comment.created_at}</small>
+                `;
+    
+                // 버튼 컨테이너
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'comment-actions';
+    
+                // 작성자: 수정 및 삭제 버튼
+                console.log(comment.user_id)
+                console.log(currentUserId)
+                if (comment.user_id === currentUserId) {
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn-edit';
+                    editButton.innerText = '수정';
+                    editButton.addEventListener('click', () => editComment(comment.id));
+                    if(isAdmin == false){
+                      const deleteButton = document.createElement('button');
+                      deleteButton.className = 'btn-delete';
+                      deleteButton.innerText = '삭제';
+                      deleteButton.addEventListener('click', () => deleteComment(comment.id));
+                      buttonContainer.appendChild(deleteButton);
+                    }
+                    buttonContainer.appendChild(editButton);
+                }
+    
+                // 관리자: 삭제 버튼
+                if (isAdmin) {
+                    const adminDeleteButton = document.createElement('button');
+                    adminDeleteButton.className = 'btn-delete-admin';
+                    adminDeleteButton.innerText = '삭제-관리자';
+                    adminDeleteButton.addEventListener('click', () => deleteComment(comment.id));
+    
+                    buttonContainer.appendChild(adminDeleteButton);
+                }
+    
+                li.appendChild(buttonContainer);
+                commentList.appendChild(li);
+            });
+        }
+    
+        function updatePaginationControls(hasPrevious, hasNext, pageNumber, totalPages) {
+            document.getElementById('prev-page').disabled = !hasPrevious;
+            document.getElementById('next-page').disabled = !hasNext;
+            document.getElementById('current-page').innerText = `${pageNumber} / ${totalPages}`;
+            currentPage = pageNumber;
+        }
+        // 수정 데이터 불러오기
+        function editComment(commentId) {
+          modi_commentId = commentId
+          fetch(`/place/comments/modify/${commentId}/`, {
+            method: 'GET',
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  let viewData = JSON.parse(data.data)
+
+                  // 모달에 기존 데이터 채우기
+                  document.getElementById('content').value = viewData[0].fields.content;
+                  document.getElementById('stroller_rental').checked = viewData[0].fields.stroller_rental;
+                  document.getElementById('credit_card').checked = viewData[0].fields.credit_card;
+                  document.getElementById('pet_friendly').checked = viewData[0].fields.pet_friendly;
+                  document.getElementById('parking').checked = viewData[0].fields.parking;
+                  document.getElementById('restroom').checked = viewData[0].fields.restroom;
+                  document.getElementById('elevator').checked = viewData[0].fields.elevator;
+                  document.getElementById('wheelchair_path').checked = viewData[0].fields.wheelchair_path;
+                  document.getElementById('wheelchair_rental').checked = viewData[0].fields.wheelchair_rental;
+
+                  // 모달 표시
+                  document.getElementById('comment-modal').style.display = 'block';
+                  document.getElementById('modi-submit').style.display = 'block';
+                  document.getElementById('modi-main-title').style.display = 'block';
+                  // document.getElementById('comment-submit').setAttribute('id', 'modi-btn');
+
+                  // 수정된 댓글을 제출할 때 기존 댓글 ID도 함께 보내기
+                  const commentSubmitButton = document.getElementById('comment-submit');
+                  commentSubmitButton.onclick = function() {
+                      updateComment(commentId);
+                  };
+                  } else {
+                      alert('댓글 정보를 불러오는 데 실패했습니다.');
+                  }
+              })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('댓글 정보를 불러오는 데 오류가 발생했습니다.');
+          });
+
+        }
+    
+        // 수정 데이터 전송하기
+        $(document).on('click', '#modi-submit', function(){
+          const content = $('#content').val(); // 댓글 내용 가져오기
+          const facilities = {
+            stroller_rental: $('#stroller_rental').prop('checked'),
+            credit_card: $('#credit_card').prop('checked'),
+            pet_friendly: $('#pet_friendly').prop('checked'),
+            parking: $('#parking').prop('checked'),
+            restroom: $('#restroom').prop('checked'),
+            elevator: $('#elevator').prop('checked'),
+            wheelchair_path: $('#wheelchair_path').prop('checked'),
+            wheelchair_rental: $('#wheelchair_rental').prop('checked'),
+          };
+          if (!content.trim()) {
+            alert('댓글 내용을 입력하세요.');
+            return;
+          }
+          fetch(`/place/comments/modify/${modi_commentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}', // CSRF 토큰 추가
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: content,
+                facilities: facilities,
+                place_id: placeId, // 체크된 시설 정보 전달
+            }),
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('댓글 수정에 실패했습니다.');
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data.success) {
+                  fetchComments(currentPage); // 댓글 새로고침
+                  $('#content').val(''); // 입력 필드 초기화
+                  alert('댓글이 수정되었습니다.');
+                  $('#modi-submit').hide(); // 버튼 숨김
+                  $('#comment-modal').hide(); // 모달 닫기
+                  $('#comemnt-main-title').hide(); // 메인타이틀 숨기기
+              } else {
+                  alert('댓글 수정에 실패했습니다.');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('댓글 수정 중 오류가 발생했습니다.');
+          });
+
+        })
+
+        // 글 삭제
+        function deleteComment(commentId) {
+            if (confirm('정말 이 댓글을 삭제하시겠습니까?')) {
+                fetch(`/place/comments/delete/${commentId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}', // CSRF 토큰 추가
+                    },
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to delete comment');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            fetchComments(currentPage); // 댓글 새로고침
+                        } else {
+                            alert('댓글 삭제에 실패했습니다.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        }
+        // 글 작성
+        $(document).on('click', '#comment-submit', function(){
+          const content = $('#content').val(); // 댓글 내용 가져오기
+          const facilities = {
+            stroller_rental: $('#stroller_rental').prop('checked'),
+            credit_card: $('#credit_card').prop('checked'),
+            pet_friendly: $('#pet_friendly').prop('checked'),
+            parking: $('#parking').prop('checked'),
+            restroom: $('#restroom').prop('checked'),
+            elevator: $('#elevator').prop('checked'),
+            wheelchair_path: $('#wheelchair_path').prop('checked'),
+            wheelchair_rental: $('#wheelchair_rental').prop('checked'),
+          };
+          if (!content.trim()) {
+            alert('댓글 내용을 입력하세요.');
+            return;
+          }
+          fetch('/place/comments/wirte/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}', // CSRF 토큰 추가
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: content,
+                facilities: facilities,
+                place_id: placeId, // 체크된 시설 정보 전달
+            }),
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('댓글 작성에 실패했습니다.');
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data.success) {
+                  fetchComments(currentPage); // 댓글 새로고침
+                  $('#content').val(''); // 입력 필드 초기화
+                  alert('댓글이 작성되었습니다.');
+                  $('#comment-modal').hide(); // 모달 닫기
+              } else {
+                  alert('댓글 작성에 실패했습니다.');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('댓글 작성 중 오류가 발생했습니다.');
+          });
+
+        })
+    
+        // 이벤트 리스너
+        document.getElementById('prev-page').addEventListener('click', function () {
+            if (currentPage > 1) {
+                fetchComments(currentPage - 1);
+            }
+        });
+    
+        document.getElementById('next-page').addEventListener('click', function () {
+            fetchComments(currentPage + 1);
+        });
+    
+        // 초기 댓글 로드
+        fetchComments(currentPage);
+      });
+
+      // 모달 열기 및 닫기 스크립트
+      document.getElementById("open-comment-modal").addEventListener("click", function () {
+        document.getElementById("comment-modal").style.display = "block";
+        document.getElementById('comment-submit').style.display = 'block';
+        document.getElementById('comment-main-title').style.display = 'block';
+      });
+
+      document.getElementById("close-comment-modal").addEventListener("click", function () {
+        document.getElementById("comment-modal").style.display = "none";
+        document.getElementById('comment-submit').style.display = 'none';
+        document.getElementById('modi-submit').style.display = 'none';
+        document.getElementById('comment-main-title').style.display = 'none';
+        document.getElementById('modi-main-title').style.display = 'none';
+      });
+
+      window.addEventListener("click", function (event) {
+        const modal = document.getElementById("comment-modal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+          document.getElementById('comment-submit').style.display = 'none';
+          document.getElementById('modi-submit').style.display = 'none';
+          document.getElementById('comment-main-title').style.display = 'none';
+          document.getElementById('modi-main-title').style.display = 'none';
+        }
+      });
+    </script>
+    
+    <!-- 덧글 여기 까지-->
     <div id='tour_list' class='section'>
       <h3>주변 관광지</h3>
       <div class='map_wrap'>
@@ -164,38 +536,72 @@
 
           <script src="{% static 'js/view.js' %}"></script>
         <div class='near_map'>
-          <div class='near_tap'></div>
-            <div id='tap1'>
-              <ul>
-                {% if len != 1 %}
-                  {% for aro in around %}
-                    {% if data.title != aro.title %}
-                      <li class='item'>
-                        <div class='near_photo'>
-                          {% if aro.thumb_img != '' %}
-                          <img src="{{aro.thumb_img}}">
-                          {% else %}
-                          <img src="{% static "images/no-image.jpg" %}">
-                          {% endif %}
-                        </div>
-                        <div class='cont'>
-                          <div class='near_subject'>{{aro.title}}</div>
-                          <div class='near_tel'>{{aro.tel}}</div>
-                          <div class='near_address'>{{aro.address}}</div>
-                          <a href='/place/local/{{aro.sigungu_code.area_code.area_code}}/view/{{aro.place_id}}' class='near_more'>자세히 보기</a>
-                        </div>
-                      </li>
-                    {% endif %}
-                  {% endfor %}
-                {% else %}
-                  <li class='item'>
-                    <div class='cont'>
-                    인근 관광지가 없습니다.
-                    </div>
-                  </li>
-                {% endif %}
-              </ul>
-            </div>
+          
+          <div class='near_tap'>
+
+          </div>
+          <div id='tap1' class="tap_body active">
+            <ul>
+              {% if len != 1 %}
+                {% for aro in around %}
+                  {% if data.title != aro.title %}
+                    <li class='item'>
+                      <div class='near_photo'>
+                        {% if aro.thumb_img != '' %}
+                        <img src="{{aro.thumb_img}}">
+                        {% else %}
+                        <img src="{% static "images/no-image.jpg" %}">
+                        {% endif %}
+                      </div>
+                      <div class='cont'>
+                        <div class='near_subject'>{{aro.title}}</div>
+                        <div class='near_tel'>{{aro.tel}}</div>
+                        <div class='near_address'>{{aro.address}}</div>
+                        <a href='/place/local/{{aro.sigungu_code.area_code.area_code}}/view/{{aro.place_id}}' class='near_more'>자세히 보기</a>
+                      </div>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+              <li class='item'>
+                <div class='cont'>
+                인근 관광지가 없습니다.
+                </div>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <div id='tap2' class='tap_body'>
+            <ul>
+              <li class='item'>
+                <div class='near_photo'>
+                  <img src="{% static "images/test-image/near_photo.do" %}">
+                </div>
+                <div class='cont'>
+                  <div class='near_subject'>계양꽃마루222</div>
+                  <div class='near_tel'>032-450-5653(공원녹지과녹지조경팀)</div>
+                  <a href='#' class='near_more'>자세히 보기</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div id='tap3' class='tap_body'>
+            <ul>
+              <li class='item'>
+                <div class='near_photo'>
+                  <img src="{% static "images/test-image/near_photo.do" %}">
+                </div>
+                <div class='cont'>
+                  <div class='near_subject'>계양꽃마루333</div>
+                  <div class='near_tel'>032-450-5653(공원녹지과녹지조경팀)</div>
+                  <a href='#' class='near_more'>자세히 보기</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+
         </div>  <!-- //near_map -->
       </div>
     </div>
@@ -204,41 +610,7 @@
 
 </article>
 <script>
-  document.querySelectorAll('.like-button').forEach(button => {
-    button.addEventListener('click', function () {
-        const postId = this.getAttribute('data-post-id');
-        const isLiked = this.getAttribute('data-liked') === 'true';
 
-        // 버튼 클릭 시 비활성화 (중복 클릭 방지)
-        this.disabled = true;
-
-        fetch(`/place/like/${postId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken = $('meta[name=csrf_token]').attr('content'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ liked: !isLiked })
-        })
-        .then(response => response.json())
-        .then(data => {
-            this.textContent = data.liked ? '좋아요 취소' : '좋아요';
-            this.setAttribute('data-liked', data.liked);
-            document.querySelector(`#like-count`).textContent = `${data.like_count}명이 좋아요를 눌렀습니다.`;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('좋아요 처리 중 오류가 발생했습니다.');
-        })
-        .finally(() => {
-            // 버튼 클릭 후 비활성화 해제
-            this.disabled = false;
-        });
-    });
-  });
-  $('.not_login').click(function(){
-    alert('좋아요는 로그인을 하셔야 합니다.')
-  })
 </script>
 
 {% endblock content %}  
