@@ -130,6 +130,10 @@
   letter-spacing: 0.2px;
 }
 
+.cont_wrap > p{
+  padding: 0 40px;
+}
+
 
 /* 이용안내 */
 #guide{
