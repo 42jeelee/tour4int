@@ -48,6 +48,10 @@ class User(AbstractBaseUser, PermissionsMixin):
                 if len(place_ids) > 10: place_ids.pop()
 
                 self.place_history = ','.join(place_ids)
+            else:
+                place_ids.remove(place_id)
+                place_ids.insert(0, place_id)
+                self.place_history = ','.join(place_ids)
         else:
             self.place_history = place_id
 
