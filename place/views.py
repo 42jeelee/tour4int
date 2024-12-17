@@ -78,7 +78,12 @@ def view(request, areacode, content_id):
             map_y__gte=float(content_place.map_y) - range_offset,
             map_y__lte=float(content_place.map_y) + range_offset
         )
-        context['around'] = around_data  # 주변 데이터를 컨텍스트에 추가
+                # 주변 데이터가 있을 경우
+        if around_data.exists():
+            context['around'] = around_data  # 주변 데이터를 컨텍스트에 추가
+            context['len'] = len(around_data)  # 주변 데이터 길이 추가
+        else:
+            context['around'] = []  # 데이터가 없으면 빈 리스트로 처리
 
         if content_place.is_detail:
             context['result'] = "success"
@@ -100,7 +105,6 @@ def view(request, areacode, content_id):
     # 좋아요 추가
     user = request.user
     if user.is_authenticated:
-        user.add_place_history(content_id)
         like = Like.objects.filter(user=user, place=content_place)
         context['like'] = like.exists()
     else:
