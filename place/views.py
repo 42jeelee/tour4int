@@ -165,7 +165,7 @@ def view(request, areacode, content_id):
     for field, label in fields_to_display:
          value = getattr(context['data'], field, '') or getattr(context['data'], f"{field}culture", '')
          if value:
-             value = value.replace('<br>', ' ').replace('<BR>', ' ')
+             value = value.replace('<br>', ' ').replace('<BR>', ' ').replace('<Br>', ' ')
              display_fields.append((label, value))
 
     context['display_fields'] = display_fields

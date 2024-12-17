@@ -123,8 +123,6 @@
 }
 
 .cont_wrap{
-  max-width: 1000px;
-  margin: auto;
   font-size: 18px;
   font-weight: 500;
   line-height: 1.6;
@@ -170,7 +168,6 @@
 .table th {
   text-align: left;
   font-weight: 500;
-  width: 250px;
 }
 
 .table tr:nth-child(even) td, .table tr:nth-child(even) th {
