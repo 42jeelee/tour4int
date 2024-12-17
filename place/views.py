@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 from api import views
@@ -85,9 +86,13 @@ def view(request, areacode, content_id):
         else:
             context['around'] = []  # 데이터가 없으면 빈 리스트로 처리
 
+        # data 필드에서 <br> 태그 제거
+        context['data'] = content_place
+        if hasattr(content_place, 'overview'):
+            context['data'].overview = strip_tags(content_place.overview).replace('\n', ' ')  # <br> 태그 제거 및 줄바꿈 처리
+
         if content_place.is_detail:
             context['result'] = "success"
-            context['data'] = content_place
         else:
             try:
                 context['result'] = 'info_success'
