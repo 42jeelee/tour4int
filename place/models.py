@@ -119,3 +119,11 @@ class Comment(models.Model):
 
   def __str__(self):
      return f'{self.user.nickname if self.user else '익명'}, {self.place}'
+    
+class Views(models.Model):
+    place = models.ForeignKey('Place', on_delete=models.CASCADE)  # Place 모델과의 관계 설정
+    count = models.PositiveIntegerField(default=0)  # 총 조회수
+    users = models.ManyToManyField(User, related_name='viewed_places', blank=True)  # 조회한 사용자들
+
+    def __str__(self):
+        return f"{self.count}"

@@ -1,0 +1,18 @@
+{% comment %}
+검색창 컴포넌트
+사용법: {% include 'search/search_bar.html' %}
+{% endcomment %}
+
+<form action="{% url 'search:search' %}" method="GET" class="header__search-bar">
+    <input class="header__search-input" type="text" name="q" placeholder="검색어를 입력해주세요." value="{{ query|default:'' }}" />
+    {% for type in selected_types %}
+    <input type="hidden" name="type" value="{{ type }}">
+    {% endfor %}
+    {% for area in selected_areas %}
+    <input type="hidden" name="area" value="{{ area }}">
+    {% endfor %}
+    {% if sort %}
+    <input type="hidden" name="sort" value="{{ sort }}">
+    {% endif %}
+    <button type="submit" class="header__search-btn"></button>
+</form>

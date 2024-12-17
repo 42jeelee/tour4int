@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_class %}local-page{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- 검색 필터 -->
+    <div class="search-container mb-4">
+        <div class="header__container">
+            <div class="header__container--wrap">
+                <div class="header__container--search-bar">
+                    <form id="searchForm" action="{% url 'search:search' %}" method="GET">
+                        <input type="hidden" name="q" value="{{ query }}">
+                        <input type="hidden" name="sort" value="{{ sort }}">
+                        
+                        <div class="row">
+                            <div class="col-md">
+                                <div class="filter-container">
+                                    <!-- 카테고리 필터 -->
+                                    <div class="filter-section mb-3">
+                                        <div class="filter-title">카테고리</div>
+                                        <div class="tag-container">
+                                            <label class="tag-item {% if 'tour' in selected_types %}active{% endif %}">
+                                                <input type="checkbox" class="tag-checkbox" name="type" value="tour" onclick="this.form.submit()" {% if 'tour' in selected_types %}checked{% endif %}>
+                                                <span class="tag-text">관광지</span>
+                                            </label>
+                                            <label class="tag-item {% if 'event' in selected_types %}active{% endif %}">
+                                                <input type="checkbox" class="tag-checkbox" name="type" value="event" onclick="this.form.submit()" {% if 'event' in selected_types %}checked{% endif %}>
+                                                <span class="tag-text">축제/행사</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- 지역 필터 -->
+                                    <div class="filter-section mb-3">
+                                        <h6 class="filter-title">지역</h6>
+                                        <div class="tag-container">
+                                            {% for area in areas %}
+                                            <label class="tag-item {% if area.area_code|stringformat:"s" in selected_areas %}active{% endif %}">
+                                                <input type="checkbox" name="area" value="{{ area.area_code }}" 
+                                                       {% if area.area_code|stringformat:"s" in selected_areas %}checked{% endif %} 
+                                                       class="tag-checkbox"
+                                                       onchange="this.form.submit()">
+                                                <span class="tag-text">{{ area.name }}</span>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <!-- 정렬 필터 -->
+                                    <div class="filter-section mb-3">
+                                        <h6 class="filter-title">정렬</h6>
+                                        <div class="tag-container">
+                                            <label class="tag-item {% if sort == 'latest' %}active{% endif %}">
+                                                <input type="radio" name="sort" value="latest" 
+                                                       {% if sort == 'latest' %}checked{% endif %} 
+                                                       class="tag-checkbox"
+                                                       onclick="document.getElementById('searchForm').submit();">
+                                                <span class="tag-text">최신순</span>
+                                            </label>
+                                            <label class="tag-item {% if sort == 'popular' %}active{% endif %}">
+                                                <input type="radio" name="sort" value="popular" 
+                                                       {% if sort == 'popular' %}checked{% endif %} 
+                                                       class="tag-checkbox"
+                                                       onclick="document.getElementById('searchForm').submit();">
+                                                <span class="tag-text">인기순</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 검색 결과 -->
+    <div class="grid-container">
+        {% if places %}
+            {% for place in places %}
+                {% if place.category.content_type == 15 %}
+                <div class="card event-card">
+                    <a href="{% url 'place:view' place.sigungu_code.area_code.area_code place.place_id %}" class="card-link">
+                        <div class="card-image">
+                            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.image %}{{ place.image }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+                        </div>
+                        <div class="card-content">
+                            <span class="event-location">{{ place.address }}</span>
+                            <h3 class="card-title">{{ place.title }}</h3>
+                            {% if place.start_time and place.end_time %}
+                            <div class="event-period">
+                                {{ place.start_time|date:"Y.m.d" }} - {{ place.end_time|date:"Y.m.d" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% else %}
+                <div class="card place-card">
+                    <a href="{% url 'place:view' place.sigungu_code.area_code.area_code place.place_id %}" class="card-link">
+                        <div class="card-image">
+                            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.image %}{{ place.image }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">{{ place.title }}</h3>
+                        </div>
+                    </a>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p class="text-center mt-5">검색 결과가 없습니다.</p>
+        {% endif %}
+    </div>
+
+    <!-- 페이지네이션 -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation" class="pagination-nav mb-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&type={{ selected_types|join:',' }}&area={{ selected_areas|join:',' }}&sort={{ sort }}&page={{ page_obj.previous_page_number }}">&laquo;</a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&type={{ selected_types|join:',' }}&area={{ selected_areas|join:',' }}&sort={{ sort }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&type={{ selected_types|join:',' }}&area={{ selected_areas|join:',' }}&sort={{ sort }}&page={{ page_obj.next_page_number }}">&raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- 검색 페이지 전용 스타일 -->
+<style>
+.search-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 24px;
+}
+
+.filter-container {
+    margin-top: 20px;
+}
+
+.filter-section {
+    margin-bottom: 20px;
+}
+
+.tag-item {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 4px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: white;
+}
+
+.tag-item:hover {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.tag-item.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.tag-item input[type="checkbox"],
+.tag-item input[type="radio"] {
+    display: none;
+}
+
+.tag-item.active .tag-text {
+    color: white;
+}
+
+.tag-checkbox:checked + .tag-text {
+    color: white;
+}
+
+.filter-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.card {
+    border: none;
+    transition: transform 0.2s;
+    background: none;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.card-image {
+    height: 150px;
+    overflow: hidden;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 16px;
+    border-radius: 0 0 10px 10px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.event-location {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.event-period {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.form-check-label.selected {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.form-check {
+    margin-bottom: 8px;
+}
+
+.form-check-input:checked + .form-check-label {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.category-options, .area-options {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.category-options::-webkit-scrollbar, .area-options::-webkit-scrollbar {
+    width: 5px;
+}
+
+.category-options::-webkit-scrollbar-thumb, .area-options::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 5px;
+}
+
+.category-options::-webkit-scrollbar-track, .area-options::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 5px;
+}
+</style>
+
+<!-- 검색 페이지 전용 스크립트 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('searchForm');
+    const tagItems = document.querySelectorAll('.tag-item');
+    
+    // 태그 클릭 이벤트
+    tagItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const checkbox = this.querySelector('input[type="checkbox"], input[type="radio"]');
+            if (checkbox.type === 'checkbox') {
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('active');
+            } else {
+                checkbox.checked = true;
+                // 라디오 버튼의 경우 다른 버튼들의 active 클래스 제거
+                document.querySelectorAll(`input[name="${checkbox.name}"]`).forEach(radio => {
+                    radio.closest('.tag-item').classList.remove('active');
+                });
+                this.classList.add('active');
+            }
+            form.submit();
+        });
+    });
+});
+</script>
+{% endblock %}

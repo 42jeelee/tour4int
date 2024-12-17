@@ -2,3 +2,56 @@ main {
   width: 100%;
   min-width: 1340px;
 }
+
+main > div.wrap {
+  position: relative;
+  width: 1200px;
+  display: flex;
+  justify-content: center;
+}
+
+main > div.wrap > div.side-bar {
+  position: absolute;
+  top: 650px;
+  width: 50px;
+  height: 230px;
+  border: 1px solid #BABABA;
+  border-radius: 10px;
+  right: -120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  color: #BABABA;
+  font-weight: 600;
+  box-shadow: 3px 6px 8px 0px #bbbbbb;
+}
+
+main > div.wrap > div.side-bar div {
+  cursor: pointer;
+}
+
+main > div.wrap > div.side-bar div:hover {
+  color: #0d0d0d;
+}
+
+main > div.wrap > div.side-bar div:not(:last-child) {
+  border-bottom: 1px solid #BABABA;
+}
+
+main > div.wrap > div.side-bar > .side-bar__content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 10px;
+}
+
+main > div.wrap > div.side-bar > .side-bar__btn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 10px;
+}

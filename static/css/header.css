@@ -41,13 +41,6 @@ header > .header__container:first-child > .header__container--wrap .header__cont
 header > .header__container:first-child > .header__container--wrap .header__container--search-bar input + button {
   position: absolute;
   right: 10px;
-  height: 28px;
-  width: 28px;
-  background-image: url(/static/images/header-icons.png);
-  background-size: 365px;
-  background-color: #00000000;
-  opacity: .6;
-  border: none;
 }
 
 header > .header__container:first-child.fixed-top {
@@ -260,7 +253,7 @@ header .header__search-bar {
   z-index: 2;
 }
 
-header .header__search-bar > #header__search-input {
+header .header__search-bar > .header__search-input {
   width: 100%;
   height: 60px;
   border: none;
@@ -271,18 +264,26 @@ header .header__search-bar > #header__search-input {
   transition: .3s ease-in-out;
 }
 
-header .header__search-bar > #header__search-input:focus {
+header .header__search-bar > .header__search-input:focus {
   border-bottom: 1px solid #797979;
 }
 
-header .header__search-bar > #header__search-input + button {
+/* 검색 버튼 스타일 */
+.header__search-btn {
   position: absolute;
-  right: 50px;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   height: 28px;
   width: 28px;
-  background-image: url(/static/images/header-icons.png);
+  background-image: url(../images/header-icons.png);
   background-size: 365px;
   background-color: #00000000;
   opacity: .6;
   border: none;
+  cursor: pointer;
+}
+
+.header__search-btn:hover {
+  opacity: .8;
 }

@@ -7,8 +7,7 @@
 
 {% block body_class %}{% endblock %}
 
-<article class='wrap'>
-
+<article>
   <div class='view_wrap'>
 
     <div class='view_header'>
@@ -254,9 +253,7 @@
         <div class='near_map'>
           
           <div class='near_tap'>
-            <a href='#tap1' class='near_btn active' name='btn_tap'>
-              <span>주변 관광지</span>
-            </a>
+
           </div>
           <div id='tap1' class="tap_body active">
             <ul>
@@ -290,6 +287,35 @@
             </ul>
           </div>
 
+          <div id='tap2' class='tap_body'>
+            <ul>
+              <li class='item'>
+                <div class='near_photo'>
+                  <img src="{% static "images/test-image/near_photo.do" %}">
+                </div>
+                <div class='cont'>
+                  <div class='near_subject'>계양꽃마루222</div>
+                  <div class='near_tel'>032-450-5653(공원녹지과녹지조경팀)</div>
+                  <a href='#' class='near_more'>자세히 보기</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div id='tap3' class='tap_body'>
+            <ul>
+              <li class='item'>
+                <div class='near_photo'>
+                  <img src="{% static "images/test-image/near_photo.do" %}">
+                </div>
+                <div class='cont'>
+                  <div class='near_subject'>계양꽃마루333</div>
+                  <div class='near_tel'>032-450-5653(공원녹지과녹지조경팀)</div>
+                  <a href='#' class='near_more'>자세히 보기</a>
+                </div>
+              </li>
+            </ul>
+          </div>
 
         </div>  <!-- //near_map -->
       </div>

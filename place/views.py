@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from areacode.models import SigunguCode, AreaCode
-from place.models import Place, Like, Comment
+from place.models import Place, Like, Views, Comment
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -51,11 +51,22 @@ view_counts = defaultdict(int)
 
 from django.shortcuts import render
 
+from django.shortcuts import render
+from .models import Place, Views  # Place와 Views 모델 import
+import os
+from django.conf import settings
+
+from django.shortcuts import render
+from .models import Place, Views  # Place와 Views 모델 import
+import os
+from django.conf import settings
+
 def view(request, areacode, content_id):
     context = {'around': '', 'len': 0}
     range_offset = 0.004
     content_data = Place.objects.filter(place_id=content_id)
 
+    # 배너 이미지 로드
     banner_images = []
     for i in range(1, 4):
         image_path = f'images/banners/local_{areacode}_{i}.jpg'
@@ -66,24 +77,25 @@ def view(request, areacode, content_id):
     context['area_name'] = area_name
     context['banner_images'] = banner_images
 
-    if len(content_data):
-        # 조회수 관련 로직 추가
-        cookie_name = f'place_view_{content_id}'
-        # 쿠키가 없으면 조회수 증가
-        if cookie_name not in request.COOKIES:
-            view_counts[content_id] += 1
-        # 현재 조회수를 컨텍스트에 추가
-        context['view_count'] = view_counts[content_id]
+    if len(content_data):  # 데이터가 존재하는 경우
+        content_place = content_data.first()  # QuerySet에서 첫 번째 객체 가져오기
+        views_record, created = Views.objects.get_or_create(place=content_place)  # 조회수 기록 가져오기 또는 생성하기
 
+        # 현재 조회수를 컨텍스트에 추가
+        context['view_count'] = views_record.count
+
+        # 주변 데이터 로드
         around_data = Place.objects.filter(sigungu_code__area_code=areacode,
-            map_x__gte=float(content_data[0].map_x) - range_offset,
-            map_x__lte=float(content_data[0].map_x) + range_offset,
-            map_y__gte=float(content_data[0].map_y) - range_offset,
-            map_y__lte=float(content_data[0].map_y) + range_offset
+            map_x__gte=float(content_place.map_x) - range_offset,
+            map_x__lte=float(content_place.map_x) + range_offset,
+            map_y__gte=float(content_place.map_y) - range_offset,
+            map_y__lte=float(content_place.map_y) + range_offset
         )
-        if content_data[0].is_detail:
+        context['around'] = around_data  # 주변 데이터를 컨텍스트에 추가
+
+        if content_place.is_detail:
             context['result'] = "success"
-            context['data'] = content_data[0]
+            context['data'] = content_place
         else:
             try:
                 context['result'] = 'info_success'
@@ -94,14 +106,16 @@ def view(request, areacode, content_id):
             except Exception as e:
                 print(e)
                 return render(request, '404.html', status=404)
+
+    else:
+        return render(request, '404.html', status=404)  # 데이터가 없는 경우 처리
+
     # 좋아요 추가
     user = request.user
     if user.is_authenticated:
-        like = Like.objects.filter(user=user, place=content_data[0])
-        if like:
-            context['like'] = True
-        else:
-            context['like'] = False
+        user.add_place_history(content_id)
+        like = Like.objects.filter(user=user, place=content_place)
+        context['like'] = like.exists()
     else:
         context['like'] = False
 
@@ -109,7 +123,7 @@ def view(request, areacode, content_id):
     fields_to_display = [
         ('chkbabycarriage', '유모차대여정보'),
         ('chkcreditcard', '신용카드가능정보'),
-        ('chkpet', '애완동물동반가능정보'),
+        ('chkpet', '애완동반가능정보'),
         ('expagerange', '체험가능연령'),
         ('expguide', '체험안내'),
         ('infocenter', '문의 및 안내'),
@@ -121,7 +135,7 @@ def view(request, areacode, content_id):
         ('accomcountculture', '수용인원'),
         ('chkbabycarriageculture', '유모차대여정보'),
         ('chkcreditcardculture', '신용카드가능정보'),
-        ('chkpetculture', '애완동물동반가능정보'),
+        ('chkpetculture', '애완동반가능정보'),
         ('discountinfo', '할인정보'),
         ('infocenterculture', '문의 및 안내'),
         ('parkingculture', '주차시설'),
@@ -153,19 +167,18 @@ def view(request, areacode, content_id):
         ('infocentertourcourse', '문의 및 안내'),
         ('schedule', '코스 일정'),
         ('taketime', '코스 총 소요시간'),
-        ('theme', '코스테마'),
+        ('theme', '코스테마')
     ]
 
     display_fields = []
     for field, label in fields_to_display:
-        value = getattr(context['data'], field, '') or getattr(context['data'], f"{field}culture", '')
-        if value:
-            # <br> 태그 제거
-            value = value.replace('<br>', ' ')
-            display_fields.append((label, value))
+         value = getattr(context['data'], field, '') or getattr(context['data'], f"{field}culture", '')
+         if value:
+             value = value.replace('<br>', '')  
+             display_fields.append((label, value))
 
     context['display_fields'] = display_fields
-    
+
     # 덧글 불러오기
     comments = Comment.objects.filter(place=content_data[0]).order_by('-created_at')
 
@@ -189,7 +202,17 @@ def view(request, areacode, content_id):
 
     context['stats'] = stats
 
-    return render(request, 'view.html', context)
+    response = render(request, 'view.html', context)
+    cookie_name = f'place_view_{content_id}'
+    if cookie_name not in request.COOKIES:
+        views_record.count += 1
+        views_record.save()
+        response.set_cookie(cookie_name, 'true', max_age=86400)
+    return response
+
+
+
+    
 
 # testcode
 def comment_list(request, place_id):

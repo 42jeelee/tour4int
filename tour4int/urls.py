@@ -28,6 +28,7 @@ urlpatterns = [
     path('category/', include('category.urls')),
     path('accounts/', include('accounts.urls')),
     path('touradmin/', include('touradmin.urls')),
+    path('search/', include('search.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
