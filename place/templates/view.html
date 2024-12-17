@@ -89,7 +89,7 @@
       
     <!-- 댓글 -->
     <div id='comment' class='section'>
-      <h3>덧글정보</h3>
+      <h3>댓글정보</h3>
       <!-- 표 -->
       {% if stats %}
       <canvas id="commentsChart" 
@@ -124,7 +124,8 @@
     <div id="comment-modal" class="modal">
       <div class="modal-content">
         <span id="close-comment-modal" class="close">&times;</span>
-        <h3>댓글 작성</h3>
+        <h3 id='comment-main-title'>댓글 작성</h3>
+        <h3 id='modi-main-title'>댓글 수정</h3>
         <div id="commentForm" method="POST">
           <div class="form-group">
             <label id='modal-subtitle' for="content">내용</label>
@@ -199,6 +200,8 @@
                 buttonContainer.className = 'comment-actions';
     
                 // 작성자: 수정 및 삭제 버튼
+                console.log(comment.user_id)
+                console.log(currentUserId)
                 if (comment.user_id === currentUserId) {
                     const editButton = document.createElement('button');
                     editButton.className = 'btn-edit';
@@ -210,15 +213,15 @@
                       deleteButton.innerText = '삭제';
                       deleteButton.addEventListener('click', () => deleteComment(comment.id));
                       buttonContainer.appendChild(deleteButton);
-                      buttonContainer.appendChild(editButton);
                     }
+                    buttonContainer.appendChild(editButton);
                 }
     
                 // 관리자: 삭제 버튼
                 if (isAdmin) {
                     const adminDeleteButton = document.createElement('button');
                     adminDeleteButton.className = 'btn-delete-admin';
-                    adminDeleteButton.innerText = '삭제';
+                    adminDeleteButton.innerText = '삭제-관리자';
                     adminDeleteButton.addEventListener('click', () => deleteComment(comment.id));
     
                     buttonContainer.appendChild(adminDeleteButton);
@@ -237,7 +240,6 @@
         }
         // 수정 데이터 불러오기
         function editComment(commentId) {
-            // 수정 로직 추가
           modi_commentId = commentId
           fetch(`/place/comments/modify/${commentId}/`, {
             method: 'GET',
@@ -261,6 +263,7 @@
                   // 모달 표시
                   document.getElementById('comment-modal').style.display = 'block';
                   document.getElementById('modi-submit').style.display = 'block';
+                  document.getElementById('modi-main-title').style.display = 'block';
                   // document.getElementById('comment-submit').setAttribute('id', 'modi-btn');
 
                   // 수정된 댓글을 제출할 때 기존 댓글 ID도 함께 보내기
@@ -321,6 +324,7 @@
                   alert('댓글이 수정되었습니다.');
                   $('#modi-submit').hide(); // 버튼 숨김
                   $('#comment-modal').hide(); // 모달 닫기
+                  $('#comemnt-main-title').hide(); // 메인타이틀 숨기기
               } else {
                   alert('댓글 수정에 실패했습니다.');
               }
@@ -430,12 +434,15 @@
       document.getElementById("open-comment-modal").addEventListener("click", function () {
         document.getElementById("comment-modal").style.display = "block";
         document.getElementById('comment-submit').style.display = 'block';
+        document.getElementById('comment-main-title').style.display = 'block';
       });
 
       document.getElementById("close-comment-modal").addEventListener("click", function () {
         document.getElementById("comment-modal").style.display = "none";
         document.getElementById('comment-submit').style.display = 'none';
         document.getElementById('modi-submit').style.display = 'none';
+        document.getElementById('comment-main-title').style.display = 'none';
+        document.getElementById('modi-main-title').style.display = 'none';
       });
 
       window.addEventListener("click", function (event) {
@@ -444,6 +451,8 @@
           modal.style.display = "none";
           document.getElementById('comment-submit').style.display = 'none';
           document.getElementById('modi-submit').style.display = 'none';
+          document.getElementById('comment-main-title').style.display = 'none';
+          document.getElementById('modi-main-title').style.display = 'none';
         }
       });
     </script>

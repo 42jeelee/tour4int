@@ -470,6 +470,10 @@ div.near_map > div.near_tap > a > span {
   display: none;
 }
 
+#comment-main-title, #modi-main-title{
+  display: none;
+}
+
 #open-comment-modal.btn-primary:hover,
 #comment-modal .btn-submit:hover {
   background-color: #0056b3;
