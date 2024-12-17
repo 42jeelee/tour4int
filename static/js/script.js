@@ -211,7 +211,7 @@ $(function() {
 
     const emptyItem = $("<div>", {
       class: "side-bar__content--empty",
-      text: "없습니다.",
+      text: "목록이 존재하지 않습니다.",
     });
 
     wrapper.append(emptyItem);
