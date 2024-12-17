@@ -97,7 +97,6 @@
       <p>댓글이 없습니다.</p>
       {% endif %}
       <hr>
-      <!-- test code -->
       <div id="comment-list-container">
         <ul id="comment-list"></ul>
         <div id="pagination-controls" class="pagination">
@@ -111,10 +110,13 @@
       </div>
     </div>
     <script>
-      // test code
+      // 댓글 불러오기
       document.addEventListener('DOMContentLoaded', function () {
         const placeId = {{data.place_id}};
-        console.log(placeId)
+        const isAdmin = {{ user.is_admin|yesno:"true,false" }}; // 관리자 여부
+        const currentUserId = {{ user.id }}; // 현재 사용자 ID
+        console.log({{user.id}})
+        console.log({{user.id}})
         let currentPage = 1;
     
         function fetchComments(page) {
@@ -130,7 +132,7 @@
                     updatePaginationControls(data.has_previous, data.has_next, data.page_number, data.total_pages);
                 })
                 .catch(error => {
-                    console.error('Error:');
+                    console.error('Error:', error);
                 });
         }
     
@@ -140,12 +142,47 @@
             comments.forEach(comment => {
                 const li = document.createElement('li');
                 li.className = 'comment-item';
+    
+                // 기본 댓글 내용
                 li.innerHTML = `
-                    <strong class="comment-user">${comment.user}</strong>:
+                    -- <strong class="comment-user">${comment.user}</strong> --
+                    <br>
                     <span class="comment-content">${comment.content}</span>
                     <br>
                     <small class="comment-time">${comment.created_at}</small>
                 `;
+    
+                // 버튼 컨테이너
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'comment-actions';
+    
+                // 작성자: 수정 및 삭제 버튼
+                if (comment.user_id === currentUserId) {
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn-edit';
+                    editButton.innerText = '수정';
+                    editButton.addEventListener('click', () => editComment(comment.id));
+    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn-delete';
+                    deleteButton.innerText = '삭제';
+                    deleteButton.addEventListener('click', () => deleteComment(comment.id));
+    
+                    buttonContainer.appendChild(editButton);
+                    buttonContainer.appendChild(deleteButton);
+                }
+    
+                // 관리자: 삭제 버튼
+                if (isAdmin) {
+                    const adminDeleteButton = document.createElement('button');
+                    adminDeleteButton.className = 'btn-delete-admin';
+                    adminDeleteButton.innerText = '삭제 (관리자)';
+                    adminDeleteButton.addEventListener('click', () => deleteComment(comment.id));
+    
+                    buttonContainer.appendChild(adminDeleteButton);
+                }
+    
+                li.appendChild(buttonContainer);
                 commentList.appendChild(li);
             });
         }
@@ -155,6 +192,38 @@
             document.getElementById('next-page').disabled = !hasNext;
             document.getElementById('current-page').innerText = `${pageNumber} / ${totalPages}`;
             currentPage = pageNumber;
+        }
+    
+        function editComment(commentId) {
+            // 수정 로직 추가
+            console.log(`Editing comment with ID: ${commentId}`);
+        }
+    
+        function deleteComment(commentId) {
+            if (confirm('정말 이 댓글을 삭제하시겠습니까?')) {
+                fetch(`/place/comments/delete/${commentId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}', // CSRF 토큰 추가
+                    },
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to delete comment');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            fetchComments(currentPage); // 댓글 새로고침
+                        } else {
+                            alert('댓글 삭제에 실패했습니다.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
         }
     
         // 이벤트 리스너

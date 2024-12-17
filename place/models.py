@@ -118,7 +118,7 @@ class Comment(models.Model):
   updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일")
 
   def __str__(self):
-     return f'{self.user.nickname if self.user else '익명'}, {self.place}'
+     return f'{self.user.nickname if self.user else '삭제된 사용자'}, {self.place}'
     
 class Views(models.Model):
     place = models.ForeignKey('Place', on_delete=models.CASCADE)  # Place 모델과의 관계 설정

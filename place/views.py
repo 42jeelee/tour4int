@@ -231,7 +231,7 @@ def comment_list(request, place_id):
     comment_data = [
         {
             'id': comment.id,
-            'user': comment.user.nickname if comment.user else '익명',
+            'user': comment.user.nickname if comment.user else '삭제된 사용자',
             'content': comment.content,
             'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
         }
