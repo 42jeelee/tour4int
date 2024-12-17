@@ -1,14 +1,17 @@
 from django.shortcuts import render
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from areacode.models import SigunguCode, AreaCode
-from place.models import Place, Like, Views
+from place.models import Place, Like, Views, Comment
+from django.core import serializers # json타입 db에서 get으로 받을때
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+import json
 from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
@@ -48,7 +51,6 @@ def local(request, areacode):
   return render(request, 'local.html', context)
 
 view_counts = defaultdict(int)
-
 def view(request, areacode, content_id):
     context = {'around': '', 'len': 0}
     range_offset = 0.004
@@ -175,6 +177,29 @@ def view(request, areacode, content_id):
 
     context['display_fields'] = display_fields
 
+    # 덧글 불러오기
+    comments = Comment.objects.filter(place=content_data[0]).order_by('-created_at')
+
+    # 전체 댓글 개수
+    total_comments = comments.count()
+
+    # 각 필드의 'True' 값 비율 계산 (페이징 이전의 전체 댓글을 기준으로)
+    if total_comments > 0:
+        stats = {
+            'stroller_rental': Comment.objects.filter(place=content_data[0], stroller_rental=True).count() / total_comments * 100,
+            'credit_card': Comment.objects.filter(place=content_data[0], credit_card=True).count() / total_comments * 100,
+            'pet_friendly': Comment.objects.filter(place=content_data[0], pet_friendly=True).count() / total_comments * 100,
+            'parking': Comment.objects.filter(place=content_data[0], parking=True).count() / total_comments * 100,
+            'restroom': Comment.objects.filter(place=content_data[0], restroom=True).count() / total_comments * 100,
+            'elevator': Comment.objects.filter(place=content_data[0], elevator=True).count() / total_comments * 100,
+            'wheelchair_path': Comment.objects.filter(place=content_data[0], wheelchair_path=True).count() / total_comments * 100,
+            'wheelchair_rental': Comment.objects.filter(place=content_data[0], wheelchair_rental=True).count() / total_comments * 100,
+        }
+    else:
+        stats = None
+
+    context['stats'] = stats
+
     response = render(request, 'view.html', context)
     cookie_name = f'place_view_{content_id}'
     if cookie_name not in request.COOKIES:
@@ -183,9 +208,119 @@ def view(request, areacode, content_id):
         response.set_cookie(cookie_name, 'true', max_age=86400)
     return response
 
+# 댓글리스트
+def comment_list(request, place_id):
+    place = get_object_or_404(Place, place_id=place_id)
+    comments = Comment.objects.filter(place=place).order_by('-created_at')
 
+    # 페이지네이션
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(comments, 5)  # 10개씩 페이지네이션
 
-    
+    try:
+        page_obj = paginator.page(page_number)
+    except:
+        return JsonResponse({'error': 'Invalid page number'}, status=404)
+
+    comment_data = [
+        {
+            'id': comment.id,
+            'user_id': comment.user.email if comment.user else None,
+            'user': comment.user.nickname if comment.user else '삭제된 사용자',
+            'content': comment.content,
+            'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
+        }
+        for comment in page_obj.object_list
+    ]
+
+    return JsonResponse({
+        'comments': comment_data,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous(),
+        'page_number': page_obj.number,
+        'total_pages': paginator.num_pages,
+    })
+
+# comment 삭제
+def delete_comment(request, comment_id):
+    if request.method == 'DELETE':
+        # 댓글을 삭제할 수 있는 권한 확인 (관리자 또는 작성자)
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user or request.user.is_superuser:
+            comment.delete()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'message': '권한이 없습니다.'}, status=403)
+
+    return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'}, status=400)
+
+# comment 작성
+def wirte_comment(request):
+    print('test')
+    if request.method == 'POST':
+        print('test2')
+        try:
+            # 요청에서 댓글 내용과 시설 정보 가져오기
+            data = json.loads(request.body)
+
+            content = data.get('content')
+            facilities = data.get('facilities')
+            placeId = data.get('place_id')
+            place = Place.objects.get(place_id=placeId)
+
+            if not content:
+                return JsonResponse({'success': False, 'message': '댓글 내용을 입력해주세요.'})
+            # 댓글 저장
+            user = request.user
+            comment = Comment.objects.create(
+                user=user,
+                place=place,
+                content=content,
+                stroller_rental=facilities['stroller_rental'],
+                credit_card=facilities['credit_card'],
+                pet_friendly=facilities['pet_friendly'],
+                parking=facilities['parking'],
+                restroom=facilities['restroom'],
+                elevator=facilities['elevator'],
+                wheelchair_path=facilities['wheelchair_path'],
+                wheelchair_rental=facilities['wheelchair_rental'],
+            )
+
+            # 댓글 저장 성공 시
+            return JsonResponse({'success': True, 'message': '댓글이 성공적으로 작성되었습니다.'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    else:
+        return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'})
+
+# comment 수정
+def modify_comment(request, comment_id):
+    context = {}
+    if request.method == 'GET':
+        comment = Comment.objects.get(id=comment_id)
+        if request.user != comment.user:
+            return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'})
+        context['data'] = serializers.serialize('json', [comment])
+        context['success'] = True
+    else:
+        data = json.loads(request.body)
+        content = data.get('content')
+        facilities = data.get('facilities')
+        comment = Comment.objects.get(id=comment_id)
+        comment.content = content
+        comment.stroller_rental = facilities['stroller_rental']
+        comment.credit_card=facilities['credit_card']
+        comment.pet_friendly=facilities['pet_friendly']
+        comment.parking=facilities['parking']
+        comment.restroom=facilities['restroom']
+        comment.elevator=facilities['elevator']
+        comment.wheelchair_path=facilities['wheelchair_path']
+        comment.wheelchair_rental=facilities['wheelchair_rental']
+        comment.save()
+        context['success'] = True
+    return JsonResponse(context)
 
 def like_content(request, content_id):
     place = get_object_or_404(Place, place_id=content_id)
