@@ -157,7 +157,9 @@
       // 댓글 불러오기
       document.addEventListener('DOMContentLoaded', function () {
         const canvas = document.getElementById('commentsChart');
-        var stats = JSON.parse(canvas.getAttribute('data-stats'));
+        if (canvas != null){
+          var stats = JSON.parse(canvas.getAttribute('data-stats'));
+        }
 
         const placeId = {{data.place_id}};
         const isAdmin = {{ user.is_superuser|yesno:"true,false" }}; // 관리자 여부
@@ -435,7 +437,10 @@
     
         // 초기 댓글 로드
         fetchComments(currentPage);
-        renderChart(canvas, stats)
+        if (canvas != null){
+          console.log(canvas)
+          renderChart(canvas, stats)
+        }
       });
 
       // 모달 열기 및 닫기 스크립트

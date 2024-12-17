@@ -58,6 +58,12 @@ $('.not_login').click(function(){
 
   // 그래프
 function renderChart(canvas, stats){
+    if (canvas == null) return false
+    if (stats == null){
+        let chartStatus2 = Chart.getChart("commentsChart");
+        chartStatus2.destroy();
+        return false
+    }
     let chartStatus = Chart.getChart("commentsChart"); // <canvas> id
     if (chartStatus != undefined) {
         chartStatus.destroy();
