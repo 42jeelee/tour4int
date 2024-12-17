@@ -64,6 +64,7 @@
 
     <div id='intro'>
       <div class='cont_wrap'>
+        <h3>소개</h3>
         <p>{{data.overview}}</p>
       </div>
     </div>
@@ -71,7 +72,7 @@
       <h3>이용정보</h3>
       <table class='table'>
         <colgroup>
-          <col style='width: 230px;'>
+          <col style='width: 250px;'>
           <col>
         </colgroup>
         <tbody>
@@ -106,15 +107,15 @@
       </canvas>
       {% else %}
       <p>데이터가 없습니다.</p>
-      {% endif %}
       <hr>
+      {% endif %}
       <div id="comment-list-container">
         <ul id="comment-list"></ul>
         <div id="pagination-controls" class="pagination">
           <span class='step-links'>  
-            <button id="prev-page" class='pagination-link' disabled>이전</button>
+            <button id="prev-page" class='pagination-link' disabled><</button>
             <span id="current-page" class="page-number">1</span>
-            <button id="next-page" class="pagination-link" disabled>다음</button>
+            <button id="next-page" class="pagination-link" disabled>></button>
             <button id="open-comment-modal">글쓰기</button>
           </span>
         </div>
@@ -188,11 +189,10 @@
     
                 // 기본 댓글 내용
                 li.innerHTML = `
-                    -- <strong class="comment-user">${comment.user}</strong> --
-                    <br>
-                    <span class="comment-content">${comment.content}</span>
-                    <br>
-                    <small class="comment-time">${comment.created_at}</small>
+                    <div class="comment-user">${comment.user}</div>
+                    <div class="comment-time">${comment.created_at}</div>
+                    <div class="comment-content">${comment.content}</div>
+                    
                 `;
     
                 // 버튼 컨테이너
@@ -609,8 +609,5 @@
   </div>  <!-- //view_wrap -->
 
 </article>
-<script>
-
-</script>
 
 {% endblock content %}  

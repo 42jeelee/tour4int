@@ -12,6 +12,7 @@ import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 import json
+from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 from api import views
@@ -80,11 +81,20 @@ def view(request, areacode, content_id):
             map_y__gte=float(content_place.map_y) - range_offset,
             map_y__lte=float(content_place.map_y) + range_offset
         )
-        context['around'] = around_data  # 주변 데이터를 컨텍스트에 추가
+                # 주변 데이터가 있을 경우
+        if around_data.exists():
+            context['around'] = around_data  # 주변 데이터를 컨텍스트에 추가
+            context['len'] = len(around_data)  # 주변 데이터 길이 추가
+        else:
+            context['around'] = []  # 데이터가 없으면 빈 리스트로 처리
+
+        # data 필드에서 <br> 태그 제거
+        context['data'] = content_place
+        if hasattr(content_place, 'overview'):
+            context['data'].overview = strip_tags(content_place.overview).replace('\n', ' ')  # <br> 태그 제거 및 줄바꿈 처리
 
         if content_place.is_detail:
             context['result'] = "success"
-            context['data'] = content_place
         else:
             try:
                 context['result'] = 'info_success'
@@ -102,7 +112,6 @@ def view(request, areacode, content_id):
     # 좋아요 추가
     user = request.user
     if user.is_authenticated:
-        user.add_place_history(content_id)
         like = Like.objects.filter(user=user, place=content_place)
         context['like'] = like.exists()
     else:
@@ -163,7 +172,7 @@ def view(request, areacode, content_id):
     for field, label in fields_to_display:
          value = getattr(context['data'], field, '') or getattr(context['data'], f"{field}culture", '')
          if value:
-             value = value.replace('<br>', '')  
+             value = value.replace('<br>', ' ').replace('<BR>', ' ').replace('<Br>', ' ')
              display_fields.append((label, value))
 
     context['display_fields'] = display_fields
