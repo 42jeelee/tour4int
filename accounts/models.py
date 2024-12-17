@@ -51,7 +51,6 @@ class User(AbstractBaseUser):
         else:
             self.place_history = place_id
 
-        print(self.place_history)
         self.save()
 
     def save(self, *args, **kwargs):
