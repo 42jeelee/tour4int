@@ -48,18 +48,6 @@ def local(request, areacode):
 
 view_counts = defaultdict(int)
 
-from django.shortcuts import render
-
-from django.shortcuts import render
-from .models import Place, Views  # Place와 Views 모델 import
-import os
-from django.conf import settings
-
-from django.shortcuts import render
-from .models import Place, Views  # Place와 Views 모델 import
-import os
-from django.conf import settings
-
 def view(request, areacode, content_id):
     context = {'around': '', 'len': 0}
     range_offset = 0.004
@@ -172,7 +160,7 @@ def view(request, areacode, content_id):
     for field, label in fields_to_display:
          value = getattr(context['data'], field, '') or getattr(context['data'], f"{field}culture", '')
          if value:
-             value = value.replace('<br>', '')  
+             value = value.replace('<br>', ' ').replace('<BR>', ' ')
              display_fields.append((label, value))
 
     context['display_fields'] = display_fields
