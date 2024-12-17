@@ -410,6 +410,14 @@
                   renderChart(canvas, stats)
                   fetchComments(currentPage); // 댓글 새로고침
                   $('#content').val(''); // 입력 필드 초기화
+                  $('#stroller_rental').prop('checked', false)
+                  $('#credit_card').prop('checked', false)
+                  $('#pet_friendly').prop('checked', false)
+                  $('#parking').prop('checked', false)
+                  $('#restroom').prop('checked', false)
+                  $('#elevator').prop('checked', false)
+                  $('#wheelchair_path').prop('checked', false)
+                  $('#wheelchair_rental').prop('checked', false)
                   alert('댓글이 작성되었습니다.');
                   $('#comment-modal').hide(); // 모달 닫기
               } else {
@@ -437,7 +445,6 @@
         // 초기 댓글 로드
         fetchComments(currentPage);
         if (canvas != null){
-          console.log(canvas)
           renderChart(canvas, stats)
         }
       });
