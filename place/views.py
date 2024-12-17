@@ -100,6 +100,7 @@ def view(request, areacode, content_id):
     # 좋아요 추가
     user = request.user
     if user.is_authenticated:
+        user.add_place_history(content_id)
         like = Like.objects.filter(user=user, place=content_place)
         context['like'] = like.exists()
     else:
