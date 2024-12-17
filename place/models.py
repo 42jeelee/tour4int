@@ -90,12 +90,32 @@ class Place(models.Model):
       return self.likes.count()
   
 class Like(models.Model):
-    place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='likes')  # 어떤 게시물에 대한 좋아요인지
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 어떤 사용자가 좋아요를 눌렀는지
-    created_at = models.DateTimeField(auto_now_add=True)  # 좋아요를 누른 시간
+  place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='likes')  # 어떤 게시물에 대한 좋아요인지
+  user = models.ForeignKey(User, on_delete=models.CASCADE)  # 어떤 사용자가 좋아요를 눌렀는지
+  created_at = models.DateTimeField(auto_now_add=True)  # 좋아요를 누른 시간
 
-    class Meta:
-        unique_together = ('place', 'user')  # 한 사용자가 같은 게시물에 좋아요를 중복으로 누르지 못하도록 설정
+  class Meta:
+      unique_together = ('place', 'user')  # 한 사용자가 같은 게시물에 좋아요를 중복으로 누르지 못하도록 설정
 
-    def __str__(self):
-        return f"{self.user.username} likes {self.place.title}"
+  def __str__(self):
+      return f"{self.user.nickname} likes {self.place.title}"
+    
+class Comment(models.Model):
+  user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+  place = models.ForeignKey(Place, on_delete=models.CASCADE)
+
+  stroller_rental = models.BooleanField(default=False, verbose_name="유모차 대여")
+  credit_card = models.BooleanField(default=False, verbose_name="신용카드 사용 가능")
+  pet_friendly = models.BooleanField(default=False, verbose_name="애완동물 동반 가능")
+  parking = models.BooleanField(default=False, verbose_name="주차 시설")
+  restroom = models.BooleanField(default=False, verbose_name="화장실")
+  elevator = models.BooleanField(default=False, verbose_name="엘리베이터")
+  wheelchair_path = models.BooleanField(default=False, verbose_name="휠체어 통로")
+  wheelchair_rental = models.BooleanField(default=False, verbose_name="휠체어 대여")
+
+  content = models.TextField(verbose_name="내용")  # 댓글 내용
+  created_at = models.DateTimeField(auto_now_add=True, verbose_name="작성일")  # 작성 시간
+  updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일")
+
+  def __str__(self):
+     return f'{self.user.nickname if self.user else '익명'}, {self.place}'

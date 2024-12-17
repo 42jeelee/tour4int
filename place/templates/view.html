@@ -3,6 +3,7 @@
 {% block content %}
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b53d3e95e27811083b5ac0f850526bb3"></script>
 <meta name='csrf_token' content='{{csrf_token}}'>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 {% block body_class %}{% endblock %}
 
@@ -67,7 +68,6 @@
         <p>{{data.overview}}</p>
       </div>
     </div>
-
     <div id='guide' class='section'>
       <h3>이용정보</h3>
       <table class='table'>
@@ -77,17 +77,103 @@
         </colgroup>
         <tbody>
           {% for label, value in display_fields %}
-            <tr>
-                <th scope='row'>{{ label }}</th>
-                <td>{{ value }}</td>
+          <tr>
+            <th scope='row'>{{ label }}</th>
+            <td>{{ value }}</td>
             </tr>
-          {% empty %}
-              <tr><td colspan="2">데이터가 없습니다.</td></tr>
-          {% endfor %}
-      </tbody>
-      </table>
+            {% empty %}
+            <tr><td colspan="2">데이터가 없습니다.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+    <!-- 댓글 -->
+    <div id='comment' class='section'>
+      <h3>덧글정보</h3>
+      <!-- 표 -->
+      {% if stats %}
+      <canvas id="commentsChart" width="400" height="150"></canvas>
+      {% else %}
+      <p>댓글이 없습니다.</p>
+      {% endif %}
+      <hr>
+      <!-- test code -->
+      <div id="comment-list-container">
+        <ul id="comment-list"></ul>
+        <div id="pagination-controls" class="pagination">
+          <span class='step-links'>  
+            <button id="prev-page" class='pagination-link' disabled>이전</button>
+            <span id="current-page" class="page-number">1</span>
+            <button id="next-page" class="pagination-link" disabled>다음</button>
+            <button>글쓰기</button>
+          </span>
+        </div>
+      </div>
     </div>
-
+    <script>
+      // test code
+      document.addEventListener('DOMContentLoaded', function () {
+        const placeId = {{data.place_id}};
+        console.log(placeId)
+        let currentPage = 1;
+    
+        function fetchComments(page) {
+            fetch(`/place/comments/${placeId}/?page=${page}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch comments');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderComments(data.comments);
+                    updatePaginationControls(data.has_previous, data.has_next, data.page_number, data.total_pages);
+                })
+                .catch(error => {
+                    console.error('Error:');
+                });
+        }
+    
+        function renderComments(comments) {
+            const commentList = document.getElementById('comment-list');
+            commentList.innerHTML = ''; // 기존 댓글 제거
+            comments.forEach(comment => {
+                const li = document.createElement('li');
+                li.className = 'comment-item';
+                li.innerHTML = `
+                    <strong class="comment-user">${comment.user}</strong>:
+                    <span class="comment-content">${comment.content}</span>
+                    <br>
+                    <small class="comment-time">${comment.created_at}</small>
+                `;
+                commentList.appendChild(li);
+            });
+        }
+    
+        function updatePaginationControls(hasPrevious, hasNext, pageNumber, totalPages) {
+            document.getElementById('prev-page').disabled = !hasPrevious;
+            document.getElementById('next-page').disabled = !hasNext;
+            document.getElementById('current-page').innerText = `${pageNumber} / ${totalPages}`;
+            currentPage = pageNumber;
+        }
+    
+        // 이벤트 리스너
+        document.getElementById('prev-page').addEventListener('click', function () {
+            if (currentPage > 1) {
+                fetchComments(currentPage - 1);
+            }
+        });
+    
+        document.getElementById('next-page').addEventListener('click', function () {
+            fetchComments(currentPage + 1);
+        });
+    
+        // 초기 댓글 로드
+        fetchComments(currentPage);
+    });
+    </script>
+    <!-- 덧글 여기 까지-->
     <div id='tour_list' class='section'>
       <h3>주변 관광지</h3>
       <div class='map_wrap'>
@@ -213,6 +299,7 @@
 
 </article>
 <script>
+  // 좋아요
   document.querySelectorAll('.like-button').forEach(button => {
     button.addEventListener('click', function () {
         const postId = this.getAttribute('data-post-id');
@@ -249,6 +336,38 @@
   $('.not_login').click(function(){
     alert('좋아요는 로그인을 하셔야 합니다.')
   })
+  // 그래프
+  var ctx = document.getElementById('commentsChart').getContext('2d');
+  var commentsChart = new Chart(ctx, {
+      type: 'bar',  // 차트의 타입 (bar, line, pie 등)
+      data: {
+          labels: ['유모차 대여', '신용카드 사용', '애완동물 동반', '주차 시설', '화장실', '엘리베이터', '휠체어 통로', '휠체어 대여'],
+          datasets: [{
+              label: '있음 비율 (%)',
+              data: [
+                  {{ stats.stroller_rental|floatformat:2 }},
+                  {{ stats.credit_card|floatformat:2 }},
+                  {{ stats.pet_friendly|floatformat:2 }},
+                  {{ stats.parking|floatformat:2 }},
+                  {{ stats.restroom|floatformat:2 }},
+                  {{ stats.elevator|floatformat:2 }},
+                  {{ stats.wheelchair_path|floatformat:2 }},
+                  {{ stats.wheelchair_rental|floatformat:2 }}
+              ],
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  max: 100  // 퍼센트이므로 100을 최대값으로 설정
+              }
+          }
+      }
+  });
 </script>
 
 {% endblock content %}  

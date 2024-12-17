@@ -1,8 +1,9 @@
 from django.shortcuts import render
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from areacode.models import SigunguCode, AreaCode
-from place.models import Place, Like
+from place.models import Place, Like, Comment
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -73,6 +74,7 @@ def view(request, areacode, content_id):
             view_counts[content_id] += 1
         # 현재 조회수를 컨텍스트에 추가
         context['view_count'] = view_counts[content_id]
+
         around_data = Place.objects.filter(sigungu_code__area_code=areacode,
             map_x__gte=float(content_data[0].map_x) - range_offset,
             map_x__lte=float(content_data[0].map_x) + range_offset,
@@ -96,7 +98,6 @@ def view(request, areacode, content_id):
     user = request.user
     if user.is_authenticated:
         like = Like.objects.filter(user=user, place=content_data[0])
-        print(like)
         if like:
             context['like'] = True
         else:
@@ -164,8 +165,67 @@ def view(request, areacode, content_id):
             display_fields.append((label, value))
 
     context['display_fields'] = display_fields
+    
+    # 덧글 불러오기
+    comments = Comment.objects.filter(place=content_data[0]).order_by('-created_at')
+
+    # 전체 댓글 개수
+    total_comments = comments.count()
+
+    # 각 필드의 'True' 값 비율 계산 (페이징 이전의 전체 댓글을 기준으로)
+    if total_comments > 0:
+        stats = {
+            'stroller_rental': Comment.objects.filter(place=content_data[0], stroller_rental=True).count() / total_comments * 100,
+            'credit_card': Comment.objects.filter(place=content_data[0], credit_card=True).count() / total_comments * 100,
+            'pet_friendly': Comment.objects.filter(place=content_data[0], pet_friendly=True).count() / total_comments * 100,
+            'parking': Comment.objects.filter(place=content_data[0], parking=True).count() / total_comments * 100,
+            'restroom': Comment.objects.filter(place=content_data[0], restroom=True).count() / total_comments * 100,
+            'elevator': Comment.objects.filter(place=content_data[0], elevator=True).count() / total_comments * 100,
+            'wheelchair_path': Comment.objects.filter(place=content_data[0], wheelchair_path=True).count() / total_comments * 100,
+            'wheelchair_rental': Comment.objects.filter(place=content_data[0], wheelchair_rental=True).count() / total_comments * 100,
+        }
+    else:
+        stats = None
+
+    context['stats'] = stats
 
     return render(request, 'view.html', context)
+
+# testcode
+def comment_list(request, place_id):
+    place = get_object_or_404(Place, place_id=place_id)
+    comments = Comment.objects.filter(place=place).order_by('-created_at')
+
+    # 페이지네이션
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(comments, 5)  # 10개씩 페이지네이션
+
+    try:
+        page_obj = paginator.page(page_number)
+    except:
+        return JsonResponse({'error': 'Invalid page number'}, status=404)
+
+    comment_data = [
+        {
+            'id': comment.id,
+            'user': comment.user.nickname if comment.user else '익명',
+            'content': comment.content,
+            'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
+        }
+        for comment in page_obj.object_list
+    ]
+
+    return JsonResponse({
+        'comments': comment_data,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous(),
+        'page_number': page_obj.number,
+        'total_pages': paginator.num_pages,
+    })
+
+
+
+
 
 def like_content(request, content_id):
     place = get_object_or_404(Place, place_id=content_id)
