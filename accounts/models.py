@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
-from django.core.exceptions import ValidationError
 from .managers import UserManager
 import random
 import string
