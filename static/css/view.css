@@ -70,6 +70,17 @@
   font-size: 16px;
 }
 
+.like-button {
+  background: none; /* 기본 배경 제거 */
+  border: none; /* 테두리 제거 */
+  cursor: pointer; /* 포인터 커서로 변경 */
+}
+
+.like-icon {
+  width: 24px; /* 아이콘 너비 */
+  height: 24px; /* 아이콘 높이 */
+}
+
 /* photos */
 .view_wrap .view_photos {
   position: relative;
