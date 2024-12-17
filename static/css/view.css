@@ -313,23 +313,6 @@ div.near_map > div.near_tap > a > span {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.comment-user {
-  font-weight: bold;
-  color: #333;
-}
-
-.comment-content {
-  display: block;
-  margin-top: 5px;
-  color: #555;
-}
-
-.comment-time {
-  color: #888;
-  font-size: 0.8em;
-}
-
-/* 페이지 네비게이션 */
 #pagination {
   display: flex;
   justify-content: center;
@@ -339,12 +322,14 @@ div.near_map > div.near_tap > a > span {
 .step-links {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* 버튼 사이 간격 최대화 */
+  width: 100%;
 }
 
 .pagination-link {
   text-decoration: none;
   color: #007bff;
-  padding: 5px 10px;
+  padding: 5px 20px;
   margin: 0 5px;
   border-radius: 3px;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -355,30 +340,45 @@ div.near_map > div.near_tap > a > span {
   color: #fff;
 }
 
+.pagination-link[disabled] {
+  color: #ccc;
+  pointer-events: none;
+}
+
 .page-number {
   font-size: 1.2em;
   color: #333;
   margin: 0 10px;
 }
 
-/* 페이지 네비게이션에서 비활성화된 링크 */
-.pagination-link[disabled] {
-  color: #ccc;
-  pointer-events: none;
+#write-comment-button {
+  margin-left: auto; /* 버튼을 오른쪽 끝으로 밀기 */
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 6px 20px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#write-comment-button:hover {
+  background-color: #218838;
+  color: #fff;
 }
 
 /* 반응형 디자인 */
 @media screen and (max-width: 600px) {
   #pagination {
-      flex-direction: column;
+    flex-direction: column;
   }
 
   .step-links {
-      flex-direction: column;
-      align-items: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .pagination-link {
-      margin: 5px 0;
+    margin: 5px 0;
   }
 }
