@@ -106,8 +106,7 @@
         }'>
       </canvas>
       {% else %}
-      <p>데이터가 없습니다.</p>
-      <hr>
+      <canvas id='commentsChart'></canvas>
       {% endif %}
       <div id="comment-list-container">
         <ul id="comment-list"></ul>
@@ -157,6 +156,11 @@
     <script>
       // 댓글 불러오기
       document.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.getElementById('commentsChart');
+        if (canvas != null){
+          var stats = JSON.parse(canvas.getAttribute('data-stats'));
+        }
+
         const placeId = {{data.place_id}};
         const isAdmin = {{ user.is_superuser|yesno:"true,false" }}; // 관리자 여부
         const currentUserId = '{{ user.email }}'; // 현재 사용자 ID
@@ -200,8 +204,6 @@
                 buttonContainer.className = 'comment-actions';
     
                 // 작성자: 수정 및 삭제 버튼
-                console.log(comment.user_id)
-                console.log(currentUserId)
                 if (comment.user_id === currentUserId) {
                     const editButton = document.createElement('button');
                     editButton.className = 'btn-edit';
@@ -319,6 +321,8 @@
           })
           .then(data => {
               if (data.success) {
+                  stats = JSON.parse(JSON.stringify(data.stats));
+                  renderChart(canvas, stats)
                   fetchComments(currentPage); // 댓글 새로고침
                   $('#content').val(''); // 입력 필드 초기화
                   alert('댓글이 수정되었습니다.');
@@ -353,6 +357,8 @@
                     })
                     .then(data => {
                         if (data.success) {
+                            stats = JSON.parse(JSON.stringify(data.stats));
+                            renderChart(canvas, stats)
                             fetchComments(currentPage); // 댓글 새로고침
                         } else {
                             alert('댓글 삭제에 실패했습니다.');
@@ -400,6 +406,8 @@
           })
           .then(data => {
               if (data.success) {
+                  stats = JSON.parse(JSON.stringify(data.stats));
+                  renderChart(canvas, stats)
                   fetchComments(currentPage); // 댓글 새로고침
                   $('#content').val(''); // 입력 필드 초기화
                   alert('댓글이 작성되었습니다.');
@@ -428,6 +436,10 @@
     
         // 초기 댓글 로드
         fetchComments(currentPage);
+        if (canvas != null){
+          console.log(canvas)
+          renderChart(canvas, stats)
+        }
       });
 
       // 모달 열기 및 닫기 스크립트

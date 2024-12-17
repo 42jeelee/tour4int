@@ -57,11 +57,20 @@ $('.not_login').click(function(){
 })
 
   // 그래프
-var canvas = document.getElementById('commentsChart');
-var stats = JSON.parse(canvas.getAttribute('data-stats')); // data-stats에서 JSON 데이터 가져오기
-
-var ctx = canvas.getContext('2d');
-var commentsChart = new Chart(ctx, {
+function renderChart(canvas, stats){
+    if (canvas == null) return false
+    if (stats == null){
+        let chartStatus2 = Chart.getChart("commentsChart");
+        chartStatus2.destroy();
+        return false
+    }
+    let chartStatus = Chart.getChart("commentsChart"); // <canvas> id
+    if (chartStatus != undefined) {
+        chartStatus.destroy();
+        canvas = document.getElementById('commentsChart');
+    }
+    var ctx = canvas.getContext("2d");
+    new Chart(ctx, {
     type: 'bar',
     data: {
         labels: ['유모차 대여', '신용카드 사용', '애완동물 동반', '주차 시설', '화장실', '엘리베이터', '휠체어 통로', '휠체어 대여'],
@@ -81,13 +90,14 @@ var commentsChart = new Chart(ctx, {
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
         }]
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true,
-                max: 100
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
             }
         }
-    }
-});
+    });
+}
