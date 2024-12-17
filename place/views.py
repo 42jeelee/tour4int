@@ -92,18 +92,6 @@ def view(request, areacode, content_id):
         )
         context['around'] = around_data  # 주변 데이터를 컨텍스트에 추가
 
-        cookie_name = f'place_view_{content_id}'
-        
-        # 쿠키가 없으면 조회수 증가
-        if cookie_name not in request.COOKIES:
-            views_record.count += 1  # 조회수 증가
-            views_record.save()  # 데이터베이스에 저장
-
-            # 쿠키 설정 (1일 동안 유효)
-            response = render(request, 'view.html', context)  # HttpResponse 객체 생성
-            response.set_cookie(cookie_name, 'true', max_age=86400)  # 쿠키 설정
-            return response  # 응답 반환
-
         if content_place.is_detail:
             context['result'] = "success"
             context['data'] = content_place
@@ -189,7 +177,14 @@ def view(request, areacode, content_id):
 
     context['display_fields'] = display_fields
 
-    return render(request, 'view.html', context)  # 응답 반환
+    response = render(request, 'view.html', context)
+    cookie_name = f'place_view_{content_id}'
+    if cookie_name not in request.COOKIES:
+        views_record.count += 1
+        views_record.save()
+        response.set_cookie(cookie_name, 'true', max_age=86400)
+    return response
+
 
 
     

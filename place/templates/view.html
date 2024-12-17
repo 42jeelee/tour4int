@@ -3,48 +3,9 @@
 {% block content %}
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b53d3e95e27811083b5ac0f850526bb3"></script>
 <meta name='csrf_token' content='{{csrf_token}}'>
-<script>
-  document.querySelectorAll('.like-button').forEach(button => {
-    button.addEventListener('click', function () {
-        const postId = this.getAttribute('data-post-id');
-        const isLiked = this.getAttribute('data-liked') === 'true';
-
-        // 버튼 클릭 시 비활성화 (중복 클릭 방지)
-        this.disabled = true;
-
-        fetch(`/place/like/${postId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken = $('meta[name=csrf_token]').attr('content'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ liked: !isLiked })
-        })
-        .then(response => response.json())
-        .then(data => {
-            this.textContent = data.liked ? '좋아요 취소' : '좋아요';
-            this.setAttribute('data-liked', data.liked);
-            document.querySelector(`#like-count`).textContent = `${data.like_count}명이 좋아요를 눌렀습니다.`;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('좋아요 처리 중 오류가 발생했습니다.');
-        })
-        .finally(() => {
-            // 버튼 클릭 후 비활성화 해제
-            this.disabled = false;
-        });
-    });
-  });
-  $('.not_login').click(function(){
-    alert('좋아요는 로그인을 하셔야 합니다.')
-  })
-</script>
-
 {% block body_class %}{% endblock %}
 
 <article>
-
   <div class='view_wrap'>
 
     <div class='view_header'>
@@ -203,9 +164,7 @@
 
           <script src="{% static 'js/view.js' %}"></script>
         <div class='near_map'>
-          <div class='near_tap'>
-            주변 관광지
-          </div>
+          <div class='near_tap'></div>
             <div id='tap1'>
               <ul>
                 {% if len != 1 %}
@@ -244,6 +203,42 @@
   </div>  <!-- //view_wrap -->
 
 </article>
+<script>
+  document.querySelectorAll('.like-button').forEach(button => {
+    button.addEventListener('click', function () {
+        const postId = this.getAttribute('data-post-id');
+        const isLiked = this.getAttribute('data-liked') === 'true';
 
+        // 버튼 클릭 시 비활성화 (중복 클릭 방지)
+        this.disabled = true;
+
+        fetch(`/place/like/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken = $('meta[name=csrf_token]').attr('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ liked: !isLiked })
+        })
+        .then(response => response.json())
+        .then(data => {
+            this.textContent = data.liked ? '좋아요 취소' : '좋아요';
+            this.setAttribute('data-liked', data.liked);
+            document.querySelector(`#like-count`).textContent = `${data.like_count}명이 좋아요를 눌렀습니다.`;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('좋아요 처리 중 오류가 발생했습니다.');
+        })
+        .finally(() => {
+            // 버튼 클릭 후 비활성화 해제
+            this.disabled = false;
+        });
+    });
+  });
+  $('.not_login').click(function(){
+    alert('좋아요는 로그인을 하셔야 합니다.')
+  })
+</script>
 
 {% endblock content %}  
