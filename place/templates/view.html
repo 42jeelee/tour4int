@@ -92,9 +92,20 @@
       <h3>덧글정보</h3>
       <!-- 표 -->
       {% if stats %}
-      <canvas id="commentsChart" width="400" height="150"></canvas>
+      <canvas id="commentsChart" 
+        data-stats='{
+            "stroller_rental": {{ stats.stroller_rental|floatformat:2 }},
+            "credit_card": {{ stats.credit_card|floatformat:2 }},
+            "pet_friendly": {{ stats.pet_friendly|floatformat:2 }},
+            "parking": {{ stats.parking|floatformat:2 }},
+            "restroom": {{ stats.restroom|floatformat:2 }},
+            "elevator": {{ stats.elevator|floatformat:2 }},
+            "wheelchair_path": {{ stats.wheelchair_path|floatformat:2 }},
+            "wheelchair_rental": {{ stats.wheelchair_rental|floatformat:2 }}
+        }'>
+      </canvas>
       {% else %}
-      <p>댓글이 없습니다.</p>
+      <p>데이터가 없습니다.</p>
       {% endif %}
       <hr>
       <div id="comment-list-container">
@@ -104,20 +115,51 @@
             <button id="prev-page" class='pagination-link' disabled>이전</button>
             <span id="current-page" class="page-number">1</span>
             <button id="next-page" class="pagination-link" disabled>다음</button>
-            <button id="write-comment-button">글쓰기</button>
+            <button id="open-comment-modal">글쓰기</button>
           </span>
         </div>
       </div>
     </div>
+    <!-- 글 작성 모달 -->
+    <div id="comment-modal" class="modal">
+      <div class="modal-content">
+        <span id="close-comment-modal" class="close">&times;</span>
+        <h3>댓글 작성</h3>
+        <div id="commentForm" method="POST">
+          <div class="form-group">
+            <label id='modal-subtitle' for="content">내용</label>
+            <textarea id="content" name="content" rows="4" placeholder="댓글 내용을 입력하세요..." required></textarea>
+          </div>
+    
+          <!-- 체크박스 그룹 -->
+          <div class="form-group">
+            <label id='checkbox_label'>시설 정보</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" name="stroller_rental" id='stroller_rental'> 유모차 대여</label>
+              <label><input type="checkbox" name="credit_card" id='credit_card'> 신용카드 사용 가능</label>
+              <label><input type="checkbox" name="pet_friendly" id='pet_friendly'> 애완동물 동반 가능</label>
+              <label><input type="checkbox" name="parking" id='parking'> 주차 시설</label>
+              <label><input type="checkbox" name="restroom" id='restroom'> 화장실</label>
+              <label><input type="checkbox" name="elevator" id='elevator'> 엘리베이터</label>
+              <label><input type="checkbox" name="wheelchair_path" id='wheelchair_path'> 휠체어 통로</label>
+              <label><input type="checkbox" name="wheelchair_rental" id='wheelchair_rental'> 휠체어 대여</label>
+            </div>
+          </div>
+    
+          <button class="btn-submit" id='comment-submit'>댓글 작성</button>
+          <button class="btn-submit" id='modi-submit'>댓글 수정</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       // 댓글 불러오기
       document.addEventListener('DOMContentLoaded', function () {
         const placeId = {{data.place_id}};
-        const isAdmin = {{ user.is_admin|yesno:"true,false" }}; // 관리자 여부
-        const currentUserId = {{ user.id }}; // 현재 사용자 ID
-        console.log({{user.id}})
-        console.log({{user.id}})
+        const isAdmin = {{ user.is_superuser|yesno:"true,false" }}; // 관리자 여부
+        const currentUserId = '{{ user.email }}'; // 현재 사용자 ID
         let currentPage = 1;
+        var modi_commentId;
     
         function fetchComments(page) {
             fetch(`/place/comments/${placeId}/?page=${page}`)
@@ -162,21 +204,21 @@
                     editButton.className = 'btn-edit';
                     editButton.innerText = '수정';
                     editButton.addEventListener('click', () => editComment(comment.id));
-    
-                    const deleteButton = document.createElement('button');
-                    deleteButton.className = 'btn-delete';
-                    deleteButton.innerText = '삭제';
-                    deleteButton.addEventListener('click', () => deleteComment(comment.id));
-    
-                    buttonContainer.appendChild(editButton);
-                    buttonContainer.appendChild(deleteButton);
+                    if(isAdmin == false){
+                      const deleteButton = document.createElement('button');
+                      deleteButton.className = 'btn-delete';
+                      deleteButton.innerText = '삭제';
+                      deleteButton.addEventListener('click', () => deleteComment(comment.id));
+                      buttonContainer.appendChild(deleteButton);
+                      buttonContainer.appendChild(editButton);
+                    }
                 }
     
                 // 관리자: 삭제 버튼
                 if (isAdmin) {
                     const adminDeleteButton = document.createElement('button');
                     adminDeleteButton.className = 'btn-delete-admin';
-                    adminDeleteButton.innerText = '삭제 (관리자)';
+                    adminDeleteButton.innerText = '삭제';
                     adminDeleteButton.addEventListener('click', () => deleteComment(comment.id));
     
                     buttonContainer.appendChild(adminDeleteButton);
@@ -193,12 +235,104 @@
             document.getElementById('current-page').innerText = `${pageNumber} / ${totalPages}`;
             currentPage = pageNumber;
         }
-    
+        // 수정 데이터 불러오기
         function editComment(commentId) {
             // 수정 로직 추가
-            console.log(`Editing comment with ID: ${commentId}`);
+          modi_commentId = commentId
+          fetch(`/place/comments/modify/${commentId}/`, {
+            method: 'GET',
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  let viewData = JSON.parse(data.data)
+
+                  // 모달에 기존 데이터 채우기
+                  document.getElementById('content').value = viewData[0].fields.content;
+                  document.getElementById('stroller_rental').checked = viewData[0].fields.stroller_rental;
+                  document.getElementById('credit_card').checked = viewData[0].fields.credit_card;
+                  document.getElementById('pet_friendly').checked = viewData[0].fields.pet_friendly;
+                  document.getElementById('parking').checked = viewData[0].fields.parking;
+                  document.getElementById('restroom').checked = viewData[0].fields.restroom;
+                  document.getElementById('elevator').checked = viewData[0].fields.elevator;
+                  document.getElementById('wheelchair_path').checked = viewData[0].fields.wheelchair_path;
+                  document.getElementById('wheelchair_rental').checked = viewData[0].fields.wheelchair_rental;
+
+                  // 모달 표시
+                  document.getElementById('comment-modal').style.display = 'block';
+                  document.getElementById('modi-submit').style.display = 'block';
+                  // document.getElementById('comment-submit').setAttribute('id', 'modi-btn');
+
+                  // 수정된 댓글을 제출할 때 기존 댓글 ID도 함께 보내기
+                  const commentSubmitButton = document.getElementById('comment-submit');
+                  commentSubmitButton.onclick = function() {
+                      updateComment(commentId);
+                  };
+                  } else {
+                      alert('댓글 정보를 불러오는 데 실패했습니다.');
+                  }
+              })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('댓글 정보를 불러오는 데 오류가 발생했습니다.');
+          });
+
         }
     
+        // 수정 데이터 전송하기
+        $(document).on('click', '#modi-submit', function(){
+          const content = $('#content').val(); // 댓글 내용 가져오기
+          const facilities = {
+            stroller_rental: $('#stroller_rental').prop('checked'),
+            credit_card: $('#credit_card').prop('checked'),
+            pet_friendly: $('#pet_friendly').prop('checked'),
+            parking: $('#parking').prop('checked'),
+            restroom: $('#restroom').prop('checked'),
+            elevator: $('#elevator').prop('checked'),
+            wheelchair_path: $('#wheelchair_path').prop('checked'),
+            wheelchair_rental: $('#wheelchair_rental').prop('checked'),
+          };
+          if (!content.trim()) {
+            alert('댓글 내용을 입력하세요.');
+            return;
+          }
+          fetch(`/place/comments/modify/${modi_commentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}', // CSRF 토큰 추가
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: content,
+                facilities: facilities,
+                place_id: placeId, // 체크된 시설 정보 전달
+            }),
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('댓글 수정에 실패했습니다.');
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data.success) {
+                  fetchComments(currentPage); // 댓글 새로고침
+                  $('#content').val(''); // 입력 필드 초기화
+                  alert('댓글이 수정되었습니다.');
+                  $('#modi-submit').hide(); // 버튼 숨김
+                  $('#comment-modal').hide(); // 모달 닫기
+              } else {
+                  alert('댓글 수정에 실패했습니다.');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('댓글 수정 중 오류가 발생했습니다.');
+          });
+
+        })
+
+        // 글 삭제
         function deleteComment(commentId) {
             if (confirm('정말 이 댓글을 삭제하시겠습니까?')) {
                 fetch(`/place/comments/delete/${commentId}/`, {
@@ -225,6 +359,57 @@
                     });
             }
         }
+        // 글 작성
+        $(document).on('click', '#comment-submit', function(){
+          const content = $('#content').val(); // 댓글 내용 가져오기
+          const facilities = {
+            stroller_rental: $('#stroller_rental').prop('checked'),
+            credit_card: $('#credit_card').prop('checked'),
+            pet_friendly: $('#pet_friendly').prop('checked'),
+            parking: $('#parking').prop('checked'),
+            restroom: $('#restroom').prop('checked'),
+            elevator: $('#elevator').prop('checked'),
+            wheelchair_path: $('#wheelchair_path').prop('checked'),
+            wheelchair_rental: $('#wheelchair_rental').prop('checked'),
+          };
+          if (!content.trim()) {
+            alert('댓글 내용을 입력하세요.');
+            return;
+          }
+          fetch('/place/comments/wirte/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}', // CSRF 토큰 추가
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: content,
+                facilities: facilities,
+                place_id: placeId, // 체크된 시설 정보 전달
+            }),
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('댓글 작성에 실패했습니다.');
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data.success) {
+                  fetchComments(currentPage); // 댓글 새로고침
+                  $('#content').val(''); // 입력 필드 초기화
+                  alert('댓글이 작성되었습니다.');
+                  $('#comment-modal').hide(); // 모달 닫기
+              } else {
+                  alert('댓글 작성에 실패했습니다.');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('댓글 작성 중 오류가 발생했습니다.');
+          });
+
+        })
     
         // 이벤트 리스너
         document.getElementById('prev-page').addEventListener('click', function () {
@@ -239,8 +424,30 @@
     
         // 초기 댓글 로드
         fetchComments(currentPage);
-    });
+      });
+
+      // 모달 열기 및 닫기 스크립트
+      document.getElementById("open-comment-modal").addEventListener("click", function () {
+        document.getElementById("comment-modal").style.display = "block";
+        document.getElementById('comment-submit').style.display = 'block';
+      });
+
+      document.getElementById("close-comment-modal").addEventListener("click", function () {
+        document.getElementById("comment-modal").style.display = "none";
+        document.getElementById('comment-submit').style.display = 'none';
+        document.getElementById('modi-submit').style.display = 'none';
+      });
+
+      window.addEventListener("click", function (event) {
+        const modal = document.getElementById("comment-modal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+          document.getElementById('comment-submit').style.display = 'none';
+          document.getElementById('modi-submit').style.display = 'none';
+        }
+      });
     </script>
+    
     <!-- 덧글 여기 까지-->
     <div id='tour_list' class='section'>
       <h3>주변 관광지</h3>
@@ -394,75 +601,7 @@
 
 </article>
 <script>
-  // 좋아요
-  document.querySelectorAll('.like-button').forEach(button => {
-    button.addEventListener('click', function () {
-        const postId = this.getAttribute('data-post-id');
-        const isLiked = this.getAttribute('data-liked') === 'true';
 
-        // 버튼 클릭 시 비활성화 (중복 클릭 방지)
-        this.disabled = true;
-
-        fetch(`/place/like/${postId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken = $('meta[name=csrf_token]').attr('content'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ liked: !isLiked })
-        })
-        .then(response => response.json())
-        .then(data => {
-            this.textContent = data.liked ? '좋아요 취소' : '좋아요';
-            this.setAttribute('data-liked', data.liked);
-            document.querySelector(`#like-count`).textContent = `${data.like_count}명이 좋아요를 눌렀습니다.`;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('좋아요 처리 중 오류가 발생했습니다.');
-        })
-        .finally(() => {
-            // 버튼 클릭 후 비활성화 해제
-            this.disabled = false;
-        });
-    });
-  });
-  
-  $('.not_login').click(function(){
-    alert('좋아요는 로그인을 하셔야 합니다.')
-  })
-  // 그래프
-  var ctx = document.getElementById('commentsChart').getContext('2d');
-  var commentsChart = new Chart(ctx, {
-      type: 'bar',  // 차트의 타입 (bar, line, pie 등)
-      data: {
-          labels: ['유모차 대여', '신용카드 사용', '애완동물 동반', '주차 시설', '화장실', '엘리베이터', '휠체어 통로', '휠체어 대여'],
-          datasets: [{
-              label: '있음 비율 (%)',
-              data: [
-                  {{ stats.stroller_rental|floatformat:2 }},
-                  {{ stats.credit_card|floatformat:2 }},
-                  {{ stats.pet_friendly|floatformat:2 }},
-                  {{ stats.parking|floatformat:2 }},
-                  {{ stats.restroom|floatformat:2 }},
-                  {{ stats.elevator|floatformat:2 }},
-                  {{ stats.wheelchair_path|floatformat:2 }},
-                  {{ stats.wheelchair_rental|floatformat:2 }}
-              ],
-              backgroundColor: 'rgba(54, 162, 235, 0.2)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1
-          }]
-      },
-      options: {
-          scales: {
-              y: {
-                  beginAtZero: true,
-                  max: 100  // 퍼센트이므로 100을 최대값으로 설정
-              }
-          }
-      }
-  });
 </script>
 
 {% endblock content %}  

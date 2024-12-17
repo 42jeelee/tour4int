@@ -4,12 +4,14 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from areacode.models import SigunguCode, AreaCode
 from place.models import Place, Like, Views, Comment
+from django.core import serializers # json타입 db에서 get으로 받을때
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+import json
 
 logger = logging.getLogger(__name__)
 from api import views
@@ -48,19 +50,6 @@ def local(request, areacode):
   return render(request, 'local.html', context)
 
 view_counts = defaultdict(int)
-
-from django.shortcuts import render
-
-from django.shortcuts import render
-from .models import Place, Views  # Place와 Views 모델 import
-import os
-from django.conf import settings
-
-from django.shortcuts import render
-from .models import Place, Views  # Place와 Views 모델 import
-import os
-from django.conf import settings
-
 def view(request, areacode, content_id):
     context = {'around': '', 'len': 0}
     range_offset = 0.004
@@ -210,11 +199,7 @@ def view(request, areacode, content_id):
         response.set_cookie(cookie_name, 'true', max_age=86400)
     return response
 
-
-
-    
-
-# testcode
+# 댓글리스트
 def comment_list(request, place_id):
     place = get_object_or_404(Place, place_id=place_id)
     comments = Comment.objects.filter(place=place).order_by('-created_at')
@@ -231,6 +216,7 @@ def comment_list(request, place_id):
     comment_data = [
         {
             'id': comment.id,
+            'user_id': comment.user.email if comment.user else None,
             'user': comment.user.nickname if comment.user else '삭제된 사용자',
             'content': comment.content,
             'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
@@ -246,9 +232,86 @@ def comment_list(request, place_id):
         'total_pages': paginator.num_pages,
     })
 
+# comment 삭제
+def delete_comment(request, comment_id):
+    if request.method == 'DELETE':
+        # 댓글을 삭제할 수 있는 권한 확인 (관리자 또는 작성자)
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user or request.user.is_superuser:
+            comment.delete()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'message': '권한이 없습니다.'}, status=403)
 
+    return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'}, status=400)
 
+# comment 작성
+def wirte_comment(request):
+    print('test')
+    if request.method == 'POST':
+        print('test2')
+        try:
+            # 요청에서 댓글 내용과 시설 정보 가져오기
+            data = json.loads(request.body)
 
+            content = data.get('content')
+            facilities = data.get('facilities')
+            placeId = data.get('place_id')
+            place = Place.objects.get(place_id=placeId)
+
+            if not content:
+                return JsonResponse({'success': False, 'message': '댓글 내용을 입력해주세요.'})
+            # 댓글 저장
+            user = request.user
+            comment = Comment.objects.create(
+                user=user,
+                place=place,
+                content=content,
+                stroller_rental=facilities['stroller_rental'],
+                credit_card=facilities['credit_card'],
+                pet_friendly=facilities['pet_friendly'],
+                parking=facilities['parking'],
+                restroom=facilities['restroom'],
+                elevator=facilities['elevator'],
+                wheelchair_path=facilities['wheelchair_path'],
+                wheelchair_rental=facilities['wheelchair_rental'],
+            )
+
+            # 댓글 저장 성공 시
+            return JsonResponse({'success': True, 'message': '댓글이 성공적으로 작성되었습니다.'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    else:
+        return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'})
+
+# comment 수정
+def modify_comment(request, comment_id):
+    context = {}
+    if request.method == 'GET':
+        comment = Comment.objects.get(id=comment_id)
+        if request.user != comment.user:
+            return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'})
+        context['data'] = serializers.serialize('json', [comment])
+        context['success'] = True
+    else:
+        data = json.loads(request.body)
+        content = data.get('content')
+        facilities = data.get('facilities')
+        comment = Comment.objects.get(id=comment_id)
+        comment.content = content
+        comment.stroller_rental = facilities['stroller_rental']
+        comment.credit_card=facilities['credit_card']
+        comment.pet_friendly=facilities['pet_friendly']
+        comment.parking=facilities['parking']
+        comment.restroom=facilities['restroom']
+        comment.elevator=facilities['elevator']
+        comment.wheelchair_path=facilities['wheelchair_path']
+        comment.wheelchair_rental=facilities['wheelchair_rental']
+        comment.save()
+        context['success'] = True
+    return JsonResponse(context)
 
 def like_content(request, content_id):
     place = get_object_or_404(Place, place_id=content_id)
