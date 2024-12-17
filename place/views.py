@@ -169,27 +169,8 @@ def view(request, areacode, content_id):
     context['display_fields'] = display_fields
 
     # 덧글 불러오기
-    comments = Comment.objects.filter(place=content_data[0]).order_by('-created_at')
 
-    # 전체 댓글 개수
-    total_comments = comments.count()
-
-    # 각 필드의 'True' 값 비율 계산 (페이징 이전의 전체 댓글을 기준으로)
-    if total_comments > 0:
-        stats = {
-            'stroller_rental': Comment.objects.filter(place=content_data[0], stroller_rental=True).count() / total_comments * 100,
-            'credit_card': Comment.objects.filter(place=content_data[0], credit_card=True).count() / total_comments * 100,
-            'pet_friendly': Comment.objects.filter(place=content_data[0], pet_friendly=True).count() / total_comments * 100,
-            'parking': Comment.objects.filter(place=content_data[0], parking=True).count() / total_comments * 100,
-            'restroom': Comment.objects.filter(place=content_data[0], restroom=True).count() / total_comments * 100,
-            'elevator': Comment.objects.filter(place=content_data[0], elevator=True).count() / total_comments * 100,
-            'wheelchair_path': Comment.objects.filter(place=content_data[0], wheelchair_path=True).count() / total_comments * 100,
-            'wheelchair_rental': Comment.objects.filter(place=content_data[0], wheelchair_rental=True).count() / total_comments * 100,
-        }
-    else:
-        stats = None
-
-    context['stats'] = stats
+    context['stats'] = graph_data(content_data[0])
 
     response = render(request, 'view.html', context)
     cookie_name = f'place_view_{content_id}'
@@ -232,24 +213,24 @@ def comment_list(request, place_id):
         'total_pages': paginator.num_pages,
     })
 
-# comment 삭제
+# comment 삭제 - 그래프 작업
 def delete_comment(request, comment_id):
     if request.method == 'DELETE':
         # 댓글을 삭제할 수 있는 권한 확인 (관리자 또는 작성자)
         comment = get_object_or_404(Comment, id=comment_id)
         if request.user == comment.user or request.user.is_superuser:
+            stats_data = comment.place
             comment.delete()
-            return JsonResponse({'success': True})
+            stats = graph_data(stats_data)
+            return JsonResponse({'success': True, 'stats':stats})
         else:
             return JsonResponse({'success': False, 'message': '권한이 없습니다.'}, status=403)
 
     return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'}, status=400)
 
-# comment 작성
+# comment 작성 - 그래프 작업
 def wirte_comment(request):
-    print('test')
     if request.method == 'POST':
-        print('test2')
         try:
             # 요청에서 댓글 내용과 시설 정보 가져오기
             data = json.loads(request.body)
@@ -276,9 +257,10 @@ def wirte_comment(request):
                 wheelchair_path=facilities['wheelchair_path'],
                 wheelchair_rental=facilities['wheelchair_rental'],
             )
+            stats = graph_data(place)
 
             # 댓글 저장 성공 시
-            return JsonResponse({'success': True, 'message': '댓글이 성공적으로 작성되었습니다.'})
+            return JsonResponse({'success': True, 'message': '댓글이 성공적으로 작성되었습니다.', 'stats':stats})
 
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
@@ -286,7 +268,7 @@ def wirte_comment(request):
     else:
         return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'})
 
-# comment 수정
+# comment 수정 - 그래프 작업
 def modify_comment(request, comment_id):
     context = {}
     if request.method == 'GET':
@@ -310,8 +292,34 @@ def modify_comment(request, comment_id):
         comment.wheelchair_path=facilities['wheelchair_path']
         comment.wheelchair_rental=facilities['wheelchair_rental']
         comment.save()
+        stats = graph_data(comment.place)
         context['success'] = True
+        context['stats'] = stats
     return JsonResponse(context)
+
+# 그래프 값 함수
+def graph_data(content_data):
+    comments = Comment.objects.filter(place=content_data).order_by('-created_at')
+
+    # 전체 댓글 개수
+    total_comments = comments.count()
+
+    # 각 필드의 'True' 값 비율 계산 (페이징 이전의 전체 댓글을 기준으로)
+    if total_comments > 0:
+        stats = {
+            'stroller_rental': Comment.objects.filter(place=comments[0].place, stroller_rental=True).count() / total_comments * 100,
+            'credit_card': Comment.objects.filter(place=comments[0].place, credit_card=True).count() / total_comments * 100,
+            'pet_friendly': Comment.objects.filter(place=comments[0].place, pet_friendly=True).count() / total_comments * 100,
+            'parking': Comment.objects.filter(place=comments[0].place, parking=True).count() / total_comments * 100,
+            'restroom': Comment.objects.filter(place=comments[0].place, restroom=True).count() / total_comments * 100,
+            'elevator': Comment.objects.filter(place=comments[0].place, elevator=True).count() / total_comments * 100,
+            'wheelchair_path': Comment.objects.filter(place=comments[0].place, wheelchair_path=True).count() / total_comments * 100,
+            'wheelchair_rental': Comment.objects.filter(place=comments[0].place, wheelchair_rental=True).count() / total_comments * 100,
+        }
+    else:
+        stats = None
+
+    return stats
 
 def like_content(request, content_id):
     place = get_object_or_404(Place, place_id=content_id)
