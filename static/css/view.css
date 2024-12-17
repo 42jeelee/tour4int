@@ -297,6 +297,10 @@ div.near_map > div.near_tap > a > span {
 }
 
 /* 덧글 */
+#comment > p{
+  font-weight: 500;
+  padding: 0 40px;
+}
 
 #comment-list {
   list-style-type: none; /* 기본 불릿 제거 */
@@ -306,12 +310,29 @@ div.near_map > div.near_tap > a > span {
 .comment-item {
   background-color: #fff;
   border-radius: 5px;
-  padding: 15px;
+  padding: 15px 40px;
   margin-bottom: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-#pagination {
+.comment-user{
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.comment-time{
+  font-size: 13px;
+  font-weight: 500;
+  color: #737373;
+}
+.comment-content{
+  margin: 20px 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.pagination {
   display: flex;
   justify-content: center;
   margin-top: 20px;
@@ -330,19 +351,16 @@ div.near_map > div.near_tap > a > span {
   padding: 5px 20px;
   margin: 0 5px;
   border-radius: 3px;
+  border: none;
+  background-color: white;
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.pagination-link:hover {
-  background-color: #007bff;
-  color: #fff;
 }
 
 .pagination-link[disabled] {
   color: #ccc;
   pointer-events: none;
 }
-
+/*  */
 .page-number {
   font-size: 1.2em;
   color: #333;
@@ -421,9 +439,10 @@ div.near_map > div.near_tap > a > span {
 }
 
 /* 닫기 버튼 */
-#comment-modal .close {
+#close-comment-modal{
   color: #aaa;
-  float: right;
+  display: flex;
+  justify-content: end;
   font-size: 24px;
   font-weight: bold;
   cursor: pointer;
@@ -470,14 +489,15 @@ div.near_map > div.near_tap > a > span {
   cursor: pointer;
   transition: background-color 0.3s ease;
   display: none;
+  justify-content: right;
 }
 
 #comment-main-title, #modi-main-title{
   display: none;
 }
 
-#open-comment-modal.btn-primary:hover,
-#comment-modal .btn-submit:hover {
+button.btn-edit:hover,
+button.btn-delete-admin:hover {
   background-color: #0056b3;
 }
 
@@ -491,7 +511,9 @@ div.near_map > div.near_tap > a > span {
 
 .btn-delete-admin, .btn-delete, .btn-edit{
   text-decoration: none;
-  color: #007bff;
+  background: #007bff;
+  color: white;
+  border: none;
   padding: 5px 20px;
   margin: 0 2px;
   border-radius: 3px;
@@ -507,3 +529,14 @@ div.near_map > div.near_tap > a > span {
     opacity: 1;
   }
 }
+
+/* 그래프 */
+#commentsChart {
+  width: 100%;
+  height: 600px;  /* 지정된 높이 */
+  padding: 20px; /* 내부 여백 */
+  margin: 0 0 25px;
+  border-radius: 10px;  /* 모서리 둥글게 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* 그림자 추가 */
+}
+
