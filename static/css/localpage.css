@@ -190,7 +190,8 @@ div.subject > span{
   display: flex;
   width: 100%;
   height: 100%;
-  justify-content: space-between;
+  justify-content: flex-start; /* 왼쪽 정렬 -> 리스트 1,2개만 있을시 중앙에 위치해서 gap으로 처리되도록 변경 */
+  gap: 30px; /* 요소 간의 간격 추가 */
 }
 
 .slideItem{

@@ -29,4 +29,5 @@ urlpatterns = [
     # 이메일 인증 코드 전송 엔드포인트
     path('send-verification-code/', views.send_verification_code, name='send_verification_code'),
     path('verify-email/', views.verify_email, name='verify_email'),
+    path('history/all', views.get_history, name='get_history'),
 ]

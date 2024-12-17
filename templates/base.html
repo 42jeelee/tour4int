@@ -92,10 +92,18 @@
             {% block sidebar %}
                 {% if user.is_authenticated %}
                     <div class="side-bar">
-                        <div class="side-bar__btn">전</div>
-                        <div class="side-bar__content">아</div>
-                        <div class="side-bar__content">아</div>
-                        <div class="side-bar__btn">후</div>
+                        <div class="side-bar__btn btn-up">
+                            <div class="side-bar__btn--arrow"></div>
+                        </div>
+                        <div id="side-like" class="side-bar__content">
+                            <div class="side-bar__content--icon icon-like"></div>
+                        </div>
+                        <div id="side-history" class="side-bar__content">
+                            <div class="side-bar__content--icon icon-history"></div>
+                        </div>
+                        <div class="side-bar__btn btn-down">
+                            <div class="side-bar__btn--arrow"></div>
+                        </div>
                     </div>
                 {% endif %}
             {% endblock %}

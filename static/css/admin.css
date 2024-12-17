@@ -67,7 +67,7 @@ body > div > div.banner > nav > ul > li, div.banner > nav > ul > a {
   cursor: pointer;
 }
 
-nav ul li:hover, .tabs li.active, div.banner > nav > ul > a{
+nav ul li:hover, .tabs li.active, div.banner > nav > ul > a:hover{
   background-color: #495057;
 }
 

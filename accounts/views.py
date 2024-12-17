@@ -8,6 +8,7 @@ from .forms import SignUpForm, LoginForm, UserUpdateForm, CustomPasswordChangeFo
 from .models import User, EmailVerification
 from .utils import send_verification_email
 from django.conf import settings
+from place.models import Place
 
 def signup_view(request):
     """
@@ -211,3 +212,27 @@ def delete_account(request):
         messages.success(request, '회원탈퇴가 완료되었습니다.')
         return redirect('/')  # 메인 페이지로 리다이렉트
     return redirect('accounts:mypage')
+
+
+@login_required
+def get_history(request):
+    context = {}
+    user = request.user
+
+    if user.place_history is not None and len(user.place_history) > 0:
+        places = user.place_history.split(',')
+        db_data = Place.objects.filter(place_id__in=places).values('place_id', 'title', 'sigungu_code__area_code__name', 'sigungu_code__name', 'image')
+
+        data = [ {'id': item['place_id'], 'area': f"{item['sigungu_code__area_code__name']} {item['sigungu_code__name']}", 'title': item['title'], 'image': item['image']} for item in db_data ]
+
+        if len(data) > 0:
+            context['result'] = 'success'
+            context['data'] = list(data)
+        else:
+            context['result'] = 'fail'
+            context['error'] = 'Not Found.'
+    else:
+        context['result'] = 'success'
+        context['data'] = []
+
+    return JsonResponse(context)
