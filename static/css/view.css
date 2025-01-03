@@ -56,20 +56,38 @@
 
 /* --- info --- */
 .view_wrap .info {
+  width: 100%;
   margin-top: 13px;
   text-align: center;
   color: #666;
   font-weight: 300;
-}
-
-.view_wrap .info button{
-  margin: 0 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .view_wrap .info span{
   margin: 0 10px;
   font-size: 16px;
 }
+
+.like-button {
+  font-size: 0;
+  width: 35px;
+  height: 25px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  background-image: url(/static/images/header-icons.png);
+  background-size: 200px;
+  background-position: -120px -43px;
+  background-repeat: no-repeat;
+}
+
+.like-button.liked {
+  background-position: -153.3px -42.5px;
+}
+
 
 /* photos */
 .view_wrap .view_photos {
