@@ -1,6 +1,7 @@
 .view_wrap{
   width: 1200px;
   padding: 95px 0 ;
+  user-select: text;
 }
 
 /* 뷰 헤더 */
@@ -94,6 +95,7 @@
   width: 820px;
   height: 544px;
   margin: 55px auto 0;
+  user-select: none;
 }
 
 .view_wrap .view_photos img{
@@ -212,12 +214,14 @@
   flex: 1 0;
   height: 755px;
   border: 1px solid #e0e0e0;
+  user-select: none;
 }
 
 .view_wrap .near_map {
   flex: 1 0 380px;
   max-width: 380px;
   margin-left: 30px;
+  user-select: text;
 }
 
 div.near_tap {
@@ -270,6 +274,7 @@ div.near_map > div.near_tap > a > span {
   display: flex;
   padding: 7px 0;
   border-bottom: 1px solid #e0e0e0;
+  user-select: none;
 }
 
 .near_map ul .item .near_photo {
@@ -287,6 +292,7 @@ div.near_map > div.near_tap > a > span {
 .near_map ul .item .cont{
   margin-left: 12px;
   max-width: 246px;
+  user-select: text;
 }
 .near_map ul .item .cont .near_subject{
   position: relative;
