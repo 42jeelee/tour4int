@@ -30,4 +30,5 @@ urlpatterns = [
     path('send-verification-code/', views.send_verification_code, name='send_verification_code'),
     path('verify-email/', views.verify_email, name='verify_email'),
     path('history/all', views.get_history, name='get_history'),
+    path('like/all', views.get_like, name='get_like'),
 ]
