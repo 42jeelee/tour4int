@@ -68,10 +68,6 @@ $(function() {
 
         const items = await sideBarContentItems(ccid);
 
-        if (items.length > 0) {
-          
-        }
-
         const itemCards = items.map(item => {
           const card = $("<div>", {
             id: item.id,
@@ -172,6 +168,24 @@ $(function() {
             if (result === "success") {
               resolve(data.data);
             } else reject([]);
+          },
+          error: function(e) {
+            console.log("실패 :", e);
+            reject([]);
+          }
+        });
+      });
+    } else if (cid === "side-like") {
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          url: "/accounts/like/all",
+          type: "get",
+          success: function(data) {
+            const { result } = data;
+  
+            if (result === 'success') {
+              resolve(data.data);
+            }else reject([]);
           },
           error: function(e) {
             console.log("실패 :", e);

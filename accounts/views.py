@@ -8,7 +8,7 @@ from .forms import SignUpForm, LoginForm, UserUpdateForm, CustomPasswordChangeFo
 from .models import User, EmailVerification
 from .utils import send_verification_email
 from django.conf import settings
-from place.models import Place
+from place.models import Place, Like
 
 def signup_view(request):
     """
@@ -225,14 +225,29 @@ def get_history(request):
 
         data = [ {'id': item['place_id'], 'area': f"{item['sigungu_code__area_code__name']} {item['sigungu_code__name']}", 'title': item['title'], 'image': item['image']} for item in db_data ]
 
-        if len(data) > 0:
+        sorted_data = sorted(data, key=lambda d: places.index(str(d['id'])))
+
+        if len(sorted_data) > 0:
             context['result'] = 'success'
-            context['data'] = list(data)
+            context['data'] = list(sorted_data)
         else:
             context['result'] = 'fail'
             context['error'] = 'Not Found.'
     else:
         context['result'] = 'success'
         context['data'] = []
+
+    return JsonResponse(context)
+
+@login_required
+def get_like(request):
+    context = {}
+    user = request.user
+    likes = Like.objects.filter(user=user)
+    
+    data = [ {'id': l.place.place_id, 'area': f"{l.place.sigungu_code.area_code.name} {l.place.sigungu_code.name}", 'title': l.place.title, 'image': l.place.image} for l in likes ]
+
+    context['result'] = "success"
+    context['data'] = data
 
     return JsonResponse(context)
