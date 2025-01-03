@@ -1,6 +1,7 @@
 header {
   width: 100%;
   min-width: 1340px;
+  user-select: none;
 }
 
 header > .header__container:first-child {
