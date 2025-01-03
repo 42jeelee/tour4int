@@ -29,13 +29,9 @@
     <div class='info'>
       {% if user.is_authenticated %}
           {% if like %}
-              <button class="like-button" data-liked="true" data-post-id="{{ data.place_id }}">
-                  <img src="{% static 'images/like.jpg' %}" alt="좋아요" class="like-icon">
-              </button>
+            <button class="like-button liked" data-liked="true" data-post-id="{{ data.place_id }}"></button>
           {% else %}
-              <button class="like-button" data-liked="false" data-post-id="{{ data.place_id }}">
-                  <img src="{% static 'images/like.jpg' %}" alt="좋아요 취소" class="like-icon">
-              </button>
+            <button class="like-button" data-liked="false" data-post-id="{{ data.place_id }}"></button>
           {% endif %}
       {% else %}
           <button class='not_login'>좋아요</button>

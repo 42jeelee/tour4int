@@ -55,14 +55,14 @@
 
 /* --- info --- */
 .view_wrap .info {
+  width: 100%;
   margin-top: 13px;
   text-align: center;
   color: #666;
   font-weight: 300;
-}
-
-.view_wrap .info button{
-  margin: 0 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .view_wrap .info span{
@@ -71,15 +71,22 @@
 }
 
 .like-button {
-  background: none; /* 기본 배경 제거 */
-  border: none; /* 테두리 제거 */
-  cursor: pointer; /* 포인터 커서로 변경 */
+  font-size: 0;
+  width: 35px;
+  height: 25px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  background-image: url(/static/images/header-icons.png);
+  background-size: 200px;
+  background-position: -120px -43px;
+  background-repeat: no-repeat;
 }
 
-.like-icon {
-  width: 24px; /* 아이콘 너비 */
-  height: 24px; /* 아이콘 높이 */
+.like-button.liked {
+  background-position: -153.3px -42.5px;
 }
+
 
 /* photos */
 .view_wrap .view_photos {
