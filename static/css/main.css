@@ -1,6 +1,7 @@
 main {
   width: 100%;
   min-width: 1340px;
+  user-select: none;
 }
 
 main > div.wrap {
@@ -26,6 +27,7 @@ main > div.wrap > div.side-bar {
   color: #BABABA;
   font-weight: 600;
   box-shadow: 3px 6px 8px 0px #bbbbbb;
+  user-select: none;
 }
 
 main > div.wrap > div.side-bar > div {
@@ -94,7 +96,7 @@ main > div.wrap > div.side-bar > .side-bar__content:hover > .side-bar__content--
 
 main > div.wrap > div.side-bar > .side-bar__content > .side-bar__content--icon.icon-like {
   background-size: 200px;
-  background-position: 2px -43px;
+  background-position: -125px -44px;
 }
 
 main > div.wrap > div.side-bar > .side-bar__content > .side-bar__content--icon.icon-history {

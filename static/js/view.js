@@ -37,10 +37,10 @@ document.querySelectorAll('.like-button').forEach(button => {
       })
       .then(response => response.json())
       .then(data => {
-          this.textContent = data.liked ? '좋아요 취소' : '좋아요';
-          this.setAttribute('data-liked', data.liked);
-          document.querySelector(`#like-count`).textContent = `${data.like_count}명이 좋아요를 눌렀습니다.`;
+        this.classList.toggle('liked', data.liked);
+        document.querySelector(`#like-count`).textContent = `${data.like_count}명이 좋아요를 눌렀습니다.`;
       })
+    
       .catch(error => {
           console.error('Error:', error);
           alert('좋아요 처리 중 오류가 발생했습니다.');
