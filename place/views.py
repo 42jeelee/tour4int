@@ -7,7 +7,7 @@ from place.models import Place, Like, Views, Comment
 from django.core import serializers # json타입 db에서 get으로 받을때
 import logging
 from collections import defaultdict
-from datetime import datetime, timedelta
+from django.utils import timezone
 import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -210,7 +210,7 @@ def comment_list(request, place_id):
             'user_id': comment.user.email if comment.user else None,
             'user': comment.user.nickname if comment.user else '삭제된 사용자',
             'content': comment.content,
-            'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
+            'created_at': timezone.localtime(comment.created_at).strftime('%Y-%m-%d %H:%M'),
         }
         for comment in page_obj.object_list
     ]
