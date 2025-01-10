@@ -244,6 +244,8 @@
     border-radius: 0 0 10px 10px;
     background: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    height: 126px;
 }
 
 .card-title {
@@ -254,10 +256,16 @@
 }
 
 .event-location {
-    font-size: 14px;
+    font-size: 0.85rem;
     color: #666;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: hidden;
 }
+
 
 .event-period {
     font-size: 14px;
