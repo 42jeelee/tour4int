@@ -233,3 +233,28 @@ def update_user(request):
         content['result'] = 'fail'
         content['message'] = '잘못된 요청입니다.'
     return JsonResponse(content)
+
+def delete_user(request):
+  content = {}
+  if request.method == "POST":
+      email = request.POST.get('email')
+      try:
+          user = User.objects.get(email=email)
+          # 추후 수정
+          user.is_active = False
+          # user.delete()
+          user.save()
+
+          content['result'] = 'success'
+          content['message'] = '회원탈퇴되었습니다.'
+          content['user'] = serializers.serialize('json', [user])
+      except User.DoesNotExist:
+          content['result'] = 'fail'
+          content['message'] = '사용자를 찾을 수 없습니다.'
+      except Exception as e:
+          content['result'] = 'fail'
+          content['message'] = str(e)
+  else:
+      content['result'] = 'fail'
+      content['message'] = '잘못된 요청입니다.'
+  return JsonResponse(content)

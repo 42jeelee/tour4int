@@ -54,12 +54,14 @@
                             </thead>
                             <tbody>
                                 {% for user in users %}
+                                {% if user.is_active %}
                                 <tr>
-                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
                                     <td>{{ user.nickname }}</td>
                                     <td>{{ user.created_at }}</td>
                                     <td><button id="editProfileBtn" class="user-btn">회원정보 수정</button></td>
                                 </tr>
+                                {% endif %}
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -314,6 +316,7 @@
                             <label for="user_address">주소</label>
                             <input type="text" id="user_address" name="user_address" class="form-input" required>
                             <button type="button" class="user-modibtn">수정 완료</button>
+                            <button type="button" class="user-delete">삭제</button>
                         </div>
                     </div>
                 </div>
