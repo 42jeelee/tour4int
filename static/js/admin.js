@@ -285,6 +285,30 @@ document.addEventListener('DOMContentLoaded', function() {
     usermodal.style.display = 'none';
   });
 
+  $(document).on('click', '.user-delete', function(){
+    var email = $('#user_email').val();
+    $.ajax({
+      headers: {'X-CSRFToken': csrfToken},
+      url: '/touradmin/delete_user/',
+      type: 'post',
+      data: {
+        'email': email
+      },
+      success: function(data) {
+        if(data.result === 'success') {
+          alert('회원탈퇴되었습니다.');
+          location.reload();
+        } else {
+          alert('회원탈퇴에 실패했습니다: ' + data.message);
+        }
+      },
+      error: function(xhr, status, error) {
+        alert('서버 오류가 발생했습니다: ' + xhr.responseText);
+      }
+    });
+    usermodal.style.display = 'none';
+  })
+
   // place 모달창 닫기
   placespan.onclick = function() {
     placemodal.style.display = "none";

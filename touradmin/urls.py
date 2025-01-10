@@ -11,6 +11,7 @@ urlpatterns = [
     path('update/', views.update, name='update'),
     path('get_user_view/', views.get_user_view, name='get_user_view'),
     path('update_user/', views.update_user, name='update_user'),
+    path('delete_user/', views.delete_user, name='delete_user'),
     path('upload-image/', views.image_upload, name='upload_image'),
     path('delete-image/', views.delete_image, name='delete_image'),
     path('add_banner/', views.add_banner, name='add_banner'),

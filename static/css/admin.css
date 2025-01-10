@@ -215,7 +215,7 @@ table button:hover {
   font-family: "Pretendard Variable";
 }
 
-.place-modal-content button, .user-modibtn {
+.place-modal-content button, .user-modibtn, .user-delete {
   background-color: #4CAF50;
   color: white;
   border: none;
