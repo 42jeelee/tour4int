@@ -3,7 +3,6 @@ $(function() {
   const main = $("main");
   const sideBar = main.find("div.wrap > .side-bar");
   const mainTop = main.offset().top;
-  const screenHeight = window.innerHeight;
   const sideBarBottom = sideBar.outerHeight() + 100;
   
   sideBar.css("top", getSideBarTop() + "px");
@@ -33,6 +32,7 @@ $(function() {
   
   function getSideBarTop(currTop=$(window).scrollTop()) {
     const sideBarEnd = main.outerHeight() - sideBar.outerHeight();
+    const screenHeight = window.innerHeight;
 
     let sideBarTop = currTop + screenHeight - mainTop - sideBarBottom;
 
