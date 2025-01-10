@@ -66,26 +66,6 @@
         background: #0077ed;
         transform: translateY(-1px);
     }
-    .btn-verify {
-        height: 50px;
-        min-width: 110px;
-        background: #0071e3;
-        border: none;
-        border-radius: 12px;
-        color: white;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 0 20px;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-    }
-    .btn-verify:hover {
-        background: #0077ed;
-    }
-    .btn-verify:disabled {
-        background: #d2d2d7;
-        cursor: not-allowed;
-    }
     .login-link {
         margin-top: 20px;
         text-align: center;
@@ -110,59 +90,9 @@
     .form-group {
         margin-bottom: 20px;
     }
-    .email-group {
-        display: flex;
-        gap: 10px;
-    }
-    .email-input {
-        flex: 1;
-    }
-    .verification-group {
-        display: none;
-        margin-top: 10px;
-    }
-    .verification-group.show {
-        display: block;
-        animation: slideDown 0.3s ease;
-    }
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    .timer {
-        font-size: 14px;
-        color: #86868b;
-        margin-top: 4px;
-    }
-    .messages {
-        margin-bottom: 20px;
-    }
-    .alert {
-        padding: 12px 16px;
-        border-radius: 12px;
-        font-size: 14px;
-        margin-bottom: 10px;
-    }
-    .alert-success {
-        background-color: #dff0d8;
-        border: 1px solid #d6e9c6;
-        color: #3c763d;
-    }
-    .alert-error {
-        background-color: #f2dede;
-        border: 1px solid #ebccd1;
-        color: #a94442;
-    }
     .address-wrapper {
         display: flex;
         gap: 10px;
-        margin-bottom: 16px;
     }
     .address-wrapper input[readonly] {
         background-color: #f5f5f7;
@@ -183,6 +113,27 @@
     .btn-address:hover {
         background: #0077ed;
     }
+    .messages {
+        margin-bottom: 20px;
+    }
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        margin-bottom: 10px;
+        background-color: #f5f5f7;
+        border: 1px solid #d2d2d7;
+    }
+    .alert-error {
+        background-color: #fff2f2;
+        border: 1px solid #ff3b30;
+        color: #ff3b30;
+    }
+    .alert-success {
+        background-color: #f0fff0;
+        border: 1px solid #28a745;
+        color: #28a745;
+    }
 </style>
 
 {# GSAP 애니메이션 라이브러리 로드 #}
@@ -200,60 +151,47 @@
     <div class="signup-box">
         <h2 class="signup-title">회원가입</h2>
         
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        {# 회원가입 폼 #}
-        {# - 이메일, 비밀번호, 이름, 닉네임, 주소 입력 필드 #}
-        {# - 각 필드별 유효성 검사와 에러 메시지 표시 #}
         <form method="post" id="signupForm">
             {% csrf_token %}
+            
+            {# 시스템 메시지 (성공 메시지 등) #}
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# 폼 필드와 에러 메시지 #}
             <div class="form-group">
                 <label class="form-label">이메일</label>
-                <div class="email-group">
-                    <div class="email-input">
-                        <input type="email" 
-                               name="email" 
-                               id="email" 
-                               class="form-control"
-                               required
-                               oninvalid="this.setCustomValidity(this.validity.valueMissing ? '이메일을 입력해주세요' : '올바른 이메일 형식이 아닙니다')"
-                               oninput="setCustomValidity(''); checkEmail(this)">
-                    </div>
-                    <button type="button" class="btn-verify" id="sendVerificationBtn" onclick="sendVerificationCode()">인증코드 받기</button>
-                </div>
-                <div class="verification-group" id="verificationGroup">
-                    <div class="email-group" style="margin-top: 10px;">
-                        <input type="text" 
-                               name="verification_code" 
-                               id="verificationCode" 
-                               class="form-control" 
-                               placeholder="인증코드 6자리 입력"
-                               maxlength="6" 
-                               pattern="\d{6}"
-                               required>
-                        <button type="button" class="btn-verify" onclick="verifyCode()">확인</button>
-                    </div>
-                    <div class="timer" id="verificationTimer"></div>
-                </div>
+                <input type="email" 
+                       name="email" 
+                       id="email" 
+                       class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                       required
+                       value="{{ form.email.value|default:'' }}"
+                       oninvalid="this.setCustomValidity('이메일을 입력해주세요')"
+                       oninput="this.setCustomValidity(''); checkEmail(this)">
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <div class="alert alert-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
             </div>
 
             {% for field in form %}
                 {% if field.name != 'email' %}
                 <div class="form-group">
-                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    <label class="form-label">{{ field.label }}</label>
                     {% if field.name == 'password1' or field.name == 'password2' %}
                         <input type="password" 
                                name="{{ field.name }}" 
                                id="{{ field.id_for_label }}" 
-                               class="form-control"
+                               class="form-control {% if field.errors %}is-invalid{% endif %}"
                                required
                                oninvalid="this.setCustomValidity('비밀번호를 입력해주세요')"
                                oninput="this.setCustomValidity('')">
@@ -270,22 +208,23 @@
                             <input type="text" 
                                    name="{{ field.name }}" 
                                    id="{{ field.id_for_label }}" 
-                                   class="form-control"
+                                   class="form-control {% if field.errors %}is-invalid{% endif %}"
+                                   value="{{ field.value|default:'' }}"
                                    required
                                    oninvalid="this.setCustomValidity('{{ field.label }}을(를) 입력해주세요')"
                                    oninput="this.setCustomValidity('')">
                         {% endif %}
                     {% endif %}
                     {% if field.errors %}
-                        <div class="alert alert-danger">
-                            {{ field.errors }}
-                        </div>
+                        {% for error in field.errors %}
+                            <div class="alert alert-error">{{ error }}</div>
+                        {% endfor %}
                     {% endif %}
                 </div>
                 {% endif %}
             {% endfor %}
             
-            <button type="submit" class="btn-signup" id="submitBtn" disabled>가입하기</button>
+            <button type="submit" class="btn-signup" id="submitBtn">가입하기</button>
         </form>
         
         {# 로그인 페이지 링크 #}
@@ -323,102 +262,23 @@
         });
     });
 
-    let verificationTimer;
-    let isEmailVerified = false;
-
-    function startTimer(duration) {
-        let timer = duration;
-        const timerDisplay = document.getElementById('verificationTimer');
-        
-        clearInterval(verificationTimer);
-        verificationTimer = setInterval(function() {
-            const minutes = Math.floor(timer / 60);
-            const seconds = timer % 60;
-
-            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-            if (--timer < 0) {
-                clearInterval(verificationTimer);
-                timerDisplay.textContent = '인증 시간이 만료되었습니다. 다시 시도해주세요.';
-            }
-        }, 1000);
-    }
-
-    function sendVerificationCode() {
-        const email = document.getElementById('email').value;
-        if (!email) {
-            alert('이메일을 입력해주세요.');
-            return;
-        }
-
-        fetch('{% url "accounts:send_verification_code" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: `email=${encodeURIComponent(email)}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('verificationGroup').classList.add('show');
-                document.getElementById('sendVerificationBtn').textContent = '재전송';
-                startTimer(300); // 5분 타이머
-            }
-            alert(data.message);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('인증코드 전송에 실패했습니다. 다시 시도해주세요.');
-        });
-    }
-
-    function verifyCode() {
-        const email = document.getElementById('email').value;
-        const code = document.getElementById('verificationCode').value;
-
-        fetch('{% url "accounts:verify_email" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: `email=${encodeURIComponent(email)}&verification_code=${encodeURIComponent(code)}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.success) {
-                isEmailVerified = true;
-                document.getElementById('email').readOnly = true;
-                document.getElementById('verificationCode').readOnly = true;
-                document.getElementById('sendVerificationBtn').disabled = true;
-                document.getElementById('submitBtn').disabled = false;
-                clearInterval(verificationTimer);
-                document.getElementById('verificationTimer').textContent = '이메일 인증이 완료되었습니다.';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('인증에 실패했습니다. 다시 시도해주세요.');
-        });
-    }
-
-    document.getElementById('signupForm').addEventListener('submit', function(e) {
-        if (!isEmailVerified) {
-            e.preventDefault();
-            alert('이메일 인증이 필요합니다.');
-        }
-    });
-
     function checkEmail(input) {
-        if (input.value === '') {
-            input.setCustomValidity('이메일을 입력해주세요');
-        } else if (!input.value.includes('@')) {
-            input.setCustomValidity('올바른 이메일 형식이 아닙니다');
-        } else {
-            input.setCustomValidity('');
+        const email = input.value;
+        if (email) {
+            fetch('/accounts/send-verification-code/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `email=${encodeURIComponent(email)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message);
+                }
+            });
         }
     }
 

@@ -85,7 +85,9 @@
                 <div class="card event-card">
                     <a href="{% url 'place:view' place.sigungu_code.area_code.area_code place.place_id %}" class="card-link">
                         <div class="card-image">
-                            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.image %}{{ place.image }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+                            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.image %}{{ place.image }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" 
+                                 alt="{{ place.title }}"
+                                 onerror="handleImageError(this);">
                         </div>
                         <div class="card-content">
                             <span class="event-location">{{ place.address }}</span>
@@ -102,7 +104,9 @@
                 <div class="card place-card">
                     <a href="{% url 'place:view' place.sigungu_code.area_code.area_code place.place_id %}" class="card-link">
                         <div class="card-image">
-                            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.image %}{{ place.image }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+                            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.image %}{{ place.image }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" 
+                                 alt="{{ place.title }}"
+                                 onerror="handleImageError(this);">
                         </div>
                         <div class="card-content">
                             <h3 class="card-title">{{ place.title }}</h3>
@@ -314,6 +318,20 @@
     border-radius: 5px;
 }
 </style>
+
+<!-- 이미지 실패 처리를 위한 JavaScript -->
+<script>
+function handleImageError(img) {
+    // 대체 이미지로 변경
+    img.onerror = null;
+    img.src = "{% static 'images/no-image.jpg' %}";
+    
+    // 카드 요소를 찾아서 마지막으로 이동
+    const card = img.closest('.card');
+    const container = card.parentElement;
+    container.appendChild(card);
+}
+</script>
 
 <!-- 검색 페이지 전용 스크립트 -->
 <script>
