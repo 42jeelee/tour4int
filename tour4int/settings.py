@@ -147,12 +147,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 커스텀 유저 모델
 AUTH_USER_MODEL = 'accounts.User'
-
-# 회원가입시 이메일 인증 코드 전송을 위한 설정
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='coo@739c.kr')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

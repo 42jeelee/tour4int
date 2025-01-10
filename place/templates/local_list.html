@@ -61,7 +61,7 @@
       <div class="card event-card">
         <a href="{% url 'place:view' areacode=areacode content_id=place.place_id %}" class="card-link">
           <div class="card-image">
-            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}" onerror="handleImageError(this);">
           </div>
           <div class="card-content">
             <span class="event-location">{{ place.address }}</span>
@@ -90,7 +90,7 @@
       <div class="card place-card">
         <a href="{% url 'place:view' areacode=areacode content_id=place.place_id %}" class="card-link">
           <div class="card-image">
-            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}">
+            <img src="{% if place.thumb_img %}{{ place.thumb_img }}{% elif place.first_image %}{{ place.first_image }}{% elif place.first_image2 %}{{ place.first_image2 }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" alt="{{ place.title }}" onerror="handleImageError(this);">
           </div>
           <div class="card-content">
             <h3 class="card-title">{{ place.title }}</h3>
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.innerHTML = `
                     <a href="/place/local/{{ areacode }}/view/${place.place_id}" class="card-link">
                         <div class="card-image">
-                            <img src="${place.thumb_img}" alt="${place.title}">
+                            <img src="${place.thumb_img}" alt="${place.title}" onerror="handleImageError(this);">
                         </div>
                         <div class="card-content">
                             ${locationHtml}
@@ -553,6 +553,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // 초기 상태 설정 실행
     setInitialState();
 });
+</script>
+
+<!-- 이미지 실패 처리를 위한 JavaScript -->
+<script>
+function handleImageError(img) {
+    // 대체 이미지로 변경
+    img.onerror = null;
+    img.src = "{% static 'images/no-image.jpg' %}";
+    
+    // 카드 요소를 찾아서 마지막으로 이동
+    const card = img.closest('.card');
+    const container = card.parentElement;
+    container.appendChild(card);
+}
 </script>
 
 {% endblock %}

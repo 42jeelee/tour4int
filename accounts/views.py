@@ -5,8 +5,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
 from .forms import SignUpForm, LoginForm, UserUpdateForm, CustomPasswordChangeForm
-from .models import User, EmailVerification
-from .utils import send_verification_email
+from .models import User
 from django.conf import settings
 from place.models import Place, Like
 
@@ -18,8 +17,6 @@ def signup_view(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            user.is_email_verified = True
-            user.save()
             login(request, user)
             messages.success(request, '환영합니다! 회원가입이 완료되었습니다. 즐거운 여행 되세요!')
             return redirect('index')
@@ -30,7 +27,7 @@ def signup_view(request):
 
 def send_verification_code(request):
     """
-    이메일 인증 코드 전송
+    이메일 중복 체크
     """
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -41,64 +38,10 @@ def send_verification_code(request):
                     'success': False,
                     'message': '이미 사용 중인 이메일 주소입니다.'
                 })
-            
-            try:
-                # 인증 코드 생성 및 저장
-                verification = EmailVerification.create_verification(email)
-                # 이메일 전송
-                send_verification_email(email, verification.verification_code)
-                return JsonResponse({
-                    'success': True,
-                    'message': '인증 코드가 이메일로 전송되었습니다.'
-                })
-            except Exception as e:
-                # 개발 환경에서만 상세 오류 메시지 표시
-                if settings.DEBUG:
-                    error_message = f'이메일 전송 실패: {str(e)}'
-                else:
-                    error_message = '이메일 전송에 실패했습니다. 다시 시도해주세요.'
-                
-                return JsonResponse({
-                    'success': False,
-                    'message': error_message
-                })
-    return JsonResponse({
-        'success': False,
-        'message': '잘못된 요청입니다.'
-    })
-
-def verify_email(request):
-    """
-    이메일 인증 코드 확인
-    """
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        code = request.POST.get('verification_code')
-        
-        try:
-            verification = EmailVerification.objects.get(
-                email=email,
-                verification_code=code,
-                is_verified=False,
-                expires_at__gt=timezone.now()
-            )
-            # 인증 성공
-            verification.is_verified = True
-            verification.save()
-            
-            # 세션에 인증된 이메일 저장
-            request.session['verified_email'] = email
             return JsonResponse({
                 'success': True,
-                'message': '이메일 인증이 완료되었습니다.'
+                'message': '사용 가능한 이메일입니다.'
             })
-            
-        except EmailVerification.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'message': '잘못된 인증 코드이거나 만료된 코드입니다.'
-            })
-    
     return JsonResponse({
         'success': False,
         'message': '잘못된 요청입니다.'
@@ -113,11 +56,13 @@ def login_view(request):
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=email, password=password)
-            if user:
+            user = authenticate(request, email=email, password=password)
+            if user is not None:
                 login(request, user)
                 messages.success(request, '로그인 성공!')
                 return redirect('index')
+            else:
+                messages.error(request, '이메일 또는 비밀번호가 올바르지 않습니다.')
     else:
         form = LoginForm()
     
@@ -212,7 +157,6 @@ def delete_account(request):
         messages.success(request, '회원탈퇴가 완료되었습니다.')
         return redirect('/')  # 메인 페이지로 리다이렉트
     return redirect('accounts:mypage')
-
 
 @login_required
 def get_history(request):
