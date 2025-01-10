@@ -61,8 +61,6 @@ def login_view(request):
                 login(request, user)
                 messages.success(request, '로그인 성공!')
                 return redirect('index')
-            else:
-                messages.error(request, '이메일 또는 비밀번호가 올바르지 않습니다.')
     else:
         form = LoginForm()
     

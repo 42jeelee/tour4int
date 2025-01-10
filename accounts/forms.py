@@ -118,15 +118,10 @@ class LoginForm(forms.Form):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
         
-        if email:
-            # 먼저 이메일 존재 여부 확인
-            if not User.objects.filter(email=email).exists():
-                raise ValidationError('등록되지 않은 이메일입니다.')
-            
-            # 이메일이 존재하면 비밀번호 확인
+        if email and password:
             user = authenticate(username=email, password=password)
-            if not user and password:
-                raise ValidationError('비밀번호가 올바르지 않습니다.')
+            if not user:
+                raise ValidationError('아이디 또는 비밀번호가 올바르지 않습니다.')
             
         return self.cleaned_data
 
