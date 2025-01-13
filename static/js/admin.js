@@ -445,7 +445,6 @@ $(document).on('click', '#add_banner', function(){
 $(document).on('click', '#modibanner', function(){
   if(confirm('수정 합니다.')){
     var image_no = $(this).closest('tr').attr('id')
-    alert(image_no)
     var datapath = $(this).closest('tr').children()
     var check = datapath.eq(3).children().eq(0)
 
